@@ -1,0 +1,8 @@
+
+---
+titre : Contenu du cours
+chapitres:
+    - nom : "Optimisation et Performance"
+      paragraphes :
+      - Comprendre l'importance de la vectorisation pour éviter les boucles lentes. 
+      - Introduction aux outils d'analyse exploratoire et de visualisation rapide intégrée. 

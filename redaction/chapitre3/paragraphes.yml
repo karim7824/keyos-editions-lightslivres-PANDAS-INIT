@@ -1,0 +1,9 @@
+
+---
+titre : Contenu du cours
+chapitres:
+    - nom : "Opérations sur les données"
+      paragraphes :
+      - Tri, itération sur les lignes et modification. 
+      - Utilisation avancée des fonctions `apply` et `pipe` pour les transformations. 
+      - Recherches et critères de filtrage. 

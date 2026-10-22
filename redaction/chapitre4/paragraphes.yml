@@ -1,0 +1,8 @@
+
+---
+titre : Contenu du cours
+chapitres:
+    - nom : "Nettoyage et préparation (Data Wrangling)"
+      paragraphes :
+      - Gestion des données invalides (`NaN`). 
+      - Manipulation de texte avec l'objet `.str` et son API dédiée. 
