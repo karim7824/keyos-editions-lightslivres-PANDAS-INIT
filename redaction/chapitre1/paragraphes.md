@@ -155,16 +155,113 @@ print(ser.describe())
 
 ```
 
-## Opérations arithmétiques
+## Opérations arithmétiques et alignement automatique
 
-Pandas aligne automatiquement les données en fonction de leurs index lors des calculs arithmétiques. Cette fonctionnalité permet d'effectuer des opérations entre deux Series sans se soucier de l'ordre des éléments.
+Contrairement aux tableaux NumPy ou aux listes Python classiques qui s'appuient uniquement sur la position des éléments, Pandas effectue toutes ses opérations arithmétiques **en s'appuyant sur les index (les étiquettes)**.
+
+Cette fonctionnalité majeure, appelée **alignement automatique**, garantit que les calculs sont effectués entre les bonnes données, même si les séries n'ont pas le même ordre ou ne partagent pas exactement les mêmes clés.
+
+### Tableau récapitulatif des opérations arithmétiques
+
+| Opération | Opérateur | Méthode Pandas équivalente | Description |
+| --- | --- | --- | --- |
+| **Addition** | `+` | `.add()` | Additionne les éléments correspondants |
+| **Soustraction** | `-` | `.sub()` | Soustrait les éléments correspondants |
+| **Multiplication** | `*` | `.mul()` | Multiplie les éléments correspondants |
+| **Division** | `/` | `.div()` | Divise les éléments correspondants |
+| **Puissance** | `**` | `.pow()` | Élève à la puissance |
+
+---
+
+### Opération avec un scalaire (Broadcasting)
+
+Lorsqu'on applique une opération mathématique entre une `Series` et une valeur unique (un scalaire), cette valeur est « diffusée » à l'ensemble des éléments de la série.
 
 ```python
-# Addition automatique selon les index communs
-resultat = ser_arr + 5
+import pandas as pd
 
-# Opération entre deux Series
-totaux = ser_arr + ser_arr
+# Series initiale de prix
+prix = pd.Series([100, 200, 300], index=['A', 'B', 'C'])
+
+# Ajout d'une taxe fixe de 20 sur tous les éléments
+prix_avec_taxe = prix + 20
+print(prix_avec_taxe)
+# A    120
+# B    220
+# C    320
+# dtype: int64
+
+```
+
+### Addition de deux `Series` aux index parfaitement identiques
+
+Si deux `Series` possèdent exactement les mêmes index, l'opération s'effectue élément par élément de manière classique.
+
+```python
+qte_magasin_1 = pd.Series([10, 5, 8], index=['Pommes', 'Poires', 'Bananes'])
+qte_magasin_2 = pd.Series([5, 2, 3], index=['Pommes', 'Poires', 'Bananes'])
+
+# Somme des stocks des deux magasins
+stock_total = qte_magasin_1 + qte_magasin_2
+print(stock_total)
+# Pommes     15
+# Poires      7
+# Bananes    11
+# dtype: int64
+
+```
+
+### Alignement automatique sur des index partiels ou décalés
+
+C'est la grande force de Pandas. Si les index diffèrent, Pandas aligne les étiquettes communes et attribue automatiquement la valeur manquante **`NaN`** (Not a Number) là où une correspondance est introuvable.
+
+```python
+ventes_janvier = pd.Series([100, 150], index=['Paris', 'Lyon'])
+ventes_fevrier = pd.Series([120, 200, 90], index=['Lyon', 'Marseille', 'Paris'])
+
+# Addition de deux séries aux index asymétriques
+total_ventes = ventes_janvier + ventes_fevrier
+print(total_ventes)
+# Lyon         270.0  (150 + 120)
+# Marseille    NaN    (Absent en janvier)
+# Paris        190.0  (100 + 90)
+# dtype: float64
+
+```
+
+### Multiplication et propagation des types flottants
+
+Les opérations arithmétiques transforment souvent le type des données (par exemple, des entiers `int64` passent en nombres à virgule `float64` dès qu'un `NaN` ou une division intervient).
+
+```python
+notes = pd.Series([12, 15, 18], index=['Maths', 'Physique', 'Chimie'])
+coefficient = pd.Series([2, 3, 1.5], index=['Maths', 'Physique', 'Chimie'])
+
+# Calcul des notes pondérées
+notes_ponderees = notes * coefficient
+print(notes_ponderees)
+# Maths       24.0
+# Physique    45.0
+# Chimie      27.0
+# dtype: float64
+
+```
+
+### Gestion des valeurs manquantes avec les méthodes dédiées (`fill_value`)
+
+Pour éviter l'apparition de `NaN` lors d'une opération sur des index non concordants (comme dans l'exemple 3), il est possible d'utiliser la méthode explicite associée (ex: `.add()`) en spécifiant un paramètre de remplacement `fill_value`.
+
+```python
+stock_A = pd.Series([10, 20], index=['Clavier', 'Souris'])
+stock_B = pd.Series([15, 30], index=['Souris', 'Ecran'])
+
+# Addition en remplaçant les valeurs absentes par 0 avant le calcul
+stock_global = stock_A.add(stock_B, fill_value=0)
+print(stock_global)
+# Clavier    10.0  (10 + 0 pour l'écran absent dans B)
+# Ecran      30.0  (0 + 30 pour l'écran absent dans A)
+# Souris     35.0  (20 + 15)
+# dtype: float64
 
 ```
 
