@@ -1,8 +1,0 @@
-
----
-titre : Contenu du cours
-chapitres:
-    - nom : "Présentation de l'API Pandas."
-      paragraphes :
-      - Gestion des Series : création, indexation, opérations vectorisées, et transformation. 
-      - Indexation avancée (attributs `.loc` et `.iloc`) pour la sélection. 

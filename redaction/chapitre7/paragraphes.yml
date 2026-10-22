@@ -1,8 +1,0 @@
-
----
-titre : Contenu du cours
-chapitres:
-    - nom : "Jointures et fusion de données"
-      paragraphes :
-      - Concaténation de structures de données (`concat`). 
-      - Jointures complexes (type SQL) pour fusionner plusieurs sources de données (`merge`, `join`). 

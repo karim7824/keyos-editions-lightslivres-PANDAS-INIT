@@ -1,8 +1,0 @@
-
----
-titre : Contenu du cours
-chapitres:
-    - nom : "Statistiques et agrégations"
-      paragraphes :
-      - Calculs de statistiques descriptives sur les données. 
-      - Groupement de données (`groupby`) pour l'analyse par catégories. 

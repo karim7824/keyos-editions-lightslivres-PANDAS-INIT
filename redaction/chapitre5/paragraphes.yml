@@ -1,8 +1,0 @@
-
----
-titre : Contenu du cours
-chapitres:
-    - nom : "Gestion des dates et séries temporelles"
-      paragraphes :
-      - Utilisation des modèles de temps : `Timestamp`, `Datetime`, `Timedelta` et `Period`. 
-      - Manipulation de plages temporelles avec `period_range`. 

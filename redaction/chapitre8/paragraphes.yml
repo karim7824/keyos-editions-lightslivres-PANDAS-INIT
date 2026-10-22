@@ -1,8 +1,0 @@
-
----
-titre : Contenu du cours
-chapitres:
-    - nom : "Persistance et formats de fichiers"
-      paragraphes :
-      - Lecture et écriture de fichiers CSV. 
-      - Persistance des données via le format Pickle. 

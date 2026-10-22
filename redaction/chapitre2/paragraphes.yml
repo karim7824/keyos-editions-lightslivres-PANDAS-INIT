@@ -1,9 +1,0 @@
-
----
-titre : Contenu du cours
-chapitres:
-    - nom : "Création et manipulation de DataFrames"
-      paragraphes :
-      - Organisation interne d'un DataFrame et propriétés. 
-      - Créations multiples : depuis des listes, des tuples, des dictionnaires, ou des listes de dictionnaires. 
-      - Sélection de parties de DataFrame (extraction par position). 

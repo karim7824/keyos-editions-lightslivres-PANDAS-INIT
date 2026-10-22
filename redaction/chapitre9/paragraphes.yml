@@ -1,8 +1,0 @@
-
----
-titre : Contenu du cours
-chapitres:
-    - nom : "Gestion des structures multidimensionnelles"
-      paragraphes :
-      - Introduction aux Panel Data et organisation interne 
-      - Utilisation du `MultiIndex` pour gérer des dimensions de données complexes. 
