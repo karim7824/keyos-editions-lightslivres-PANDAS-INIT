@@ -217,6 +217,8 @@ print(sous_serie)
 
 ```
 
+---
+
 ### Extraction d'attributs temporels via l'accesseur `.dt`
 
 Une fois l'index ou les données typés en temps, l'accesseur `.dt` offre une multitude de propriétés pour extraire instantanément des composantes calendaires (année, mois, jour, nom du jour, etc.).
