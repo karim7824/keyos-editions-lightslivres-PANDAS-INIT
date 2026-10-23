@@ -43,7 +43,9 @@ ser = pd.Series([10, 20], index=['a', 'b'])
 **L'alignement automatique :** Lors d'opérations arithmétiques entre deux `Series`, Pandas aligne automatiquement les données en fonction de leurs labels et non de leur position dans le tableau, évitant ainsi de nombreuses erreurs de correspondance.
 
 **La gestion des données manquantes :** Si un label est absent lors d'une opération ou d'une fusion, Pandas gère l'incompatibilité en y associant proprement une valeur nulle (`NaN`), là où un `ndarray` provoquerait une erreur de dimension.
- 
+
+---
+
 ## Méthodes de création d'une `Series`
 
 Les `Series` peuvent être instanciées à partir de diverses structures de données en Python ou NumPy. Selon la source utilisée, Pandas sait interpréter automatiquement les données ou vous permet de spécifier un index sur mesure.
@@ -115,6 +117,8 @@ print(ser_scalaire)
 # dtype: int64
 
 ```
+---
+
 ## Attributs et méthodes d'inspection d'une `Series`
 
 Une fois une `Series` créée, il est indispensable de pouvoir interroger sa structure, sa taille et ses métadonnées. Pandas met à disposition un ensemble d'attributs et de méthodes légers (qui ne nécessitent pas de calculs lourds) pour inspecter rapidement l'objet.
@@ -153,6 +157,7 @@ print("\nRésumé statistique :")
 print(ser.describe())
 
 ```
+--- 
 
 ## Les `Series` temporelles : gestion des dates et du temps
 
@@ -233,6 +238,7 @@ print(mois)
 # Sortie : Index([10, 10, 10, 10, 10], dtype='int32')
 
 ```
+--- 
 
 ## La conversion de type dans une `Series` (`.astype()`)
 
@@ -317,6 +323,7 @@ print(statuts_bool)
 
 ```
 --- 
+
 ## Opérations arithmétiques et alignement automatique
 
 Contrairement aux tableaux NumPy ou aux listes Python classiques qui s'appuient uniquement sur la position des éléments, Pandas effectue toutes ses opérations arithmétiques **en s'appuyant sur les index (les étiquettes)**.
@@ -532,6 +539,7 @@ print(villes_peuplees)
 # dtype: float64
 
 ```
+--- 
 
 ## Travailler et manipuler les index d'une `Series`
 
@@ -692,6 +700,8 @@ print(saisons)
 
 ```
 
+--- 
+
 ## Exemple de synthèse 
 
 Pour illustrer la puissance combinée des fonctionnalités de base des `Series`, imaginons le suivi du chiffre d'affaires journalier d'un site e-commerce sur une semaine. Ce script complet montre comment structurer, nettoyer, transformer et analyser ces données de bout en bout :
@@ -741,6 +751,8 @@ print(chiffre_affaires.describe())
 * **L'alignement automatique et `.reindex()**` évitent les erreurs lors de la manipulation de séries asymétriques ou incomplètes.
 * **La vectorisation** permet d'appliquer instantanément des calculs mathématiques globaux sans utiliser de boucles `for`.
 * **Le filtrage booléen** isole en une seule ligne les données répondant à un critère métier précis.
+
+--- 
 
 ## Exercices de fin de chapitre
 
