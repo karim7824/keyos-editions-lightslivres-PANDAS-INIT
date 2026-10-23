@@ -18,13 +18,12 @@ Une Series diffère d'un ndarray (tableau NumPy) principalement par la présence
 
 Pour bien saisir la spécificité d'une `Series`, il est utile de la comparer au `ndarray` NumPy dont elle hérite la performance et la logique de calcul vectorisé :
 
-* **Le `ndarray` (NumPy) :**
+**Le `ndarray` (NumPy) :**
 - Possède uniquement un **index implicite** d'entiers positionnels (de `0` à `N-1`).
 - L'accès aux éléments se fait exclusivement par leur position numérique.
 - Idéal pour le calcul mathématique pur, mais aveugle au sens sémantique des données (ex: impossible de lier directement une valeur à un nom de client ou à une date sans gérer un tableau parallèle).
 
-
-* **La `Series` (Pandas) :**
+**La `Series` (Pandas) :**
 * Est composée de **deux tableaux unidimensionnels couplés** : les **valeurs** (`values`) et les **labels** (`index`).
 * L'index peut contenir des chaînes de caractères, des dates, ou des entiers personnalisés.
 * Offre une **sémantique métier** : chaque valeur est explicitement étiquetée.
