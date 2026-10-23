@@ -48,8 +48,6 @@ ser = pd.Series([10, 20], index=['a', 'b'])
 
 Les `Series` peuvent être instanciées à partir de diverses structures de données en Python ou NumPy. Selon la source utilisée, Pandas sait interpréter automatiquement les données ou vous permet de spécifier un index sur mesure.
 
-Voici les 4 principales méthodes de création à retenir :
-
 À partir d'une liste (ou d'un tuple) Python. C'est la méthode la plus simple pour démarrer. Si aucun index n'est explicitement fourni, Pandas génère automatiquement un index positionnel entier allant de `0` à `N-1`.
 
 ```python
@@ -241,8 +239,6 @@ print(mois)
 Lors de l'importation de données (provenant de fichiers CSV, JSON ou d'API), il arrive fréquemment que les types de données (`dtype`) ne soient pas adaptés aux calculs que vous souhaitez réaliser. Par exemple, des chiffres peuvent être interprétés comme du texte (chaînes de caractères), ou des nombres entiers peuvent nécessiter d'être convertis en nombres à virgule pour intégrer des valeurs manquantes (`NaN`).
 
 La méthode **`.astype()`** est l'outil fondamental de Pandas pour convertir explicitement le type des valeurs d'une `Series`.
-
-Voici 4 exemples pratiques pour maîtriser la conversion de types :
 
 ### Conversion de texte en nombres entiers (`int`)
 
@@ -541,7 +537,7 @@ print(villes_peuplees)
 
 L'index d'une `Series` ne se contente pas d'étiqueter les données : c'est un véritable outil de pilotage. Il est possible de le modifier, de le renommer partiellement, de réindexer la série ou d'extraire des sous-ensembles ciblés pour adapter la structure de vos données en cours d'analyse.
 
-Voici 4 méthodes essentielles pour manipuler les index :
+Méthodes essentielles pour manipuler les index :
 
 ### Modification globale directe de l'index (`.index = ...`)
 
@@ -613,7 +609,7 @@ print(subset)
 
 La transformation consiste à modifier, normaliser ou enrichir les données contenues dans une `Series`. Selon la complexité du traitement à réaliser, Pandas propose plusieurs approches : les **opérations vectorisées** (les plus rapides), l'utilisation de fonctions via **`.apply()`**, ou le remplacement par correspondance via **`.map()`**.
 
-Voici 4 méthodes essentielles pour transformer vos données :
+Méthodes essentielles pour transformer vos données :
 
 ### La transformation vectorisée (L'approche native et recommandée)
 
@@ -740,8 +736,6 @@ print("\n--- 5. Résumé statistique global du CA ---")
 print(chiffre_affaires.describe())
 
 ```
-
-### Ce qu'il faut retenir de ce cas pratique 
 
 * **L'indexation sémantique et temporelle** permet de manipuler les données par date de manière intuitive.
 * **L'alignement automatique et `.reindex()**` évitent les erreurs lors de la manipulation de séries asymétriques ou incomplètes.
