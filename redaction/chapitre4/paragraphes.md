@@ -110,3 +110,67 @@ print(df[['Produit', 'Prix_HT', 'Prix_Remise']])
 ```
 
 ---
+## Exemple de synthèse
+
+Le nettoyage et l'enrichissement du catalogue e-commerce. Imaginons que nous récupérons un fichier de données brut comportant des codes de catégories chiffrés et des prix bruts. Notre objectif est de :
+
+**Filtrer** les articles disponibles et dont le prix dépasse un certain seuil.
+**Traduire** les codes de catégories en libellés explicites grâce à un dictionnaire de mapping.
+**Appliquer** une fonction de calcul personnalisée pour simuler un nouveau tarif promotionnel.
+
+```python
+import pandas as pd
+
+# Données brutes issues de l'importation
+df_brut = pd.DataFrame({
+    'Reference': ['SKU-01', 'SKU-02', 'SKU-03', 'SKU-04', 'SKU-05'],
+    'Produit': ['Clavier', 'Souris', 'Casque', 'Webcam', 'Tapis'],
+    'Code_Cat': [10, 20, 30, 20, 10],
+    'Prix_Brut': [60.0, 25.0, 120.0, 85.0, 15.0],
+    'En_Stock': [True, False, True, True, True]
+})
+
+print("--- 1. Données brutes d'origine ---")
+print(df_brut)
+
+# ==========================================
+# APPLICATION DU FILTRAGE ET DU MAPPING
+# ==========================================
+
+# Filtrer uniquement les produits en stock ET dont le prix dépasse 20€
+# (Utilisation d'un masque booléen combiné)
+df_filtre = df_brut[(df_brut['En_Stock'] == True) & (df_brut['Prix_Brut'] > 20)].copy()
+
+# Mappage des codes de catégories vers des libellés métier explicites
+dictionnaire_categories = {
+    10: 'Accessoires',
+    20: 'Périphériques',
+    30: 'Audio & Son'
+}
+df_filtre['Categorie'] = df_filtre['Code_Cat'].map(dictionnaire_categories)
+
+# Appliquer une fonction personnalisée (.apply) : Remise de 15% sur les prix
+df_filtre['Prix_Promo'] = df_filtre['Prix_Brut'].apply(lambda x: round(x * 0.85, 2))
+
+# ==========================================
+# SÉLECTION FINALE (Propreté du rapport)
+# ==========================================
+# On isole uniquement les colonnes pertinentes pour l'analyse
+df_synthese = df_filtre[['Reference', 'Produit', 'Categorie', 'Prix_Brut', 'Prix_Promo']]
+
+print("\n--- 3. Tableau de synthèse final (Filtré, Mappé et Calculé) ---")
+print(df_synthese)
+
+```
+
+---
+
+### Les clés de la réussite à rappeler à votre lecteur :
+
+**Le filtrage se fait sur les lignes** via des conditions booléennes (`df[...]` ou `.query()`), tandis que `.filter()` est réservé aux étiquettes de colonnes ou d'index.
+**Le `.map()` est l'outil roi** pour enrichir une colonne à partir d'un dictionnaire de correspondance, à condition de bien anticiper la gestion des valeurs inconnues (`NaN`).
+**Le `.apply()` offre une flexibilité totale** pour injecter du code Python personnalisé (comme des fonctions `lambda`) lorsque les opérations vectorisées de base ne suffisent plus.
+
+## Exercices de fin de chapitre
+**Exercice 1:**
+**Exercice 2:**
