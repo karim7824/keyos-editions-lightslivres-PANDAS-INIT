@@ -168,9 +168,13 @@ print(df_synthese)
 ### Les clés de la réussite à rappeler à votre lecteur :
 
 **Le filtrage se fait sur les lignes** via des conditions booléennes (`df[...]` ou `.query()`), tandis que `.filter()` est réservé aux étiquettes de colonnes ou d'index.
+
 **Le `.map()` est l'outil roi** pour enrichir une colonne à partir d'un dictionnaire de correspondance, à condition de bien anticiper la gestion des valeurs inconnues (`NaN`).
+
 **Le `.apply()` offre une flexibilité totale** pour injecter du code Python personnalisé (comme des fonctions `lambda`) lorsque les opérations vectorisées de base ne suffisent plus.
 
 ## Exercices de fin de chapitre
+
 **Exercice 1:**
+
 **Exercice 2:**
