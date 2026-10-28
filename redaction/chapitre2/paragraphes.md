@@ -761,7 +761,7 @@ print("\nPremier produit (position 0) :\n", premier_produit[['Nom', 'Prix_TTC']]
 
 --- 
 
-### Exercices de fin de chapitre
+## Exercices de fin de chapitre
 
 **Exercice 1** Importez un petit fichier CSV de votre choix et affichez les noms des colonnes à l'aide de l'attribut approprié.
 
