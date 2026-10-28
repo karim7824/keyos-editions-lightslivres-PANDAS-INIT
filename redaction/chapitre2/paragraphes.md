@@ -219,7 +219,25 @@ print(matrice_brute)
 print(type(matrice_brute))  # Affiche : <class 'numpy.ndarray'>
 
 ```
+---
+## Gestion des données invalides (`NaN`)
 
+Les valeurs manquantes, représentées par `NaN` (Not a Number), sont fréquentes dans les jeux de données réels. Pandas propose des méthodes robustes pour identifier, supprimer ou remplacer ces valeurs afin d'éviter des erreurs lors de vos calculs.
+
+```python
+import pandas as pd
+import numpy as np
+
+# Création d'un DataFrame avec des valeurs manquantes
+df = pd.DataFrame({'A': [1, np.nan, 3], 'B': [4, 5, np.nan]})
+
+# Supprimer les lignes contenant au moins un NaN
+df_clean = df.dropna()
+
+# Remplacer les NaN par une valeur spécifique (ex: 0)
+df_filled = df.fillna(0)
+
+```
 ---
 
 ## Créations multiples : listes, tuples et dictionnaires
