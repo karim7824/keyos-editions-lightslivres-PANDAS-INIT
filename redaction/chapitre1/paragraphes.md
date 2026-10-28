@@ -1,4 +1,4 @@
-# Chapitre 1 : Gestion de Series
+# Chapitre 1 : Création et manipulation de Series
 
 Les `Series` constituent la structure de données unidimensionnelle fondamentale de Pandas, conçue pour stocker et manipuler efficacement des séquences de valeurs. Si elles s'apparentent de prime abord à un tableau unidimensionnel, elles se distinguent radicalement des `ndarray` de NumPy par un concept clé : **l'indexation explicite par étiquettes (labels)**.
 
