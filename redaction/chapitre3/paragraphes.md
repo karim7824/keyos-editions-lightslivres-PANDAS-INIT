@@ -150,7 +150,7 @@ Le filtrage consiste à extraire uniquement les lignes qui répondent à une ou 
 
 ### Exemple 1 : 
 
-Isoler un catalogue avant une modification de prix. Si tu souhaites créer une grille tarifaire promotionnelle à partir de ton catalogue principal sans modifier les prix de base d'origine :
+Isoler un catalogue avant une modification de prix et créer une grille tarifaire promotionnelle à partir du catalogue principal sans modifier les prix de base d'origine :
 
 ```python
 import pandas as pd
