@@ -120,11 +120,11 @@ df_factures.to_xml(
 
 ### Synthèse des méthodes de persistance
 
-| Format | Fonction de lecture | Méthode d'écriture | Cas d'usage principal | Piège à éviter |
-| --- | --- | --- | --- | --- |
-| **CSV** | `pd.read_csv()` | `df.to_csv()` | Tableaux plats, exports Excel, volumétrie simple. | Problèmes d'encodage (`latin-1` vs `utf-8`) et de séparateur (` `, `;`). |
-| **JSON** | `pd.read_json()` | `df.to_json()` | Échanges avec des API web, données imbriquées. | Mauvais choix de l'argument `orient` lors de l'export. |
-| **XML** | `pd.read_xml()` | `df.to_xml()` | Systèmes legacy, facturation électronique, flux RSS. | Oubli de spécifier le chemin `xpath` correct si le fichier est profondément imbriqué. |
+| Format | Fonction de lecture | Méthode d'écriture | Cas d'usage principal | 
+| --- | --- | --- | --- |
+| **CSV** | `pd.read_csv()` | `df.to_csv()` | Tableaux plats, exports Excel, volumétrie simple. | 
+| **JSON** | `pd.read_json()` | `df.to_json()` | Échanges avec des API web, données imbriquées. | 
+| **XML** | `pd.read_xml()` | `df.to_xml()` | Systèmes legacy, facturation électronique, flux RSS. | 
 
 ## Persistance des données via le format Pickle
 
