@@ -141,6 +141,73 @@ print("\nTypes des données (.dtypes) :\n", df.dtypes)
 
 ```
 
+### Les axes d'un DataFrame
+
+L'argument `axis` indique la direction d'une opération : `axis=0` (ou `'index'`) agit verticalement le long des lignes, tandis que `axis=1` (ou `'columns'`) agit horizontalement à travers les colonnes.
+
+L'axe 0 (axis=0 ou 'index') représente les lignes (vertical). Les opérations descendent le long des lignes.
+L'axe 1 (axis=1 ou 'columns') représente les colonnes (horizontal). Les opérations se déplacent de gauche à droite à travers les colonnes.
+
+`df.mean(axis=0)` : Calcule la moyenne de **chaque colonne** (en descendant les lignes).
+`df.sum(axis=1)` : Calcule la somme des valeurs de **chaque ligne** (de gauche à droite).
+`df.drop('ma_colonne', axis=1)` : Supprime **une colonne** entière du DataFrame.
+`df.dropna(axis=0)` : Supprime les **lignes** qui contiennent au moins une valeur manquante.
+
+Utilisation de `.axes`
+```python
+import pandas as pd
+
+df = pd.DataFrame({
+    'Maths': [10, 15, 20],
+    'Physique': [12, 14, 16]
+}, index=['Élève_A', 'Élève_B', 'Élève_C'])
+
+# Afficher les deux axes du DataFrame
+print(df.axes)
+
+```
+
+df.axes[0] correspond à l'axe vertical (les lignes).
+df.axes[1] correspond à l'axe horizontal (les colonnes).
+
+```python
+[Index(['Élève_A', 'Élève_B', 'Élève_C'], dtype='object'), 
+ Index(['Maths', 'Physique'], dtype='object')]
+
+```
+
+Calculer la moyenne par colonne (`axis=0`).C'est le comportement par défaut de Pandas. On calcule la moyenne de chaque matière pour l'ensemble des élèves en descendant les lignes.
+
+```python
+print(df.mean(axis=0))
+# Résultat :
+# Maths      15.0
+# Physique   14.0
+# dtype: float64
+
+```
+
+Calculer la moyenne par ligne (`axis=1`). Si l'on souhaite calculer la moyenne générale de chaque élève (en additionnant ses notes de gauche à droite) :
+
+```python
+print(df.mean(axis=1))
+# Résultat :
+# 0    11.0
+# 1    14.5
+# 2    18.0
+# dtype: float64
+
+```
+
+```python
+# Supprimer une colonne (on se déplace horizontalement sur les colonnes)
+df = df.drop(columns='Physique') # Équivalent à df.drop('Physique', axis=1)
+
+# Supprimer une ligne par son index (on se déplace verticalement sur les lignes)
+df = df.drop(index=0)            # Équivalent à df.drop(0, axis=0)
+
+```
+
 ### Accéder aux valeurs brutes (`.values`)
 
 Si vous avez besoin de convertir ou de manipuler les données pures sans les étiquettes Pandas (par exemple pour les passer à un modèle de Machine Learning avec Scikit-Learn), la propriété `.values` extrait un tableau NumPy (`ndarray`).
@@ -269,10 +336,29 @@ import pandas as pd
 
 # Simulation avec un chemin fictif ou URL directe
 url = "https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv"
-df_titanic = pd.read_csv(url)
+df = pd.read_csv(url)
+
+# Dimensions globales
+print(f"Dimensions (lignes, colonnes) : {df.shape}")
+print(f"Nombre total de cellules : {df.size}")
+print(f"Nombre de dimensions : {df.ndim}") # Renvoie 2 pour un DataFrame
+
+# Structure des index et des colonnes
+print(f"Type d'index : {type(df.index)}")
+print(f"Plage des index : {df.index.min()} à {df.index.max()}")
+print(f"Liste des colonnes : {df.columns.tolist()}")
+
+# Dictionnaire des types de données (très utile pour du code programmatique)
+print(df.dtypes.to_dict())
+
+# Vérifier la structure et les types réels
+df.info(memory_usage='deep')
+
+# Obtenir un premier résumé statistique global
+print(df.describe(include='all'))
 
 # Aperçu des 5 premières lignes
-print(df_titanic.head())
+print(dfc.head())
 
 ```
 
@@ -299,7 +385,7 @@ La fonction `pd.read_excel` permet de charger des classeurs Excel (`.xlsx` ou `.
 import pandas as pd
 
 # Chargement de la première feuille d'un fichier Excel
-# df_excel = pd.read_excel('budget_annuel.xlsx')
+# df = pd.read_excel('budget_annuel.xlsx')
 
 ```
 
@@ -323,7 +409,8 @@ import pandas as pd
 
 Manipuler les colonnes est l'une des tâches les plus fréquentes en science des données. Cela permet d'enrichir un jeu de données avec de nouvelles variables, de nettoyer les structures en éliminant le superflu ou de clarifier les étiquettes.
 
-Grâce à la **vectorisation** de Pandas (qui délague les calculs à NumPy en arrière-plan), ces opérations s'exécutent de manière extrêmement rapide sur de grands volumes de données, évitant ainsi l'utilisation de boucles `for` lentes et inefficaces.
+Grâce à la **vectorisation** de Pandas
+, ces opérations s'exécutent de manière extrêmement rapide sur de grands volumes de données, évitant ainsi l'utilisation de boucles `for` lentes et inefficaces.
 
 ---
 
@@ -333,6 +420,7 @@ Vous pouvez créer de nouvelles variables en appliquant des opérations mathéma
 
 ```python
 import pandas as pd
+import numpy as np
 
 # Création d'un DataFrame de base
 df = pd.DataFrame({
@@ -346,6 +434,23 @@ df['Prix_TTC'] = df['Prix_HT'] * 1.20
 df['Total'] = df['Prix_TTC'] * df['Quantite']
 
 print(df)
+
+```
+
+Ajoute une colonne arbitraire avec des valeurs invalides `np.nan`
+```python
+df["X"] = np.nan
+
+```
+
+Le paramètre `axis` est aussi obligatoire lorsqu'on supprime des éléments avec `drop()` :
+
+```python
+# Supprimer une colonne (on se déplace horizontalement sur les colonnes)
+df = df.drop(columns='Physique') # Équivalent à df.drop('Physique', axis=1)
+
+# Supprimer une ligne par son index (on se déplace verticalement sur les lignes)
+df = df.drop(index=0)            # Équivalent à df.drop(0, axis=0)
 
 ```
 
