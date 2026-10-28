@@ -175,6 +175,57 @@ print(df_synthese)
 
 ## Exercices de fin de chapitre
 
-**Exercice 1:**
+**Exercice 1:** Analyse temporelle et extraction des pics d'activité
+Manipuler les séries temporelles, convertir des chaînes de caractères en objets `datetime`, extraire des composantes temporelles et réaliser une agrégation croisée.
 
-**Exercice 2:**
+Vous disposez d'un journal de transactions brutes sous forme de texte. La direction souhaite identifier quels jours de la semaine génèrent le plus de chiffre d'affaires.
+
+Créez un DataFrame contenant ces données brutes :
+```python
+import pandas as pd
+
+df_logs = pd.DataFrame({
+    'Horodatage': ['2026-10-01 09:30:00', '2026-10-02 14:15:00', '2026-10-03 18:45:00', 
+                   '2026-10-04 10:00:00', '2026-10-05 16:20:00', '2026-10-06 11:10:00'],
+    'Montant_EUR': [120.5, 45.0, 300.0, 85.0, 210.0, 95.0]
+})
+
+```
+Convertissez la colonne `Horodatage` en un type `datetime` exploitable.
+Extrayez le **nom du jour de la semaine** (ex: *Monday*, *Tuesday*...) dans une nouvelle colonne nommée `Jour_Semaine`.
+Réalisez un regroupement (`groupby`) par `Jour_Semaine` pour calculer la somme totale du chiffre d'affaires (`Montant_EUR`) et le nombre de transactions par jour.
+
+
+**Exercice 2:**  Enrichissement relationnel, Mapping et Filtrage
+Croiser deux tables hétérogènes avec `pd.merge()`, traduire des codes via `.map()` et appliquer un filtre conditionnel multicritère.
+
+Vous gérez deux sources de données distinctes dans votre boutique : un historique de ventes contenant des identifiants produits, et un catalogue général fournissant les détails et les catégories.
+
+Partez des deux DataFrames suivants :
+```python
+# Table des ventes
+df_ventes = pd.DataFrame({
+    'ID_Produit': [101, 102, 101, 103, 102],
+    'Quantite': [2, 1, 5, 3, 2]
+})
+
+# Table du catalogue produits
+df_catalogue = pd.DataFrame({
+    'ID_Produit': [101, 102, 103, 104],
+    'Nom': ['Clavier', 'Souris', 'Casque', 'Webcam'],
+    'Code_Cat': [1, 2, 3, 2],
+    'Prix_Unitaire': [50.0, 25.0, 80.0, 70.0]
+})
+
+```
+
+
+Réalisez une jointure (`pd.merge()`) de type **`left`** en prenant `df_ventes` comme table principale pour y intégrer les informations du catalogue.
+À l'aide d'un dictionnaire de correspondance, créez une colonne `Categorie` en mappant les `Code_Cat` selon la règle suivante :
+* `1` : *Bureautique*
+* `2` : *Accessoire*
+* `3` : *Audio*
+
+Calculez le montant total de chaque ligne (`Quantite * Prix_Unitaire`) dans une nouvelle colonne `CA_Ligne`.
+Filtrez enfin le DataFrame final pour n'afficher que les lignes dont le `CA_Ligne` dépasse 100 €.
+
