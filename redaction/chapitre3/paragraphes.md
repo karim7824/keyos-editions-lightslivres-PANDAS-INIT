@@ -275,10 +275,10 @@ df_ventes = pd.read_csv(io.StringIO(csv_data))
 
 ```
 
-*Importation et typage : Charge ce jeu de données en veillant à convertir la colonne `date_vente` directement en objets temporels (`datetime`) et à spécifier les colonnes catégorielles (`produit`, `categorie`).
-*Inspection structurelle : Affiche les dimensions du DataFrame, la liste des axes (`.axes` ou `.columns`/`.index`), ainsi que le diagnostic complet de l'empreinte mémoire avec `info(memory_usage='deep')`.
-*Audit des anomalies : Identifie le nombre de valeurs manquantes par colonne.
-*Statistiques descriptives : Affiche un résumé statistique global (incluant les variables textuelles/catégorielles) pour évaluer les fourchettes de prix et les volumes.
+* Importation et typage : Charge ce jeu de données en veillant à convertir la colonne `date_vente` directement en objets temporels (`datetime`) et à spécifier les colonnes catégorielles (`produit`, `categorie`).
+* Inspection structurelle : Affiche les dimensions du DataFrame, la liste des axes (`.axes` ou `.columns`/`.index`), ainsi que le diagnostic complet de l'empreinte mémoire avec `info(memory_usage='deep')`.
+* Audit des anomalies : Identifie le nombre de valeurs manquantes par colonne.
+* Statistiques descriptives : Affiche un résumé statistique global (incluant les variables textuelles/catégorielles) pour évaluer les fourchettes de prix et les volumes.
 
 ---
 
@@ -299,7 +299,7 @@ df_catalogue = pd.DataFrame({
 
 ```
 
-Isolation sécurisée (`.copy()`) : Crée une copie indépendante nommée `df_promo` pour préparer une opération promotionnelle sans risquer de corrompre le catalogue d'origine.
-Transformation par Pipeline (`.pipe()`) : Écris une fonction `appliquer_taxe(df, tva)` qui ajoute une colonne `Prix_TTC` (calculée avec une TVA de 20%), puis enchaîne-la via `.pipe()`.
-Traitement ligne par ligne (`.apply(axis=1)`) : À l'aide de `.apply()` et `axis=1`, génère une colonne `Valeur_Stock_HT` représentant la valorisation financière totale du stock pour chaque produit (`Prix_HT * Stock`).
-Synthèse globale (`.agg()`) : Utilise `.agg()` pour obtenir simultanément le prix moyen, minimum et maximum des produits HT, ainsi que la somme totale de la valeur du stock de l'entreprise.
+-Isolation sécurisée (`.copy()`) : Crée une copie indépendante nommée `df_promo` pour préparer une opération promotionnelle sans risquer de corrompre le catalogue d'origine.
+-Transformation par Pipeline (`.pipe()`) : Écris une fonction `appliquer_taxe(df, tva)` qui ajoute une colonne `Prix_TTC` (calculée avec une TVA de 20%), puis enchaîne-la via `.pipe()`.
+-Traitement ligne par ligne (`.apply(axis=1)`) : À l'aide de `.apply()` et `axis=1`, génère une colonne `Valeur_Stock_HT` représentant la valorisation financière totale du stock pour chaque produit (`Prix_HT * Stock`).
+-Synthèse globale (`.agg()`) : Utilise `.agg()` pour obtenir simultanément le prix moyen, minimum et maximum des produits HT, ainsi que la somme totale de la valeur du stock de l'entreprise.
