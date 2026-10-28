@@ -1,50 +1,48 @@
-# Chapitre 10 : Optimisation et Analyse rapide
+# Chapitre 9 : Gestion des structures multidimensionnelles
 
-L'optimisation et l'analyse exploratoire rapide sont les piliers pour transformer un script lent en une solution professionnelle. Ce chapitre vous montre comment exploiter la puissance de calcul de Pandas et visualiser vos résultats en un clin d'œil.
+L'analyse de données complexes nécessite souvent de manipuler des dimensions supplémentaires au-delà du simple tableau bidimensionnel. Ce chapitre vous présente les Panel Data et l'utilisation des MultiIndex pour structurer vos informations de manière hiérarchique et précise.
 
 Dans ce chapitre :
 
-* Importance de la vectorisation
-* Analyse exploratoire et visualisation intégrée
+* Introduction aux Panel Data
+* Utilisation du `MultiIndex`
 
-## Importance de la vectorisation
+## Introduction aux Panel Data
 
-La vectorisation consiste à appliquer des opérations sur des colonnes entières de données plutôt que d'utiliser des boucles `for` traditionnelles. Cette approche est infiniment plus rapide car elle délègue le calcul à des fonctions optimisées en langage C.
+Les Panel Data, ou données de panel, permettent de suivre plusieurs entités sur plusieurs périodes de temps. Cette structure enrichit l'analyse en combinant des dimensions temporelles et transversales, offrant une vue dynamique de vos jeux de données.
 
 ```python
 import pandas as pd
-import numpy as np
 
-# Création d'un grand jeu de données
-df = pd.DataFrame({'valeurs': np.random.randint(0, 100, 1000000)})
-
-# Évitez les boucles lentes :
-# Mauvaise pratique : for i in df['valeurs']: ...
-
-# Utilisez la vectorisation (instantané) :
-df['double'] = df['valeurs'] * 2
+# Les Panel Data organisent les données sur plusieurs dimensions
+# Souvent représentées par un DataFrame avec un index hiérarchique
+data = {'Valeur': [10, 20, 30, 40]}
+index = [('EntrepriseA', 2025), ('EntrepriseA', 2026), 
+         ('EntrepriseB', 2025), ('EntrepriseB', 2026)]
+df = pd.DataFrame(data, index=pd.MultiIndex.from_tuples(index, names=['Entité', 'Année']))
 
 ```
 
-## Analyse exploratoire et visualisation
+## Utilisation du `MultiIndex`
 
-Pandas intègre des outils d'analyse exploratoire qui permettent de comprendre la distribution de vos données sans configuration complexe. La méthode `.plot()` permet de générer des graphiques directement depuis un DataFrame ou une Série pour une visualisation immédiate.
+Le `MultiIndex` est l'outil indispensable pour gérer des dimensions complexes, permettant d'avoir plusieurs niveaux d'indexation sur les lignes ou les colonnes. Il transforme votre DataFrame en une structure multidimensionnelle intuitive, facilitant le filtrage et l'agrégation sur des segments de données spécifiques.
 
 ```python
-# Analyse rapide de la distribution d'une série
-df['valeurs'].hist(bins=20)
+# Accès aux données via le MultiIndex
+# Sélection de toutes les données pour l'EntrepriseA
+data_a = df.loc['EntrepriseA']
 
-# Visualisation rapide d'une série temporelle ou numérique
-df['valeurs'].plot(title="Analyse exploratoire rapide")
+# Sélection d'une valeur précise par entité et année
+valeur_specifique = df.loc[('EntrepriseA', 2026)]
 
 ```
 
 ### Synthèse
 
-Privilégiez toujours la vectorisation pour garantir la performance de votre code et utilisez les méthodes graphiques intégrées pour une exploration visuelle immédiate de vos jeux de données.
+La gestion des structures multidimensionnelles repose sur l'utilisation du `MultiIndex`, qui permet de structurer hiérarchiquement vos données pour une analyse fine des Panel Data.
 
 ### Exercices
 
-1. Comparez le temps d'exécution entre une boucle `for` classique ajoutant 1 à chaque élément d'une liste de 1 million d'entiers et l'opération vectorisée équivalente sur une Series Pandas.
-2. À partir d'un DataFrame contenant des données aléatoires, générez un graphique en boîte (boxplot) pour identifier rapidement les valeurs aberrantes.
+1. Créez un DataFrame avec un `MultiIndex` comportant deux niveaux : "Ville" et "Mois", et remplissez-le avec des données de température fictives.
+2. Utilisez `.loc` pour extraire toutes les données relatives à une seule ville de votre DataFrame hiérarchisé.
 
