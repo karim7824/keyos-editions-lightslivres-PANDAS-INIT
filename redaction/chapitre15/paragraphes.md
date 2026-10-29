@@ -10,11 +10,11 @@ Dans ce chapitre :
 * Exemple de synthèse
 * Exercices de fin de chapitre
 
+---
+
 ## Visualisation avec Matplotlib, Pyplot et Seaborn
 
 Bien que la méthode `df.plot()` suffise amplement pour l'exploration rapide et la génération de graphiques simples, l'écosystème Python de la visualisation repose sur trois piliers complémentaires. Pour concevoir des rapports de production avancés ou des analyses statistiques poussées, il est indispensable de savoir sortir de Pandas pour exploiter directement **Matplotlib**, son module **Pyplot**, et la bibliothèque statistique **Seaborn**.
-
----
 
 ### La hiérarchie des outils de visualisation
 
@@ -23,8 +23,6 @@ Pour comprendre comment ces outils s'articulent, il faut voir Pandas comme une s
 **Pandas (`df.plot()`)** : Intégré nativement, idéal pour prototyper et visualiser directement depuis un DataFrame. Il délague le travail d'affichage à Matplotlib en arrière-plan.
 **Matplotlib / Pyplot (`plt`)** : Le moteur graphique de référence en Python. Il offre un contrôle absolu sur chaque pixel, chaque axe, chaque annotation et la structure globale de la figure.
 **Seaborn (`sns`)** : Une bibliothèque construite *au-dessus* de Matplotlib, spécialisée dans la **visualisation statistique**. Elle gère nativement les regroupements complexes, les distributions et propose des designs modernes par défaut.
-
----
 
 ### Matplotlib et Pyplot (`plt`) : Le contrôle total sur la figure
 
@@ -56,8 +54,6 @@ ax.grid(True, alpha=0.3)
 plt.show()
 
 ```
-
----
 
 ### Seaborn (`sns`) : L'expert en statistiques et esthétique
 
@@ -94,8 +90,6 @@ plt.show()
 
 ```
 
----
-
 ### Synthèse : Quel outil choisir pour votre projet ?
 
 | Outil | Niveau d'abstraction | Force principale | Cas d'usage idéal |
@@ -103,6 +97,8 @@ plt.show()
 | **Pandas (`df.plot()`)** | Élevé (Intégré) | Rapidité d'exécution | Exploration de données rapide, graphiques simples intégrés à un script de nettoyage. |
 | **Matplotlib (`plt`)** | Bas / Intermédiaire | Contrôle chirurgical | Rapports de production sur-mesure, annotations complexes, multi-graphiques avancés. |
 | **Seaborn (`sns`)** | Intermédiaire (Statistique) | Esthétique moderne et inférence | Analyse exploratoire statistique, distributions, corrélations et graphiques multi-variables. |
+
+---
 
 ## Le catalogue des représentations graphiques 
 
@@ -112,9 +108,7 @@ plt.show()
 * **Le nuage de points (`kind='scatter'`)** : Croisement de deux variables pour identifier des corrélations (ex: Prix vs Quantité vendue).
 * **Le diagramme circulaire (`kind='pie'`)** : Représentation des parts de marché (avec modération).
 
----
-
-### Le DataFrame de référence pour la visualisation
+Le DataFrame de référence pour la visualisation
 
 ```python
 import pandas as pd
@@ -192,12 +186,12 @@ df_visualisation.plot(
 plt.show()
 
 ```
+
 ---
+
 ## Habillage, personnalisation et multi-graphiques
 
 Un graphique brut généré par défaut est utile pour l'exploration rapide, mais un rapport professionnel exige un habillage rigoureux : des axes lisibles, des titres explicites, des couleurs adaptées et une mise en page soignée. Puisque Pandas s'appuie directement sur **Matplotlib** sous le capot, il est possible de personnaliser finement chaque rendu.
-
----
 
 ### Personnalisation des axes et des titres
 
@@ -227,7 +221,6 @@ plt.legend(["CA Global"])                  # Affichage et nom de la légende
 plt.show()
 
 ```
----
 
 ### Mise en forme avancée : Dimensions, couleurs et styles
 
@@ -254,8 +247,6 @@ plt.ylabel("Euros (€)")
 plt.show()
 
 ```
-
----
 
 ### Multi-subplots : Organiser plusieurs graphiques sur une grille
 
@@ -291,10 +282,83 @@ plt.show()
 * **`subplots=True` couplé à `layout**` transforme un DataFrame multi-colonnes en un tableau de bord analytique structuré en une seule ligne de code.
 
 ---
+
 ## Exemple de synthèse
 
+Utilisation combinée de la visualisation sous Pandas, Matplotlib et Seaborn.
+
+```python
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Application d'un thème Seaborn moderne pour les graphiques statistiques
+sns.set_theme(style="whitegrid")
+
+# 1. Préparation d'un DataFrame de synthèse (ventes e-commerce)
+np.random.seed(42)
+dates = pd.date_range(start='2026-10-01', periods=30, freq='D')
+df_synthese = pd.DataFrame({
+    'Date': dates,
+    'Canal': np.choice(['Web', 'Mobile', 'Boutique'], size=30),
+    'Panier_Moyen': np.random.normal(65.0, 15.0, size=30).round(2),
+    'Volume_Ventes': np.random.randint(10, 50, size=30)
+})
+
+# Calcul d'une colonne dérivée
+df_synthese['CA_Journalier'] = df_synthese['Panier_Moyen'] * df_synthese['Volume_Ventes']
+
+print("--- 1. Aperçu des données de synthèse ---")
+print(df_synthese.head())
+
+# 2. Utilisation de Pandas (df.plot) pour un aperçu rapide du CA journalier
+plt.figure(figsize=(10, 4))
+df_synthese.set_index('Date')['CA_Journalier'].plot(
+    kind='line', 
+    color='teal', 
+    linewidth=2, 
+    marker='o',
+    title="Évolution globale du Chiffre d'Affaires journalier"
+)
+plt.ylabel("Euros (€)")
+plt.show()
+
+# 3. Utilisation de Matplotlib (plt.subplots) pour une figure multi-axes avancée
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
+
+# Graphique 1 : Nuage de points (Prix vs Volume)
+ax1.scatter(df_synthese['Panier_Moyen'], df_synthese['Volume_Ventes'], color='purple', alpha=0.7)
+ax1.set_title("Relation Panier Moyen / Volume")
+ax1.set_xlabel("Panier Moyen (€)")
+ax1.set_ylabel("Volume de ventes")
+
+# Graphique 2 : Histogramme de distribution du panier moyen
+ax2.hist(df_synthese['Panier_Moyen'], bins=6, color='skyblue', edgecolor='black')
+ax2.set_title("Distribution des paniers moyens")
+ax2.set_xlabel("Montant (€)")
+ax2.set_ylabel("Fréquence")
+
+plt.tight_layout()
+plt.show()
+
+# 4. Utilisation de Seaborn (sns) pour analyser la répartition par canal de vente
+plt.figure(figsize=(8, 4))
+sns.boxplot(
+    data=df_synthese, 
+    x='Canal', 
+    y='CA_Journalier', 
+    palette='Set2'
+)
+plt.title("Répartition du Chiffre d'Affaires selon le canal de vente")
+plt.xlabel("Canal")
+plt.ylabel("CA Journalier (€)")
+plt.show()
+
+```
 ## Exercices de fin de chapitre
 
 **Exercice 1 :** Créez un DataFrame avec un `MultiIndex` comportant deux niveaux : "Ville" et "Mois", et remplissez-le avec des données de température fictives.
+
 **Exercice 2 :** Utilisez `.loc` pour extraire toutes les données relatives à une seule ville de votre DataFrame hiérarchisé.
----
+
