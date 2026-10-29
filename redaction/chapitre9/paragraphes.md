@@ -13,6 +13,7 @@ Dans ce chapitre :
 * Exemple de synthèse
 * Exercices de fin de chapitre
 
+---
 ## Les 4 modèles fondamentaux du temps dans Pandas
 
 ### `Timestamp` : Un instant précis (Le point dans le temps)
@@ -160,6 +161,8 @@ print(df_ventes_journalieres)
 
 ```
 
+---
+
 ## Modèles de temps
 
 Pandas offre une gestion précise du temps grâce à quatre types d'objets principaux : `Timestamp` pour un instant précis, `Datetime` pour les types de données temporelles, `Timedelta` pour les durées, et `Period` pour représenter un intervalle de temps défini. Ces outils permettent de manipuler des calendriers complexes avec une grande rigueur syntaxique.
@@ -175,6 +178,7 @@ duree = pd.Timedelta(days=5)
 nouveau_temps = instant + duree
 
 ```
+---
 
 ## Manipulation de plages temporelles
 
@@ -188,6 +192,7 @@ plage = pd.period_range(start='2026-01', periods=3, freq='M')
 s = pd.Series([10, 20, 30], index=plage)
 
 ```
+---
 ## Extraire le mois, le jour et l'heure
 
 Pour extraire des composantes spécifiques (année, mois, jour, heure, minute) à partir d'une colonne de type date (`datetime`) dans Pandas, on utilise l'accesseur **`.dt`**.
@@ -265,6 +270,7 @@ print(synthese_horaire)
 **La chaîne logique :** On convertit d'abord la colonne brute en `datetime`, on extrait les informations fines (`.dt.hour`, `.dt.day_name()`), puis on structure l'analyse macroscopique avec `.groupby().agg()`.
 **La puissance du multi-indicateur :** En une seule passe, `.agg()` permet d'isoler à la fois le volume, la somme et la moyenne par tranche horaire, fournissant un tableau de bord directement exploitable par les équipes métiers.
 
+---
 ## Exercices de fin de chapitre 
 
 **Exercice 1 :** Créez un `Timestamp` correspondant à la date d'aujourd'hui et ajoutez-lui un `Timedelta` de 48 heures.
