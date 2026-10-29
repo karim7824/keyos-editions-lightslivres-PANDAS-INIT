@@ -11,6 +11,8 @@ Dans ce chapitre :
 * Exemple de synthèse
 * Exercices de fin de chapitre
 
+---
+
 ## Statistiques descriptives
 
 Les statistiques descriptives permettent d'obtenir une vue d'ensemble rapide de la distribution et de la tendance centrale de vos données. Pandas propose des méthodes intégrées pour calculer instantanément des mesures comme la moyenne (`mean`), la somme (`sum`), le minimum (`min`), le maximum (`max`) ou l'écart-type (`std`) sur une série ou un DataFrame.
@@ -28,6 +30,7 @@ maxi = df['Scores'].max()      # Retourne 50
 
 ```
 
+---
 ## Agrégations par catégories (`groupby`)
 
 Le groupement de données est une étape fondamentale pour analyser des sous-ensembles selon des catégories spécifiques. La méthode `groupby` segmente vos données en groupes, vous permettant d'appliquer des calculs statistiques indépendamment pour chaque catégorie identifiée.
@@ -141,6 +144,7 @@ print(synthese)
 
 Contrairement aux méthodes directes comme `df['Prix_HT'].mean()` qui s'exécutent colonne par colonne séparément, `.agg()` centralise la logique de calcul et permet d'obtenir une **matrice de synthèse multi-métriques** en une seule ligne de code propre et lisible.
 
+---
 ## `.agg` vs `.groupby`
 
 C'est la syntaxe standard en analyse de données pour obtenir des rapports structurés et multi-indicateurs par catégorie :
@@ -166,6 +170,8 @@ rapport = df.groupby('Categorie').agg(
 
 print(rapport)
 ```
+
+---
 
 ## Exemple de synthèse
 
@@ -194,6 +200,8 @@ synthese_par_categorie = df.groupby('Categorie').agg(
 
 print(synthese_par_categorie)
 ```
+
+---
 
 ## Exercices de fin de chapitre
 
