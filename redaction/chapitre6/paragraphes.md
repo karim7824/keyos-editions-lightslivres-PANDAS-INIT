@@ -12,6 +12,7 @@ Dans ce chapitre :
 * Exemple de synthèse
 * Exercices de fin de chapitre
 
+---
 ## Opération de Tri
 
 Le tri permet de réorganiser vos données selon les valeurs d'une ou plusieurs colonnes pour mieux visualiser les extrêmes ou les tendances. Vous pouvez trier par ordre croissant ou décroissant très simplement.
@@ -55,7 +56,7 @@ df_multi_tri = df.sort_values(
 print(df_multi_tri)
 
 ```
-
+---
 ## Itération sur les lignes et modification
 
 Bien que l'itération manuelle soit moins performante que les méthodes vectorisées, elle permet de modifier des lignes complexes individuellement. On utilise généralement `iterrows()` pour parcourir les lignes une par une.
@@ -69,6 +70,7 @@ for index, row in df.iterrows():
 
 Pour la lecture ou l'écriture d'une cellule isolée, df.at contourne la surcharge de sélection de Pandas et offre de meilleures performances en termes de temps d'exécution (très utile dans des boucles ou des scripts d'optimisation).
 
+---
 ## Utilisation des fonctions `apply`
 
 La méthode `apply` permet d'appliquer une fonction personnalisée à chaque ligne ou chaque colonne d'un DataFrame. C'est un outil très puissant pour réaliser des transformations complexes non supportées nativement par Pandas.
@@ -107,7 +109,7 @@ df['Resume'] = df.apply(
 print(df['Resume'])
 
 ```
-
+---
 ## Utilisation des `pipe`
 
 La méthode `pipe` permet d'enchaîner plusieurs fonctions de transformation de manière lisible et structurée. Cette approche facilite la maintenance du code en isolant chaque étape de traitement dans des fonctions séparées.
@@ -145,12 +147,11 @@ print(df_traite[['Produit', 'Prix_HT', 'Prix_Promo', 'Total']])
 
 La méthode .copy() permet de créer une copie indépendante d'un DataFrame (ou d'une Série) en mémoire.
 
+---
+
 ## Recherches et critères de filtrage
 
 Le filtrage consiste à extraire uniquement les lignes qui répondent à une ou plusieurs conditions logiques précises. Vous pouvez combiner plusieurs critères avec des opérateurs booléens pour un ciblage très granulaire.
-
-
-### Exemple 1 : 
 
 Isoler un catalogue avant une modification de prix et créer une grille tarifaire promotionnelle à partir du catalogue principal sans modifier les prix de base d'origine :
 
@@ -257,8 +258,7 @@ print(f"Produit le plus performant (en CA) : {produit_phare}")
 
 ## Exercices de fin de chapitre
 
-
-** Exercice 1** : Diagnostic et Audit d'un Dataset de Ventes
+**Exercice 1** : Diagnostic et Audit d'un Dataset de Ventes
 
 Tu récupères un fichier CSV contenant des données de ventes brutes d'une entreprise e-commerce (`ventes_techno.csv`). Avant toute analyse marketing, tu dois mener un audit rigoureux de la structure et de la santé des données.
 
