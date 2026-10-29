@@ -325,8 +325,80 @@ print(statuts_bool)
 ---
 ## Exemple de synthèse
 
+```python
+import pandas as pd
+import numpy as np
+
+# Création de données initiales (avec un oubli le 4 octobre pour simuler un trou)
+ventes_brutes = pd.Series(
+    [150, 220, 180, 310, 290], 
+    index=pd.to_datetime(['2026-10-01', '2026-10-02', '2026-10-03', '2026-10-05', '2026-10-06'])
+)
+
+print("--- 1. Données brutes initiales ---")
+print(ventes_brutes)
+
+# Réindexation pour obtenir une chronologie continue du 1 au 6 octobre
+# Les jours manquants (comme le 4) se voient attribuer la valeur 0 grâce à fill_value
+plage_jours = pd.date_range(start='2026-10-01', end='2026-10-06', freq='D')
+ventes_completes = ventes_brutes.reindex(plage_jours, fill_value=0)
+
+print("\n--- 2. Série continue après réindexation ---")
+print(ventes_completes)
+
+# Opération arithmétique (Calcul du CA sachant qu'un article rapporte en moyenne 45 €)
+panier_moyen = 45.0
+chiffre_affaires = ventes_completes * panier_moyen
+
+print("\n--- 3. Chiffre d'affaires calculé (en €) ---")
+print(chiffre_affaires)
+
+# Extraction et filtrage : Sélection des jours où le CA dépasse 10 000 €
+# Utilisation de l'accesseur temporel .dt pour afficher le nom du jour en clair
+jours_succes = chiffre_affaires[chiffre_affaires > 10000]
+
+print("\n--- 4. Jours à fort chiffre d'affaires (> 10 000 €) ---")
+print(jours_succes)
+
+# Inspection globale : Résumé statistique de la semaine
+print("\n--- 5. Résumé statistique global du CA ---")
+print(chiffre_affaires.describe())
+```[cite: 1]
+
+Points clés à retenir :
+* **L'indexation sémantique et temporelle** permet de manipuler les données par date de manière intuitive[cite: 1].
+* **L'alignement automatique et `.reindex()`** évitent les erreurs lors de la manipulation de séries asymétriques ou incomplètes[cite: 1].
+* **La vectorisation** permet d'appliquer instantanément des calculs mathématiques globaux sans utiliser de boucles `for`[cite: 1].
+* **Le filtrage booléen** isole en une seule ligne les données répondant à un critère métier précis[cite: 1].
+
+```
 ## Exercices de fin de chapitre
 
-**Exercice 1 :** 
-**Exercice 2 :** 
+**Exercice 1 :** Gestion d'un catalogue de prix et conversion de types
+
+Vous récupérez un extrait de données textuelles provenant d'un ancien système informatique. Les prix des articles sont stockés sous forme de chaînes de caractères, et vous devez les nettoyer, les convertir pour effectuer des calculs, puis structurer le tout dans une `Series` Pandas dotée d'un index explicite.
+
+Partez des listes de données brutes suivantes en Python :
+```python
+import pandas as pd
+
+articles = ['Casque Audio', 'Clavier Gamer', 'Souris Sans Fil', 'Tapis de souris']
+prix_texte = ['120.50', '85.00', '45.99', '19.99']
+
+```
+
+Créez une `Series` nommée `ser_prix` en utilisant la liste `prix_texte` pour les valeurs et la liste `articles` pour l'index explicite. Affichez son type initial (`dtype`).
+À l'aide de la méthode `.astype()`, convertissez cette `Series` en nombres à virgule flottante (`float64`).
+Calculez et affichez le prix de chaque article après application d'une augmentation générale de 10 % (multiplication vectorisée par `1.10`).
+
+---
+
+**Exercice 2 :** Analyse temporelle des ventes d'une boutique
+
+Une boutique en ligne souhaite analyser son volume de commandes quotidiennes sur une période de quatre jours au début du mois de novembre 2026. Vous devez manipuler un index temporel et extraire des informations calendaires.
+
+À l'aide de la fonction `pd.date_range()`, générez une plage de 4 jours consécutifs commençant le **1er novembre 2026** (`2026-11-01`).
+Créez une `Series` nommée `commandes` contenant les valeurs `[15, 32, 28, 45]` en associant l'index temporel généré à l'étape précédente.
+Utilisez le découpage (*slicing*) temporel par texte pour extraire et afficher uniquement les données allant du **2 novembre 2026 au 3 novembre 2026**.
+En utilisant l'accesseur temporel `.dt` sur l'index de votre série d'origine, extrayez et affichez le nom complet des jours de la semaine correspondants (`day_name()`).
 ---
