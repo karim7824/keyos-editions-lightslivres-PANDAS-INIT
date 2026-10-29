@@ -199,6 +199,7 @@ df_recharge = pd.read_pickle('donnees.pkl')
 ---
 
 ## Exemple de synthèse
+
 Le cycle complet de persistance du catalogue.Ce script démontre comment sauvegarder un même DataFrame sous les trois grands formats standards du marché en respectant les bonnes pratiques (gestion des accents, suppression des index superflus, formats structurés), puis à le recharger.
 
 ```python
@@ -255,4 +256,5 @@ print(df_recharge)
 ## Exercices de fin de chapitre
 
 **Exercice 1:** Créez un DataFrame, sauvegardez-le en format CSV, puis rechargez-le dans une nouvelle variable pour vérifier l'intégrité des données.
+
 **Exercice 2:** Expérimentez la sauvegarde d'un DataFrame contenant des types de données variés (nombres, textes, dates) au format Pickle et confirmez que les types sont conservés après le rechargement.
