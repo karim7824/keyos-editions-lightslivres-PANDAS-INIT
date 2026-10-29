@@ -101,8 +101,6 @@ Ses propriétés principales permettent d'inspecter rapidement sa structure, ses
 * **`.dtypes`** : Indique le type de données (entier, texte, flottant, etc.) pour chaque colonne.
 * **`.values`** (ou `.to_numpy()`) : Permet d'extraire les données sous forme de tableau NumPy brut.
 
----
-
 ### Vérifier l'organisation interne (une colonne = une Series)
 
 L'extraction d'une colonne d'un `DataFrame` renvoie bien un objet de type `Series`.
@@ -155,6 +153,7 @@ L'axe 1 (axis=1 ou 'columns') représente les colonnes (horizontal). Les opérat
 `df.dropna(axis=0)` : Supprime les **lignes** qui contiennent au moins une valeur manquante.
 
 Utilisation de `.axes`
+
 ```python
 import pandas as pd
 
@@ -249,7 +248,6 @@ La création d'un `DataFrame` est extrêmement flexible et s'adapte à la struct
 * **Dictionnaire de listes (ou de tableaux)** : La méthode la plus intuitive et courante, où chaque clé du dictionnaire devient automatiquement le nom d'une colonne.
 * **Liste de dictionnaires** : Parfait pour traiter des données orientées lignes (comme des fichiers JSON ou des réponses d'API), où chaque dictionnaire représente une ligne.
 
----
 
 ### Création à partir d'une liste de listes ou de tuples
 
@@ -425,8 +423,83 @@ import pandas as pd
 ---
 ## Exemple de synthèse
 
+```python
+import pandas as pd
+import numpy as np
+
+# Création d'un DataFrame e-commerce à partir d'un dictionnaire
+data = {
+    'Produit': ['Clavier', 'Souris', 'Casque', 'Écran', 'Webcam'],
+    'Prix_HT': [50.0, 25.0, 80.0, 200.0, np.nan], # Contient une valeur manquante (NaN)
+    'Stock': [120, 85, 45, 14, 60]
+}
+df_catalogue = pd.DataFrame(data, index=['P1', 'P2', 'P3', 'P4', 'P5'])
+
+print("--- 1. DataFrame d'origine ---")
+print(df_catalogue)
+
+# Inspection structurelle
+print("\n--- 2. Propriétés structurelles ---")
+print("Dimensions (shape) :", df_catalogue.shape)
+print("Colonnes disponibles :", df_catalogue.columns.tolist())
+
+# Gestion des données invalides (Remplacement du NaN par la moyenne des prix)
+prix_moyen = df_catalogue['Prix_HT'].mean()
+df_catalogue['Prix_HT'] = df_catalogue['Prix_HT'].fillna(prix_moyen)
+
+print("\n--- 3. Après nettoyage des valeurs manquantes ---")
+print(df_catalogue)
+
+# Opérations vectorisées et calculs par axe (axis)
+# Calcul de la valeur totale du stock par produit (Prix_HT * Stock)
+df_catalogue['Valeur_Stock'] = df_catalogue['Prix_HT'] * df_catalogue['Stock']
+
+# Calcul de la somme totale de la valeur du stock (en descendant les lignes, axis=0 par défaut)
+valeur_totale_parc = df_catalogue['Valeur_Stock'].sum(axis=0)
+
+print(f"\n--- 4. Valeur totale globale du parc en stock : {valeur_totale_parc} € ---")
+
+# Extraction finale sous forme de tableau NumPy brut (ex: pour export ou modèle)
+matrice_brute = df_catalogue[['Prix_HT', 'Stock']].values
+print("\n--- 5. Extraction brute sous forme de ndarray NumPy ---")
+print(matrice_brute)
+
+```
+
 ## Exercices de fin de chapitre
 
-**Exercice 1 :** 
-**Exercice 2 :** 
+
+**Exercice 1 :** Création d'un DataFrame à partir d'un dictionnaire et manipulation des propriétés structurelles
+
+Vous gérez le parc informatique d'une PME. Vous disposez des informations relatives à trois ordinateurs portables en stock, que vous devez structurer sous la forme d'un `DataFrame` Pandas pour en analyser les caractéristiques.
+
+À l'aide d'un dictionnaire de listes, créez un `DataFrame` nommé `df_parc` contenant les données suivantes :
+* **`Modele`** : `['Latitude 5420', 'ThinkPad T14', 'MacBook Pro']`
+* **`Marque`** : `['Dell', 'Lenovo', 'Apple']`
+* **`Prix_HT`** : `[950.0, 1100.0, 1850.0]`
+* **`En_Stock`** : `[True, False, True]`
+
+Attribuez un index explicite personnalisé à votre DataFrame en utilisant la liste d'identifiants : `['PC_01', 'PC_02', 'PC_03']`.
+Affichez les dimensions du DataFrame via l'attribut `.shape` ainsi que les types de données de chaque colonne via `.dtypes`.
+Extrayez la colonne `Prix_HT` dans une variable, puis vérifiez et affichez son type exact à l'aide de la fonction `type()` pour confirmer qu'il s'agit bien d'une `Series`.
+
 ---
+
+**Exercice 2 :** Utilisation des axes (`axis`) et calculs statistiques orientés
+
+Un centre de formation souhaite analyser les notes semestrielles obtenues par ses étudiants dans différentes matières scientifiques. Vous devez charger ces données et exploiter le paramètre `axis` pour automatiser les calculs.
+
+Créez un `DataFrame` nommé `df_notes` à partir du dictionnaire suivant, en définissant les noms des étudiants comme index (`index=['Élève_A', 'Élève_B', 'Élève_C']`) :
+```python
+data_notes = {
+    'Algorithmique': [14, 16, 10],
+    'Base_de_Donnees': [12, 18, 15],
+    'Reseaux': [16, 14, 13]
+}
+
+```
+
+Calculez et affichez la **moyenne par matière** en utilisant explicitement le paramètre adapté (`axis=0`).
+Calculez et affichez la **moyenne générale de chaque élève** en modifiant la direction du calcul avec l'axe horizontal (`axis=1`).
+Supprimez la colonne `'Reseaux'` du DataFrame en utilisant la méthode `.drop()` avec l'argument `axis=1` (ou `columns=...`), puis affichez le DataFrame résultant.
+
