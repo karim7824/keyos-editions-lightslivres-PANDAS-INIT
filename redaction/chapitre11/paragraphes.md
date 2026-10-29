@@ -10,6 +10,8 @@ Dans ce chapitre :
 * Exemple de synthèse
 * Exercices de fin de chapitre
 
+---
+
 ## Concaténation de structures
 
 La fonction `concat` permet d'assembler des DataFrames ou des Séries les uns aux autres, soit verticalement (en ajoutant des lignes), soit horizontalement (en ajoutant des colonnes). C'est l'outil idéal pour regrouper des jeux de données de structure identique.
