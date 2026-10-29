@@ -233,6 +233,7 @@ df_catalogue = pd.DataFrame({
 ---
 
 **Exercice 2 :** Pipeline de transformation sécurisée et enrichissement (`copy`, `pipe`, `apply`)
+
 Préparer une simulation commerciale : appliquer une politique de remise promotionnelle ciblée et générer des libellés textuels automatisés pour chaque ligne, sans altérer le jeu de données initial.
 
 ```python
