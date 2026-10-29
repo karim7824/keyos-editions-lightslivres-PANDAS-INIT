@@ -441,6 +441,10 @@ print(chiffre_affaires.describe())
 
 ## Exercices de fin de chapitre
 
-**Excerices 1:** Extraction d'une période spécifique et transformation ciblée des valeurs. Dans cet exemple, nous disposons d'un suivi journalier du trafic d'un site web. Nous souhaitons **extraire** uniquement la semaine où s'est déroulée une campagne promotionnelle, puis **transformer** ces données en leur appliquant un coefficient de correction lié à une anomalie de comptage.
+**Excerices 1:** Extraction d'une période spécifique et transformation ciblée des valeurs. 
 
-**Excerices 2:** Extraction de composantes temporelles (.dt) et transformation conditionnelle. Cet exemple illustre comment extraire des informations sémantiques à partir des dates (les jours de la semaine) pour ensuite appliquer une transformation conditionnelle (par exemple, appliquer un tarif week-end ou jour ouvré).
+Dans cet exemple, nous disposons d'un suivi journalier du trafic d'un site web. Nous souhaitons **extraire** uniquement la semaine où s'est déroulée une campagne promotionnelle, puis **transformer** ces données en leur appliquant un coefficient de correction lié à une anomalie de comptage.
+
+**Excerices 2:** Extraction de composantes temporelles (.dt) et transformation conditionnelle. 
+
+Cet exemple illustre comment extraire des informations sémantiques à partir des dates (les jours de la semaine) pour ensuite appliquer une transformation conditionnelle (par exemple, appliquer un tarif week-end ou jour ouvré).
