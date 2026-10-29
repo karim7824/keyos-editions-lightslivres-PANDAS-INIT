@@ -1,202 +1,301 @@
-# Chapitre 14 : Étude de cas
+# Chapitre 14: Rappel Pyplot – Les fondations graphiques de Python
 
-Analyse complète d'un jeu de données (Jeux Olympiques de Paris 2024) : https://github.com/rythamsaini/Paris-Olympic-Games-2024
-
-Cette étude de cas finale rassemble l'ensemble des compétences et des bonnes pratiques abordées dans ce manuel. De l'importation d'un fichier Excel brut jusqu'à la restitution visuelle des résultats, nous allons mener une analyse complète de données en conditions réelles, en prenant pour support un jeu de données simulant les résultats des **Jeux Olympiques de Paris 2024**.
+Bien que Pandas propose une surcouche intuitive avec `df.plot()` pour prototyper rapidement, l'écosystème graphique de Python repose en profondeur sur **Matplotlib** et son module d'interface haut niveau : **Pyplot** (`plt`). Maîtriser Pyplot est indispensable pour reprendre le contrôle total de la mise en page, structurer des figures complexes et produire des graphiques de qualité professionnelle.
 
 Dans ce chapitre :
 
-* Présentation du jeu de données et des questions métier
-* Chargement et inspection
-* Nettoyage et préparation
-* Agrégations et croisements
-* Visualisation et restitution des résultats
+* Architecture de Matplotlib : `Figure` et `Axes`
+* Tracer un graphique simple : `plt.plot()`
+* Titres, étiquettes, légendes et styles
+* Plusieurs graphiques dans une figure : `plt.subplots()`
+* Enregistrer une figure
 * Exemple de synthèse
 * Exercices de fin de chapitre
 
 ---
 
-## Présentation du jeu de données et des questions métier
+## Architecture de Matplotlib : `Figure` et `Axes`
 
-Pour mener une analyse pertinente, il est indispensable de définir clairement le contexte et les objectifs avant d'écrire la moindre ligne de code.
+Pour construire un graphique avec Matplotlib, il faut comprendre sa hiérarchie visuelle, reposant sur deux objets fondamentaux :
 
-Nous disposons d'un fichier Excel nommé `paris_2024_resultats.xlsx` contenant les performances des athlètes et des délégations. Le classeur est structuré autour de plusieurs informations clés : le nom de l'athlète, son pays d'origine, la discipline sportive, le type de médaille obtenue (Or, Argent, Bronze) et la date de l'épreuve.
+* **La `Figure**` : C'est la fenêtre globale ou la "feuille de dessin" qui contient l'ensemble des éléments graphiques (titres globaux, légende générale, sous-graphiques).
+* **Les `Axes**` : Ce sont les zones de traçage proprement dites (le système d'axes $X$ et $Y$ où les courbes et barres sont dessinées). Une `Figure` peut contenir un ou plusieurs `Axes`.
 
-La direction d'un institut d'analyse sportive souhaite obtenir des réponses précises aux questions suivantes :
-
-**Quelles sont les nations qui dominent le tableau général des médailles ?**
-**Quelle est la répartition des médailles (Or, Argent, Bronze) par grande discipline sportive ?**
-**Existe-t-il des temps forts temporels dans l'attribution des médailles au fil des jours de compétition ?**
-
----
-
-## Chargement et inspection
-
-La première étape consiste à charger le fichier Excel en mémoire à l'aide de `pd.read_excel()` et à auditer sa structure pour identifier d'éventuelles anomalies.
+### Création explicite d'une Figure et d'un unique objet Axes
 
 ```python
-import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 
-# Chargement de la feuille principale du fichier Excel
-df_brut = pd.read_excel('paris_2024_resultats.xlsx', sheet_name='Performances')
+# Création explicite de la figure (fig) et de la zone de tracé (ax)
+fig, ax = plt.subplots(figsize=(6, 3))
 
-# Inspection de la structure globale
-print("--- Dimensions du DataFrame ---")
-print(df_brut.shape)
+# Tracé d'une ligne simple sur l'objet ax
+ax.plot([1, 2, 3, 4], [10, 20, 25, 30])
 
-print("\n--- Aperçu des premières lignes ---")
-print(df_brut.head())
-
-print("\n--- Diagnostic technique (.info) ---")
-df_brut.info(memory_usage='deep')
+plt.show()
 
 ```
 
----
+### Manipulation des propriétés de l'objet Axes
 
-## Nettoyage et préparation
-
-Les données brutes comportent souvent des imperfections : espaces superflus dans les noms de pays, valeurs manquantes ou types de données mal interprétés. Nous allons nettoyer ce jeu de données.
+L'objet `ax` centralise toutes les commandes de modification des axes, ce qui rend le code plus modulaire et lisible que l'utilisation de fonctions globales.
 
 ```python
-# A. Suppression des doublons stricts éventuels
-df_propre = df_brut.drop_duplicates().copy()
+import matplotlib.pyplot as plt
 
-# Nettoyage des chaînes de caractères (pays et disciplines)
-df_propre['Pays'] = df_propre['Pays'].str.strip().str.title()
-df_propre['Discipline'] = df_propre['Discipline'].str.strip()
+fig, ax = plt.subplots()
 
-# Gestion des valeurs manquantes (ex: absence de médaille remplacée par 'Aucune')
-df_propre['Type_Medaille'] = df_propre['Type_Medaille'].fillna('Aucune')
-
-# Conversion des colonnes catégorielles pour optimiser la mémoire
-df_propre['Pays'] = df_propre['Pays'].astype('category')
-df_propre['Discipline'] = df_propre['Discipline'].astype('category')
-
-# Conversion de la date de l'épreuve au format datetime
-df_propre['Date_Epreuve'] = pd.to_datetime(df_propre['Date_Epreuve'])
-
-print("--- Données après nettoyage ---")
-print(df_propre.head())
-
-```
-
----
-
-## Agrégations et croisements
-
-Une fois le jeu de données assaini, nous pouvons répondre aux questions métier en mobilisant les outils d'agrégation (`groupby`, `agg`) et de croisement (`pivot_table`).
-
-### Le tableau des médailles par pays
-
-Pour identifier les nations les plus performantes, nous filtrons les médailles attribuées (Or, Argent, Bronze) et regroupons les données par pays.
-
-```python
-# Filtrer uniquement les lignes ayant rapporté une médaille
-df_medailles = df_propre[df_propre['Type_Medaille'].isin(['Or', 'Argent', 'Bronze'])]
-
-# Création d'un tableau croisé dynamique pour compter les médailles par type et par pays
-tableau_medailles = df_medailles.pivot_table(
-    index='Pays',
-    columns='Type_Medaille',
-    values='Athlete',
-    aggfunc='count',
-    fill_value=0
-).reindex(columns=['Or', 'Argent', 'Bronze']) # Réordonner les colonnes logiquement
-
-# Calcul du total des médailles par pays et tri décroissant
-tableau_medailles['Total'] = tableau_medailles.sum(axis=1)
-tableau_medailles = tableau_medailles.sort_values(by=['Or', 'Argent', 'Bronze', 'Total'], ascending=False)
-
-print("--- Top 5 du Tableau des Médailles ---")
-print(tableau_medailles.head(5))
-
-```
-
----
-
-## Visualisation et restitution des résultats
-
-Pour valoriser les résultats auprès des équipes métiers, nous traduisons ce tableau de synthèse en un graphique visuel clair et soigné à l'aide de l'écosystème Matplotlib/Pandas.
-
-```python
-# Sélectionner le Top 5 des pays pour la visualisation
-top_5_pays = tableau_medailles.head(5)[['Or', 'Argent', 'Bronze']]
-
-# Génération d'un diagramme en barres empilées
-ax = top_5_pays.plot(
-    kind='bar',
-    stacked=True,
-    color=['gold', 'silver', 'peru'],
-    figsize=(9, 5)
+# Utilisation de la méthode .set() pour configurer l'axe en une seule ligne
+ax.set(
+    title="Évolution des performances",
+    xlabel="Temps (en heures)",
+    ylabel="Score technique"
 )
 
-# Habillage professionnel du graphique
-plt.title("Top 5 des Nations - Jeux Olympiques de Paris 2024", fontsize=14, fontweight='bold')
-plt.xlabel("Pays", fontsize=11)
-plt.ylabel("Nombre de Médailles", fontsize=11)
-plt.xticks(rotation=0)
-plt.legend(title="Type de Médaille")
-plt.grid(axis='y', linestyle='--', alpha=0.6)
-
-# Sauvegarde de la figure haute résolution
-plt.savefig("top_5_medailles_paris2024.png", dpi=300, bbox_inches='tight')
+ax.plot([0, 1, 2], [5, 12, 18])
 plt.show()
 
 ```
 
 ---
 
-## Exemple de synthèse 
+## Tracer un graphique simple : `plt.plot()`
 
-Le script ci-dessous résume le pipeline complet de l'analyse, de l'importation à la génération du rapport chiffré.
+La fonction **`plt.plot()`** est la fonction universelle de Matplotlib pour tracer des graphiques linéaires ou des nuages de points reliés par des lignes. Elle accepte en arguments des listes ou des tableaux NumPy pour les coordonnées $X$ et $Y$.
+
+### Tracé linéaire basique à partir de listes Python
 
 ```python
-import pandas as pd
 import matplotlib.pyplot as plt
 
-def executer_etude_cas(chemin_fichier):
-    # 1. Chargement
-    df = pd.read_excel(chemin_fichier, sheet_name='Performances')
-    
-    # 2. Nettoyage
-    df = df.drop_duplicates().copy()
-    df['Pays'] = df['Pays'].str.strip().str.title()
-    df['Type_Medaille'] = df['Type_Medaille'].fillna('Aucune')
-    
-    # 3. Traitement analytique (Top 3 pays par nombre total de médailles d'or)
-    podiums = df[df['Type_Medaille'] == 'Or']
-    compte_or = podiums.groupby('Pays')['Type_Medaille'].count().reset_index(name='Total_Or')
-    top_or = compte_or.sort_values(by='Total_Or', ascending=False).head(3)
-    
-    print("--- Résumé de l'analyse : Top 3 Or ---")
-    print(top_or)
-    
-    return top_or
+# Coordonnées des abscisses (X) et des ordonnées (Y)
+jours = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven']
+visiteurs = [120, 250, 180, 300, 420]
 
-# Simulation d'appel (nécessite un fichier valide)
-# executer_etude_cas('paris_2024_resultats.xlsx')
+# Tracé du graphique linéaire
+plt.plot(jours, visiteurs)
+plt.show()
 
 ```
 
-* **Méthodologie rigoureuse** : Toujours suivre les étapes séquentielles (Inspection $\rightarrow$ Nettoyage $\rightarrow$ Transformation $\rightarrow$ Restitution).
-* **Sécurité des types** : L'utilisation de `.astype('category')` et du typage date sécurise les calculs futurs et allège l'empreinte mémoire.
-* **Clarté de la restitution** : Un graphique propre doté d'un habillage explicite (titres, axes, légende) transforme des chiffres bruts en un outil d'aide à la décision percutant.
+### Personnalisation directe des traits et des marqueurs dans `plt.plot()`
+
+Il est possible de modifier l'apparence des courbes directement via les arguments de la fonction `plt.plot()` (couleurs, épaisseur, style de ligne et symboles de sommets).
+
+```python
+import numpy as np
+
+# Génération d'une onde sinusoïdale avec NumPy
+x = np.linspace(0, 10, 50)
+y = np.sin(x)
+
+# Tracé avec une ligne en tirets ('.--'), de couleur verte, avec des marqueurs ronds ('o')
+plt.plot(x, y, color='forestgreen', linestyle='--', linewidth=2, marker='o', markersize=4)
+plt.show()
+
+```
+
+---
+
+## Titres, étiquettes, légendes et styles
+
+Un graphique professionnel doit être immédiatement compréhensible hors de son contexte. Cela nécessite l'ajout rigoureux de titres, d'étiquettes sur les axes (`xlabel`, `ylabel`), de légendes pour identifier les courbes, et éventuellement d'une grille de lecture.
+
+### Ajout de titres, libellés d'axes et de légendes
+
+```python
+import matplotlib.pyplot as plt
+
+mois = ['Jan', 'Fév', 'Mar', 'Avr']
+ca_2025 = [100, 120, 115, 130]
+ca_2026 = [110, 135, 140, 155]
+
+# Traçage des deux courbes avec des étiquettes (label)
+plt.plot(mois, ca_2025, label='Année 2025', color='gray', linestyle=':')
+plt.plot(mois, ca_2026, label='Année 2026', color='teal', linewidth=2)
+
+# Ajout des éléments textuels et de la légende
+plt.title("Comparatif annuel du Chiffre d'Affaires")
+plt.xlabel("Mois de l'année")
+plt.ylabel("Montant (k€)")
+plt.legend()       # Affiche la légende en se basant sur les arguments 'label'
+plt.grid(True, alpha=0.3) # Ajout d'une grille légère
+
+plt.show()
+
+```
+
+### Application d'un style global prédéfini
+
+Matplotlib propose des thèmes visuels intégrés pour modifier instantanément l'esthétique de vos figures sans tout reconfigurer à la main.
+
+```python
+import matplotlib.pyplot as plt
+
+# Activer un style visuel moderne (ex: 'seaborn-v0_8-whitegrid' ou 'ggplot')
+plt.style.use('ggplot')
+
+x = [1, 2, 3, 4]
+y = [10, 25, 15, 30]
+
+plt.plot(x, y, marker='s')
+plt.title("Graphique avec le style 'ggplot'")
+plt.xlabel("Index")
+plt.ylabel("Valeur")
+plt.show()
+
+```
+
+---
+
+## Plusieurs graphiques dans une figure : `plt.subplots()`
+
+Lorsque l'on souhaite comparer plusieurs métriques côte à côte sans surcharger un unique repère, on utilise un système de grille de sous-graphiques (*subplots*) via `plt.subplots(nrows, ncols)`.
+
+### Grille de 1 ligne et 2 colonnes
+
+```python
+import matplotlib.pyplot as plt
+
+# Création d'une figure contenant 2 sous-graphiques côte à côte (1 ligne, 2 colonnes)
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
+
+# Premier graphique (à gauche) : Les ventes
+ax1.plot([1, 2, 3], [10, 20, 15], color='blue', marker='o')
+ax1.set_title("Volume des Ventes")
+ax1.set_xlabel("Semaine")
+
+# Second graphique (à droite) : Les profits
+ax2.plot([1, 2, 3], [2, 8, 5], color='orange', marker='s')
+ax2.set_title("Bénéfices nets")
+ax2.set_xlabel("Semaine")
+
+# Ajustement automatique de l'espacement entre les graphiques
+plt.tight_layout()
+plt.show()
+
+```
+
+### Grille matricielle de 2x2 sous-graphiques
+
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Création d'une grille 2x2 (retourne une matrice d'axes 2x2)
+fig, axes = plt.subplots(2, 2, figsize=(8, 6))
+
+# Accès aux sous-graphiques par leurs indices de ligne et colonne
+axes[0, 0].plot([1, 2], [3, 4], color='red')
+axes[0, 0].set_title("Graphique A")
+
+axes[0, 1].plot([1, 2], [4, 1], color='green')
+axes[0, 1].set_title("Graphique B")
+
+axes[1, 0].plot([1, 2], [2, 5], color='purple')
+axes[1, 0].set_title("Graphique C")
+
+axes[1, 1].plot([1, 2], [1, 1], color='brown')
+axes[1, 1].set_title("Graphique D")
+
+plt.tight_layout()
+plt.show()
+
+```
+
+---
+
+## Enregistrer une figure
+
+Une fois le graphique mis en forme, il est souvent nécessaire de l'exporter sous forme de fichier image (PNG, JPG) ou de format vectoriel haute qualité (PDF, SVG) pour l'insérer dans un rapport ou un e-book. On utilise pour cela la méthode **`plt.savefig()`**.
+
+### Exportation standard au format PNG haute résolution
+
+```python
+import matplotlib.pyplot as plt
+
+x = [1, 2, 3, 4]
+y = [10, 20, 25, 30]
+
+plt.plot(x, y, marker='o')
+plt.title("Rapport de performance")
+plt.xlabel("Mois")
+plt.ylabel("Score")
+
+# Sauvegarde de la figure avec une résolution élevée (dpi=300) et un fond propre
+plt.savefig("rapport_performance.png", dpi=300, bbox_inches='tight')
+plt.close() # Ferme la figure pour libérer la mémoire
+
+```
+
+### Exportation au format vectoriel SVG pour l'édition web ou print
+
+```python
+import matplotlib.pyplot as plt
+
+# Traçage d'une figure simple
+plt.figure(figsize=(5, 3))
+plt.plot([1, 2, 3], [5, 10, 15], color='crimson')
+plt.title("Graphique vectoriel")
+
+# Export en SVG (les lignes restent nettes peu importe le zoom)
+plt.savefig("graphique_vectoriel.svg", format='svg')
+plt.close()
+
+```
+
+---
+
+## Exemple de synthèse
+
+Ce script complet rassemble l'ensemble des notions de Pyplot abordées dans ce chapitre : création d'une figure structurée, génération d'une grille multi-axes (`plt.subplots`), personnalisation des styles, ajout de légendes et exportation finale sur disque.
+
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Préparation des données de test
+semaines = ['S1', 'S2', 'S3', 'S4', 'S5']
+trafic_web = [1200, 1500, 1350, 1800, 2100]
+taux_conversion = [2.1, 2.4, 2.3, 2.8, 3.2]
+
+# Création d'une figure avec 2 sous-graphiques verticaux (2 lignes, 1 colonne)
+fig, (ax_trafic, ax_conv) = plt.subplots(2, 1, figsize=(8, 6), sharex=True)
+
+# Premier graphique : Évolution du trafic web (Ligne bleue avec marqueurs)
+ax_trafic.plot(semaines, trafic_web, color='royalblue', marker='o', linewidth=2, label='Visiteurs uniques')
+ax_trafic.set_title("Tableau de bord marketing - Suivi mensuel", fontsize=14, fontweight='bold')
+ax_trafic.set_ylabel("Nombre de visiteurs")
+ax_trafic.legend(loc='upper left')
+ax_trafic.grid(True, linestyle='--', alpha=0.5)
+
+# Second graphique : Évolution du taux de conversion (Ligne orange avec carrés)
+ax_conv.plot(semaines, taux_conversion, color='darkorange', marker='s', linewidth=2, label='Taux de conversion (%)')
+ax_conv.set_xlabel("Semaines de l'année")
+ax_conv.set_ylabel("Pourcentage (%)")
+ax_conv.legend(loc='upper left')
+ax_conv.grid(True, linestyle='--', alpha=0.5)
+
+# Mise en page globale et exportation propre
+plt.tight_layout()
+plt.savefig("tableau_de_bord_marketing.png", dpi=300, bbox_inches='tight')
+
+# Affichage à l'écran
+plt.show()
+
+```
 
 ---
 
 ## Exercices de fin de chapitre
 
-**Exercice 1 :** Analyse par discipline sportive
+**Exercice 1 :** Création d'une figure multi-axes personnalisée
 
-À l'aide du DataFrame nettoyé `df_propre` :
+Créez un script Python qui génère une figure de taille `(8, 4)` contenant deux graphiques côte à côte (1 ligne, 2 colonnes) à l'aide de `plt.subplots()`.
+Sur le premier sous-graphique, tracez une fonction carrée ($y = x^2$ pour $x$ allant de 0 à 5) avec une ligne rouge en pointillés.
+Sur le second sous-graphique, tracez une fonction racine carrée ($y = \sqrt{x}$) avec une ligne bleue continue, puis enregistrez l'ensemble sous le nom `exercices_maths.png` à 300 DPI.
 
-Réalisez un groupement (`groupby`) sur la colonne `Discipline` pour compter le nombre total d'épreuves disputées.
-Identifiez la discipline qui a mobilisé le plus grand nombre d'athlètes uniques.
+**Exercice 2 :** Habillage et superposition de courbes
 
-**Exercice 2 :** Suivi temporel des performances
-
-Convertissez la colonne `Date_Epreuve` en index temporel (`DatetimeIndex`).
-Utilisez un regroupement par date (`resample` ou `groupby` sur la date) pour tracer l'évolution quotidienne du nombre total de médailles décernées au cours de la quinzaine olympique.
+À l'aide de `plt.plot()`, tracez sur un même repère deux courbes représentant l'évolution hypothétique des ventes de deux produits ("Produit A" et "Produit B") sur 4 trimestres.
+Personnalisez le graphique en ajoutant un titre explicite, des libellés sur les axes $X$ et $Y$, une légende positionnée en haut à droite, ainsi qu'une grille de fond en pointillés.

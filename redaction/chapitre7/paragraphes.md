@@ -1,272 +1,241 @@
-# Chapitre 7 : Gestion des dates et séries temporelles
-
-La gestion des séries temporelles est un pilier fondamental en analyse de données. Pour manipuler des historiques de ventes, des logs ou des relevés, la fonction clé de Pandas est **`pd.date_range()`**. Elle permet de générer des séquences de dates régulières en spécifiant un point de départ, une fin (ou un nombre de périodes), et une fréquence (`freq`).
+# Chapitre 7 : Filtrage et Mappage dans les DataFrames Pandas
 
 Dans ce chapitre :
 
-* Les 4 modèles fondamentaux du temps dans Pandas
-* Manipulation de plages temporelles avec `period_range`
-* Combiner `pd.date_range()` avec un dictionnaire de données
-* Modèles de temps
-* Manipulation de plages temporelles
-* Extraire le mois, le jour et l'heure
+* Le Filtrage de données : Bien plus qu'un simple `filter()`
+* Le filtrage conditionnel de lignes (Indexation booléenne)
+* La méthode `.filter()` : Sélectionner des colonnes ou des index par nom
+* Le Mappage (`.map()`) : Transformer et traduire des valeurs
+* Traduire des codes catégories
+* Aller plus loin : `.apply()` et `.applymap()` (ou `.map()` global)
 * Exemple de synthèse
 * Exercices de fin de chapitre
 
-## Les 4 modèles fondamentaux du temps dans Pandas
+En programmation Python classique, on utilise souvent les fonctions intégrées **`filter()`** et **`map()`** sur des listes ou des itérables. Sous Pandas, ces concepts existent mais ont été entièrement repensés pour exploiter la vectorisation et offrir des performances de haut niveau sur des millions de lignes.
 
-### `Timestamp` : Un instant précis (Le point dans le temps)
-
-Un `Timestamp` représente une date et une heure exactes (l'équivalent optimisé du `datetime` de Python). C'est l'élément de base qui compose les index temporels (`DatetimeIndex`).
-
-```python
-import pandas as pd
-
-# Créer un instant précis
-instant = pd.Timestamp('2026-10-28 14:30:00')
-
-print(instant)
-print(type(instant))
-# Extraction d'attributs clés
-print(f"Année : {instant.year}, Mois : {instant.month}, Jour de la semaine : {instant.day_name()}")
-
-```
-
----
-
-### `Datetime` (et `to_datetime`) : La conversion et l'indexation
-
-En pratique, les dates proviennent souvent de fichiers CSV sous forme de texte (chaînes de caractères). La fonction `pd.to_datetime()` permet de les convertir proprement en objets temporels exploitables.
-
-```python
-# Série de dates brutes (texte)
-dates_texte = ['2026-10-01', '2026-10-02', '2026-10-03']
-
-# Conversion en objets Datetime de Pandas
-dates_dt = pd.to_datetime(dates_texte)
-
-print(dates_dt)
-# Résultat : DatetimeIndex(['2026-10-01', '2026-10-02', '2026-10-03'], dtype='datetime64[ns]', freq=None)
-
-```
-
----
-
-### `Timedelta` : Une durée ou un écart temporel
-
-Un `Timedelta` représente une durée (par exemple : 5 jours, 3 heures, 45 secondes). Il permet d'effectuer des opérations arithmétiques directement sur les dates (ajouter ou soustraire du temps).
-
-```python
-# Définir une date de référence
-date_achat = pd.Timestamp('2026-10-01')
-
-# Créer un décalage (Timedelta) de 10 jours et 4 heures
-delai = pd.Timedelta(days=10, hours=4)
-
-# Calculer la date de livraison estimée
-date_livraison = date_achat + delai
-
-print(f"Date d'achat : {date_achat}")
-print(f"Date de livraison estimée : {date_livraison}")
-
-```
-
----
-
-### `Period` : Une période ou un intervalle temporel fixe
-
-Contrairement au `Timestamp` qui cible une *milliseconde* précise, le `Period` représente une **durée calendaire entière** (un mois complet, un trimestre, une année). C'est particulièrement utile pour la comptabilité et l'agrégation macro-économique.
-
-```python
-# Définir une période correspondant au mois d'octobre 2026
-periode_mois = pd.Period('2026-10', freq='M')
-
-print(periode_mois)
-print(f"Début de la période : {periode_mois.start_time}")
-print(f"Fin de la période : {periode_mois.end_time}")
-
-# Avancer d'une période
-mois_suivant = periode_mois + 1
-print(f"Mois suivant : {mois_suivant}")
-
-```
-
-**En résumé pour ton lecteur :**
-
-* **`Timestamp`** $\rightarrow$ Une date/heure isolée (ex: *le 28/10/2026 à 14h30*).
-* **`Datetime`** $\rightarrow$ Le type de données global pour manipuler ces instants.
-* **`Timedelta`** $\rightarrow$ Un intervalle de temps mathématique (ex: *+ 7 jours*).
-* **`Period`** $\rightarrow$ Une tranche calendaire fixe (ex: *tout le mois d'octobre 2026*).
-Créer des intervalles de dates par **jour** et par **mois**, accompagnés d'exemples pratiques.
-
----
-
-## Manipulation de plages temporelles avec `period_range`
-
-### intervalle de jours
-Générer un intervalle de jours (`freq='D'`). Pour créer une séquence quotidienne (par exemple, pour simuler un historique de ventes sur une semaine) :
-
-```python
-import pandas as pd
-
-# Créer une série de 7 jours consécutifs à partir d'aujourd'hui
-jours = pd.date_range(start='2026-10-01', periods=7, freq='D')
-
-print(jours)
-# Résultat : DatetimeIndex(['2026-10-01', '2026-10-02', ..., '2026-10-07'], dtype='datetime64[ns]', freq='D')
-
-```
-
----
-### intervalle de mois
-
-Générer un intervalle de mois (`freq='MS'` ou `'M'`). Pour planifier des bilans ou analyser des données mensuelles, on utilise la fréquence mensuelle.
-
-* `'MS'` (Month Start) place la date au **premier jour** du mois.
-* `'M'` place la date au **dernier jour** du mois.
-
-```python
-# Créer les dates de début de mois pour l'année 2026 (12 mois)
-mois_debut = pd.date_range(start='2026-01-01', periods=12, freq='MS')
-
-print(mois_debut)
-# Résultat : DatetimeIndex(['2026-01-01', '2026-02-01', '2026-03-01', ..., '2026-12-01'], freq='MS')
-
-```
-
----
-
-## Combiner `pd.date_range()` avec un dictionnaire de données
-
-Créer un DataFrame temporel pour nos produits. On peut combiner `pd.date_range()` avec un dictionnaire de données pour structurer un DataFrame prêt à l'analyse temporelle (par exemple, suivre les ventes quotidiennes d'un Clavier) :
-
-```python
-import numpy as np
-
-# Générer un index de 5 jours consécutifs
-dates = pd.date_range(start='2026-10-01', periods=5, freq='D')
-
-# Associer ces dates à un DataFrame de ventes
-df_ventes_journalieres = pd.DataFrame({
-    'Date': dates,
-    'Produit': ['Clavier', 'Clavier', 'Clavier', 'Clavier', 'Clavier'],
-    'Quantite_Vendue': [3, 5, 2, 8, 4]
-})
-
-# Transformer la colonne 'Date' en index temporel (très utile pour Pandas)
-df_ventes_journalieres = df_ventes_journalieres.set_index('Date')
-
-print(df_ventes_journalieres)
-
-```
-
-## Modèles de temps
-
-Pandas offre une gestion précise du temps grâce à quatre types d'objets principaux : `Timestamp` pour un instant précis, `Datetime` pour les types de données temporelles, `Timedelta` pour les durées, et `Period` pour représenter un intervalle de temps défini. Ces outils permettent de manipuler des calendriers complexes avec une grande rigueur syntaxique.
-
-```python
-import pandas as pd
-
-# Création d'un instant précis (Timestamp)
-instant = pd.Timestamp('2026-07-06 18:00:00')
-
-# Calcul d'une durée (Timedelta)
-duree = pd.Timedelta(days=5)
-nouveau_temps = instant + duree
-
-```
-
-## Manipulation de plages temporelles
-
-La fonction `period_range` permet de générer des séquences régulières de périodes temporelles sur un intervalle donné. Cette fonctionnalité est particulièrement utile pour créer des index basés sur des fréquences spécifiques, comme des mois ou des trimestres.
-
-```python
-# Génération d'une plage de périodes mensuelles
-plage = pd.period_range(start='2026-01', periods=3, freq='M')
-
-# Utilisation dans une Série
-s = pd.Series([10, 20, 30], index=plage)
-
-```
-## Extraire le mois, le jour et l'heure
-
-Pour extraire des composantes spécifiques (année, mois, jour, heure, minute) à partir d'une colonne de type date (`datetime`) dans Pandas, on utilise l'accesseur **`.dt`**.
-
-Les principaux attributs de l'accesseur `.dt` :
-
-| Attribut | Ce qu'il extrait | Exemple de résultat |
+| Opération | Fonction / Outil Pandas | Cas d'usage principal |
 | --- | --- | --- |
-| `.dt.year` | L'année | `2026` |
-| `.dt.month` | Le numéro du mois (1-12) | `10` |
-| `.dt.day` | Le numéro du jour du mois (1-31) | `28` |
-| `.dt.hour` | L'heure (0-23) | `14` |
-| `.dt.minute` | La minute (0-59) | `30` |
-| `.dt.day_name()` | Le nom complet du jour (ex: *Monday*) | `'Wednesday'` |
-| `.dt.month_name()` | Le nom complet du mois (ex: *October*) | `'October'` |
+| **Filtrer des lignes** | `df[condition]` ou `df.query()` | Extraire un sous-ensemble de données selon des critères chiffrés ou textuels. |
+| **Filtrer des colonnes** | `df.filter(like=...)` | Sélectionner rapidement des colonnes par motif ou nom. |
+| **Mapper des valeurs** | `serie.map(dictionnaire)` | Remplacer des codes par des libellés (tables de correspondance). |
+| **Appliquer une fonction** | `serie.apply()` / `df.map()` | Exécuter une logique de calcul personnalisée sur les données. |
+
+---
+
+## Le Filtrage de données : Bien plus qu'un simple `filter()`
+
+En Pandas, il existe deux manières distinctes de "filtrer" : le **filtrage conditionnel de lignes** (le plus fréquent) et le **filtrage de colonnes/index par nom**.
+
+## Le filtrage conditionnel de lignes (Indexation booléenne)
+
+Pour extraire des lignes selon un critère métier (ex: *tous les produits dont le prix dépasse 50€*), on n'utilise pas la fonction `filter()`, mais l'**indexation booléenne**, qui crée un masque de `True`/`False`.
 
 ```python
 import pandas as pd
 
-# Création d'un DataFrame avec des dates et heures précises
-df_logs = pd.DataFrame({
-    'Timestamp_Brut': ['2026-10-28 08:30:00', '2026-10-29 14:15:45', '2026-10-30 19:00:30'],
-    'Valeur': [100, 250, 180]
+# Données d'exemple (notre catalogue)
+df = pd.DataFrame({
+    'Produit': ['Clavier', 'Souris', 'Casque', 'Webcam'],
+    'Prix_HT': [50.0, 25.0, 80.0, 70.0],
+    'Stock': [10, 40, 5, 0]
 })
 
-# Conversion indispensable en objet datetime
-df_logs['Date_Heure'] = pd.to_datetime(df_logs['Timestamp_Brut'])
+# Filtrer les produits dont le prix est supérieur à 50
+produits_chers = df[df['Prix_HT'] > 50]
+print("--- Produits chers (> 50) ---")
+print(produits_chers)
 
-# Extraction du mois, du jour et de l'heure via l'accesseur .dt
-df_logs['Mois'] = df_logs['Date_Heure'].dt.month
-df_logs['Jour'] = df_logs['Date_Heure'].dt.day
-df_logs['Heure'] = df_logs['Date_Heure'].dt.hour
-df_logs['Jour_Semaine'] = df_logs['Date_Heure'].dt.day_name() # Nom du jour en anglais par défaut
-
-print(df_logs[['Date_Heure', 'Mois', 'Jour', 'Heure', 'Jour_Semaine']])
+# Combiner plusieurs conditions avec les opérateurs logiques (& pour ET, | ou OU)
+produits_disponibles_chers = df[(df['Prix_HT'] > 50) & (df['Stock'] > 0)]
 
 ```
+
+*Alternative élégante :* La méthode **`.query()`** permet d'écrire les conditions sous forme de chaîne de caractères textuelle, très lisible pour des requêtes complexes :
+
+```python
+resultat = df.query("Prix_HT > 50 and Stock > 0")
+
+```
+
+## La méthode `.filter()` : Sélectionner des colonnes ou des index par nom
+
+À l'inverse, la méthode `.filter()` de Pandas sert à **filtrer les étiquettes** (les noms des colonnes ou de l'index), et non les valeurs des lignes.
+
+```python
+# Ne conserver que les colonnes dont le nom contient "Prix"
+df_filtre_cols = df.filter(like='Prix')
+
+# Sélectionner des colonnes spécifiques par leur nom exact
+df_selection = df.filter(items=['Produit', 'Stock'])
+
+```
+
 ---
 
+## Le Mappage (`.map()`) : Transformer et traduire des valeurs
+
+La méthode **`.map()`** s'applique à une **Série** (une seule colonne). Elle est idéale pour remplacer des valeurs, traduire des codes numériques en libellés textuels, ou appliquer un dictionnaire de correspondance.
+
+## Traduire des codes catégories
+
+Imaginons une colonne contenant des identifiants numériques de catégories que l'on souhaite transformer en texte lisible :
+
+```python
+import pandas as pd
+
+df_ventes = pd.DataFrame({
+    'ID_Produit': [1, 2, 3],
+    'Code_Cat': [10, 20, 10]
+})
+
+# Dictionnaire de correspondance (Mapping)
+correspondance_cat = {
+    10: 'Accessoire Informatique',
+    20: 'Matériel Audio'
+}
+
+# Appliquer le map via un dictionnaire
+df_ventes['Nom_Cat'] = df_ventes['Code_Cat'].map(correspondance_cat)
+
+print(df_ventes)
+
+```
+
+> **Attention aux valeurs absentes :** Si `.map()` rencontre une valeur qui n'existe pas dans le dictionnaire de correspondance, elle la remplace par `NaN` (valeur manquante). Pour éviter cela, on peut passer une fonction ou utiliser `.replace()`.
+
+---
+
+## Aller plus loin : `.apply()` et `.applymap()` (ou `.map()` global)
+
+Quand le mapping par dictionnaire ne suffit plus et qu'on souhaite appliquer une fonction personnalisée (ou une fonction lambda) sur tout un DataFrame ou une colonne :
+
+* **Sur une Série (`colonne.apply()`)** : Applique une fonction ligne par ligne sur une colonne.
+* **Sur tout le DataFrame (`df.map()**` - anciennement `applymap` dans les anciennes versions de Pandas) : Applique une fonction cellule par cellule sur l'ensemble de la table.
+
+```python
+# Appliquer une fonction lambda pour appliquer une remise de 10% sur tous les prix
+df['Prix_Remise'] = df['Prix_HT'].apply(lambda x: x * 0.9)
+
+print(df[['Produit', 'Prix_HT', 'Prix_Remise']])
+
+```
+
+---
 ## Exemple de synthèse
 
-Rapport de synthèse des ventes par heure de la journée.Imaginons un journal de transactions e-commerce avec des horodatages précis. Nous voulons savoir à quelles heures la structure réalise le plus de chiffre d'affaires.
+Le nettoyage et l'enrichissement du catalogue e-commerce. Imaginons que nous récupérons un fichier de données brut comportant des codes de catégories chiffrés et des prix bruts. Notre objectif est de :
+
+**Filtrer** les articles disponibles et dont le prix dépasse un certain seuil.
+**Traduire** les codes de catégories en libellés explicites grâce à un dictionnaire de mapping.
+**Appliquer** une fonction de calcul personnalisée pour simuler un nouveau tarif promotionnel.
 
 ```python
 import pandas as pd
 
-# Données de ventes brutes avec horodatage
-df_transactions = pd.DataFrame({
-    'Horodatage': [
-        '2026-10-01 09:15:00', '2026-10-01 10:30:00', '2026-10-01 14:10:00',
-        '2026-10-02 09:45:00', '2026-10-02 14:20:00', '2026-10-02 18:05:00',
-        '2026-10-03 10:00:00', '2026-10-03 14:50:00', '2026-10-03 18:30:00'
-    ],
-    'Montant': [50.0, 25.0, 120.0, 50.0, 80.0, 250.0, 25.0, 75.0, 100.0]
+# Données brutes issues de l'importation
+df_brut = pd.DataFrame({
+    'Reference': ['SKU-01', 'SKU-02', 'SKU-03', 'SKU-04', 'SKU-05'],
+    'Produit': ['Clavier', 'Souris', 'Casque', 'Webcam', 'Tapis'],
+    'Code_Cat': [10, 20, 30, 20, 10],
+    'Prix_Brut': [60.0, 25.0, 120.0, 85.0, 15.0],
+    'En_Stock': [True, False, True, True, True]
 })
 
-# Conversion indispensable en objet datetime
-df_transactions['Horodatage'] = pd.to_datetime(df_transactions['Horodatage'])
+print("--- Données brutes d'origine ---")
+print(df_brut)
 
-# Extraction des composantes temporelles via l'accesseur .dt
-df_transactions['Heure'] = df_transactions['Horodatage'].dt.hour
-df_transactions['Jour'] = df_transactions['Horodatage'].dt.day_name()
+# ==========================================
+# APPLICATION DU FILTRAGE ET DU MAPPING
+# ==========================================
 
-# Synthèse : Grouper par heure pour analyser les créneaux les plus rentables
-synthese_horaire = df_transactions.groupby('Heure').agg(
-    Nombre_Commandes=('Montant', 'count'),  # Volume de transactions
-    Chiffre_Affaires=('Montant', 'sum'),    # CA total cumulé
-    Panier_Moyen=('Montant', 'mean')        # Montant moyen par commande
-).reset_index()
+# Filtrer uniquement les produits en stock ET dont le prix dépasse 20€
+# (Utilisation d'un masque booléen combiné)
+df_filtre = df_brut[(df_brut['En_Stock'] == True) & (df_brut['Prix_Brut'] > 20)].copy()
 
-print(synthese_horaire)
+# Mappage des codes de catégories vers des libellés métier explicites
+dictionnaire_categories = {
+    10: 'Accessoires',
+    20: 'Périphériques',
+    30: 'Audio & Son'
+}
+df_filtre['Categorie'] = df_filtre['Code_Cat'].map(dictionnaire_categories)
+
+# Appliquer une fonction personnalisée (.apply) : Remise de 15% sur les prix
+df_filtre['Prix_Promo'] = df_filtre['Prix_Brut'].apply(lambda x: round(x * 0.85, 2))
+
+# ==========================================
+# SÉLECTION FINALE (Propreté du rapport)
+# ==========================================
+# On isole uniquement les colonnes pertinentes pour l'analyse
+df_synthese = df_filtre[['Reference', 'Produit', 'Categorie', 'Prix_Brut', 'Prix_Promo']]
+
+print("\n--- Tableau de synthèse final (Filtré, Mappé et Calculé) ---")
+print(df_synthese)
 
 ```
 
-**La chaîne logique :** On convertit d'abord la colonne brute en `datetime`, on extrait les informations fines (`.dt.hour`, `.dt.day_name()`), puis on structure l'analyse macroscopique avec `.groupby().agg()`.
-**La puissance du multi-indicateur :** En une seule passe, `.agg()` permet d'isoler à la fois le volume, la somme et la moyenne par tranche horaire, fournissant un tableau de bord directement exploitable par les équipes métiers.
+---
 
-## Exercices de fin de chapitre 
+### Les clés de la réussite à rappeler à votre lecteur :
 
-**Exercice 1 :** Créez un `Timestamp` correspondant à la date d'aujourd'hui et ajoutez-lui un `Timedelta` de 48 heures.
+**Le filtrage se fait sur les lignes** via des conditions booléennes (`df[...]` ou `.query()`), tandis que `.filter()` est réservé aux étiquettes de colonnes ou d'index.
 
-**Exercice 2:** Utilisez `period_range` pour générer une liste de 6 périodes trimestrielles commençant au premier trimestre 2026.
+**Le `.map()` est l'outil roi** pour enrichir une colonne à partir d'un dictionnaire de correspondance, à condition de bien anticiper la gestion des valeurs inconnues (`NaN`).
+
+**Le `.apply()` offre une flexibilité totale** pour injecter du code Python personnalisé (comme des fonctions `lambda`) lorsque les opérations vectorisées de base ne suffisent plus.
+
+## Exercices de fin de chapitre
+
+**Exercice 1:** Analyse temporelle et extraction des pics d'activité
+Manipuler les séries temporelles, convertir des chaînes de caractères en objets `datetime`, extraire des composantes temporelles et réaliser une agrégation croisée.
+
+Vous disposez d'un journal de transactions brutes sous forme de texte. La direction souhaite identifier quels jours de la semaine génèrent le plus de chiffre d'affaires.
+
+Créez un DataFrame contenant ces données brutes :
+```python
+import pandas as pd
+
+df_logs = pd.DataFrame({
+    'Horodatage': ['2026-10-01 09:30:00', '2026-10-02 14:15:00', '2026-10-03 18:45:00', 
+                   '2026-10-04 10:00:00', '2026-10-05 16:20:00', '2026-10-06 11:10:00'],
+    'Montant_EUR': [120.5, 45.0, 300.0, 85.0, 210.0, 95.0]
+})
+
+```
+Convertissez la colonne `Horodatage` en un type `datetime` exploitable.
+Extrayez le **nom du jour de la semaine** (ex: *Monday*, *Tuesday*...) dans une nouvelle colonne nommée `Jour_Semaine`.
+Réalisez un regroupement (`groupby`) par `Jour_Semaine` pour calculer la somme totale du chiffre d'affaires (`Montant_EUR`) et le nombre de transactions par jour.
+
+
+**Exercice 2:**  Enrichissement relationnel, Mapping et Filtrage
+Croiser deux tables hétérogènes avec `pd.merge()`, traduire des codes via `.map()` et appliquer un filtre conditionnel multicritère.
+
+Vous gérez deux sources de données distinctes dans votre boutique : un historique de ventes contenant des identifiants produits, et un catalogue général fournissant les détails et les catégories.
+
+Partez des deux DataFrames suivants :
+```python
+# Table des ventes
+df_ventes = pd.DataFrame({
+    'ID_Produit': [101, 102, 101, 103, 102],
+    'Quantite': [2, 1, 5, 3, 2]
+})
+
+# Table du catalogue produits
+df_catalogue = pd.DataFrame({
+    'ID_Produit': [101, 102, 103, 104],
+    'Nom': ['Clavier', 'Souris', 'Casque', 'Webcam'],
+    'Code_Cat': [1, 2, 3, 2],
+    'Prix_Unitaire': [50.0, 25.0, 80.0, 70.0]
+})
+
+```
+
+
+Réalisez une jointure (`pd.merge()`) de type **`left`** en prenant `df_ventes` comme table principale pour y intégrer les informations du catalogue.
+À l'aide d'un dictionnaire de correspondance, créez une colonne `Categorie` en mappant les `Code_Cat` selon la règle suivante :
+* `1` : *Bureautique*
+* `2` : *Accessoire*
+* `3` : *Audio*
+
+Calculez le montant total de chaque ligne (`Quantite * Prix_Unitaire`) dans une nouvelle colonne `CA_Ligne`.
+Filtrez enfin le DataFrame final pour n'afficher que les lignes dont le `CA_Ligne` dépasse 100 €.

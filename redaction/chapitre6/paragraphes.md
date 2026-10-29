@@ -1,381 +1,307 @@
-# Chapitre 6: Nettoyage et Préparation des Données
+# Chapitre 6 : Opérations sur les données
 
-Le nettoyage des données (*Data Cleaning*) est souvent l'étape la plus chronophage et la plus cruciale de tout projet en science des données. Un modèle d'apprentissage ou une analyse statistique ne vaut que par la qualité des données qui l'alimentent. Les fichiers bruts contiennent fréquemment des valeurs manquantes, des doublons, des fautes de frappe textuelles ou des valeurs aberrantes.
-
-Ce chapitre vous présente les outils et méthodes indispensables sous Pandas pour transformer un jeu de données brut et chaotique en un tableau propre, structuré et prêt pour l'analyse.
+Apprendre à manipuler et transformer vos données est indispensable pour extraire des informations pertinentes. Ce chapitre vous permet de maîtriser le tri, l'itération et les fonctions avancées de transformation pour nettoyer et enrichir vos jeux de données.
 
 Dans ce chapitre :
 
-* Détecter les données invalides (`NaN`, `isna()`, `notna()`)
-* Traiter les valeurs manquantes : `fillna()`, `dropna()`, `interpolate()`
-* Détecter et supprimer les doublons : `duplicated()`, `drop_duplicates()`
-* Repérer les valeurs aberrantes (Outliers)
-* Nettoyer les chaînes de caractères avec l'accesseur `.str`
-* Le type `category` : gain de mémoire et de performance
-* Exemple de synthèse :
+* Opération de Tri
+* Itération sur les lignes et modification
+* Utilisation des fonctions `apply`
+* Utilisation des `pipe`
+* Recherches et critères de filtrage
+* Exemple de synthèse
 * Exercices de fin de chapitre
 
----
+## Opération de Tri
 
-## Détecter les données invalides (`NaN`, `isna()`, `notna()`)
+Le tri permet de réorganiser vos données selon les valeurs d'une ou plusieurs colonnes pour mieux visualiser les extrêmes ou les tendances. Vous pouvez trier par ordre croissant ou décroissant très simplement.
 
-Avant de corriger des anomalies, il faut savoir les localiser. Dans Pandas, les valeurs manquantes ou non définies sont représentées par l'indicateur universel **`NaN`** (Not a Number).
-
-### Détection unitaire avec `isna()` et `notna()` sur une Série
-
-Les méthodes `.isna()` (ou son alias `.isnull()`) et `.notna()` renvoient un masque booléen indiquant respectivement la présence ou l'absence de données valides.
+Tri simple par ordre décroissant (Trouver les meilleures ventes).Pour identifier immédiatement les produits qui génèrent le plus de chiffre d'affaires, on trie la colonne `Total` du plus grand au plus petit (`ascending=False`).
 
 ```python
-import pandas as pd
-import numpy as np
-
-# Série contenant des valeurs valides et des NaN
-prix = pd.Series([50.0, np.nan, 80.0, 25.0, np.nan])
-
-# Détecter où se trouvent les valeurs manquantes
-print("Masque des valeurs manquantes (isna) :")
-print(prix.isna())
-
-# Identifier les valeurs valides
-print("\nMasque des valeurs valides (notna) :")
-print(prix.notna())
-
-```
-
-### Audit global des valeurs manquantes dans un DataFrame
-
-Pour évaluer la santé d'un grand tableau, on combine souvent `.isna()` avec `.sum()` afin d'obtenir le nombre exact d'anomalies par colonne.
-
-```python
-import pandas as pd
-import numpy as np
-
-# DataFrame de test e-commerce
-df_catalogue = pd.DataFrame({
-    'Produit': ['Clavier', 'Souris', 'Casque', np.nan],
-    'Prix_HT': [50.0, 25.0, np.nan, 70.0],
-    'Stock': [10, np.nan, 5, 0]
-})
-
-# Compter le nombre de NaN par colonne
-anomalies_par_colonne = df_catalogue.isna().sum()
-print("Nombre de valeurs manquantes par colonne :\n", anomalies_par_colonne)
-
-```
-
----
-
-## Traiter les valeurs manquantes : `fillna()`, `dropna()`, `interpolate()`
-
-Une fois les anomalies détectées, trois grandes stratégies s'offrent à vous selon le contexte métier : **supprimer** les lignes/colonnes corrompues, les **remplacer** par une valeur par défaut ou une statistique, ou les **estimer** par interpolation.
-
-### Supprimer (`dropna`) ou Remplacer (`fillna`)
-
-```python
-import pandas as pd
-import numpy as np
 
 df = pd.DataFrame({
-    'Produit': ['Clavier', 'Souris', 'Casque', 'Webcam'],
-    'Prix': [50.0, np.nan, 80.0, 70.0],
-    'Stock': [10, 5, np.nan, 20]
+    'Produit': ['Clavier', 'Souris', 'Casque'],
+    'Prix_HT': [50.0, 25.0, 80.0],
+    'Quantite': [3, 10, 2],
+    'Prix_TTC': [60.0, 30.0, 96.0],
+    'Total': [180.0, 300.0, 192.0]
 })
 
-# Supprimer toute ligne contenant au moins un NaN
-df_sans_nan = df.dropna()
-print("--- Après dropna() ---")
-print(df_sans_nan)
 
-# Remplacer les NaN par une valeur fixe ou par la moyenne de la colonne
-df_rempli_fixe = df.fillna({'Prix': df['Prix'].mean(), 'Stock': 0})
-print("\n--- Après fillna() avec des valeurs de substitution ---")
-print(df_rempli_fixe)
+# Trier par chiffre d'affaires décroissant
+df_tri_desc = df.sort_values(by='Total', ascending=False)
+print(df_tri_desc)
 
 ```
 
-### L'interpolation pour les séries temporelles (`interpolate`)
+Tri simple par ordre croissant (Trouver les prix les plus bas).Pour classer les articles du moins cher au plus cher, on utilise le tri croissant par défaut (`ascending=True`).
 
-Sur des séries chronologiques, remplacer par une moyenne globale brise la tendance temporelle. L'interpolation linéaire permet d'estimer la valeur manquante en fonction de ses voisines.
+```python
+# Trier par prix unitaire HT croissant
+df_tri_asc = df.sort_values(by='Prix_HT', ascending=True)
+print(df_tri_asc)
+
+```
+
+Tri multicritères (Hiérarchiser selon plusieurs colonnes). Il est possible de trier selon plusieurs critères en passant une liste à `by` et à `ascending`. Par exemple, trier d'abord par `Quantite` décroissante, puis par `Prix_HT` croissant en cas d'égalité des quantités.
+
+```python
+# Tri sur deux colonnes avec des directions différentes
+df_multi_tri = df.sort_values(
+    by=['Quantite', 'Prix_HT'], 
+    ascending=[False, True]
+)
+print(df_multi_tri)
+
+```
+
+## Itération sur les lignes et modification
+
+Bien que l'itération manuelle soit moins performante que les méthodes vectorisées, elle permet de modifier des lignes complexes individuellement. On utilise généralement `iterrows()` pour parcourir les lignes une par une.
+
+```python
+# Itération sur les lignes pour modifier une valeur at pour la celle
+for index, row in df.iterrows():
+    df.at[index, 'Score'] += 1
+
+```
+
+Pour la lecture ou l'écriture d'une cellule isolée, df.at contourne la surcharge de sélection de Pandas et offre de meilleures performances en termes de temps d'exécution (très utile dans des boucles ou des scripts d'optimisation).
+
+## Utilisation des fonctions `apply`
+
+La méthode `apply` permet d'appliquer une fonction personnalisée à chaque ligne ou chaque colonne d'un DataFrame. C'est un outil très puissant pour réaliser des transformations complexes non supportées nativement par Pandas.
+
+Appliquer une transformation sur une colonne (Série). Pour transformer ou formater les valeurs d'une colonne spécifique (par exemple, mettre tous les noms de produits en majuscules) :
 
 ```python
 import pandas as pd
-import numpy as np
 
-# Suivi de température journalier avec un trou (NaN)
-dates = pd.date_range(start='2026-10-01', periods=5, freq='D')
-temperatures = pd.Series([20.0, 22.0, np.nan, 24.0, 25.0], index=dates)
+df = pd.DataFrame({
+    'Produit': ['Clavier', 'Souris', 'Casque'],
+    'Prix_HT': [50.0, 25.0, 80.0],
+    'Quantite': [3, 10, 2],
+    'Prix_TTC': [60.0, 30.0, 96.0],
+    'Total': [180.0, 300.0, 192.0]
+})
 
-# Interpolation linéaire pour combler le trou de manière fluide
-temperatures_propres = temperatures.interpolate()
+# Appliquer une fonction lambda pour mettre en majuscules la colonne 'Produit'
+df['Produit_Maj'] = df['Produit'].apply(lambda x: x.upper())
 
-print(temperatures_propres)
+print(df[['Produit', 'Produit_Maj']])
 
 ```
 
 ---
 
-## Détecter et supprimer les doublons : `duplicated()`, `drop_duplicates()`
-
-Les doublons faussent les analyses statistiques et les agrégations. Pandas permet de les identifier facilement et de les éliminer.
-
-### Repérer les lignes dupliquées
+Appliquer une fonction ligne par ligne (`axis=1`). Lorsque l'on a besoin de croiser plusieurs colonnes d'une **même ligne**, on utilise `axis=1`. Par exemple, pour générer une phrase de synthèse descriptive pour chaque produit :
 
 ```python
-import pandas as pd
-
-df_clients = pd.DataFrame({
-    'ID_Client': [101, 102, 101, 103, 102],
-    'Nom': ['Alice', 'Bob', 'Alice', 'Charlie', 'Bob'],
-    'Ville': ['Paris', 'Lyon', 'Paris', 'Marseille', 'Lyon']
-})
-
-# Détecter les lignes strictement identiques aux précédentes
-masque_doublons = df_clients.duplicated()
-print("Lignes dupliquées (booléens) :\n", masque_doublons)
-
-# Afficher uniquement les lignes concernées
-print("\nLignes en double :\n", df_clients[masque_doublons])
-
-```
-
-### Nettoyer avec `drop_duplicates()`
-
-On peut purger les doublons en conservant soit la première occurrence (`keep='first'`), soit la dernière (`keep='last'`), ou en ciblant une colonne clé (`subset`).
-
-```python
-# Supprimer les doublons stricts en gardant la première occurrence
-df_nettoye = df_clients.drop_duplicates(keep='first')
-print("Après suppression des doublons stricts :\n", df_nettoye)
-
-# Supprimer en se basant uniquement sur l'ID_Client
-df_clients_uniques = df_clients.drop_duplicates(subset=['ID_Client'])
-print("\nAprès nettoyage basé sur l'ID_Client :\n", df_clients_uniques)
-
-```
-
----
-
-## Repérer les valeurs aberrantes (Outliers)
-
-Une valeur aberrante est une donnée qui s'écarte anormalement de la tendance générale (par exemple, un prix négatif ou une quantité de 10 000 articles vendus par erreur). Elles se détectent souvent via des seuils logiques ou des indicateurs statistiques (comme les quantiles).
-
-### Filtrage par seuil logique métier
-
-```python
-import pandas as pd
-
-df_ventes = pd.DataFrame({
-    'Produit': ['Clavier', 'Souris', 'Casque', 'Erreur_Prix'],
-    'Prix_HT': [50.0, 25.0, 80.0, -999.0] # -999 est une valeur aberrante évidente
-})
-
-# Filtrer pour ne garder que les prix logiques (positifs et réalistes)
-df_valide = df_ventes[(df_ventes['Prix_HT'] > 0) & (df_ventes['Prix_HT'] < 5000)]
-print(df_valide)
-
-```
-
-### Utilisation des quantiles pour éliminer les valeurs extrêmes
-
-```python
-import pandas as pd
-import numpy as np
-
-np.random.seed(42)
-# Génération d'un jeu de données avec une valeur aberrante extrême
-salaires = pd.Series([3000, 3200, 3100, 2900, 3050, 150000]) 
-
-# Calcul des bornes interquartiles (ex: exclure les 5% les plus hauts et les 5% les plus bas)
-seuil_bas = salaires.quantile(0.05)
-seuil_haut = salaires.quantile(0.95)
-
-# Filtrer les outliers
-salaires_filtres = salaires[(salaires >= seuil_bas) & (salaires <= seuil_haut)]
-print("Salaires nettoyés des valeurs extrêmes :\n", salaires_filtres)
-
-```
-
----
-
-## Nettoyer les chaînes de caractères avec l'accesseur `.str`
-
-Les données textuelles issues du monde réel sont souvent hétérogènes (espaces superflus, majuscules/minuscules mélangées, fautes de saisie). L'accesseur **`.str`** de Pandas permet d'appliquer des méthodes de traitement de texte de manière vectorisée sur toute une colonne.
-
-### Uniformisation de texte (`strip`, `lower`)
-
-```python
-import pandas as pd
-
-df_utilisateurs = pd.DataFrame({
-    'Email': ['  ALICE@gmail.com ', 'Bob@Gmail.COM', ' charlie@yahoo.fr'],
-    'Ville': ['Paris ', 'LYON', 'marseille']
-})
-
-# Nettoyer les espaces superflus et uniformiser en minuscules
-df_utilisateurs['Email_Clean'] = df_utilisateurs['Email'].str.strip().str.lower()
-df_utilisateurs['Ville_Clean'] = df_utilisateurs['Ville'].str.strip().str.capitalize()
-
-print(df_utilisateurs[['Email_Clean', 'Ville_Clean']])
-
-```
-
-### Remplacement de motifs textuels (`str.replace`)
-
-```python
-# Données contenant des formats de prix hétérogènes (avec le symbole €)
-df_factures = pd.DataFrame({
-    'Montant': ['150 €', '200 €', '1250 €']
-})
-
-# Supprimer le symbole euro et convertir la colonne en type numérique
-df_factures['Montant_Numerique'] = (
-    df_factures['Montant']
-    .str.replace('€', '', regex=False)
-    .str.strip()
-    .astype(int)
+# Combiner les valeurs de plusieurs colonnes par ligne
+df['Resume'] = df.apply(
+    lambda row: f"Le {row['Produit']} (qté: {row['Quantite']}) génère un total de {row['Total']}€", 
+    axis=1
 )
 
-print(df_factures)
-print("Type de la nouvelle colonne :", df_factures['Montant_Numerique'].dtype)
+print(df['Resume'])
+
+```
+
+## Utilisation des `pipe`
+
+La méthode `pipe` permet d'enchaîner plusieurs fonctions de transformation de manière lisible et structurée. Cette approche facilite la maintenance du code en isolant chaque étape de traitement dans des fonctions séparées.
+
+Lorsque les transformations se succèdent, `pipe` permet de lier des fonctions personnalisées de manière séquentielle et lisible :
+
+```python
+import pandas as pd
+
+df = pd.DataFrame({
+    'Produit': ['Clavier', 'Souris', 'Casque'],
+    'Prix_HT': [50.0, 25.0, 80.0],
+    'Quantite': [3, 10, 2],
+    'Total': [180.0, 300.0, 192.0]
+})
+
+# Première fonction : appliquer une remise promotionnelle
+def appliquer_remise(data, taux):
+    data['Prix_Promo'] = data['Prix_HT'] * (1 - taux)
+    return data
+
+# Seconde fonction : filtrer les produits au-delà d'un seuil de chiffre d'affaires
+def filtrer_par_seuil(data, seuil):
+    return data[data['Total'] >= seuil].copy()
+
+# Enchaînement propre et lisible avec pipe
+df_traite = (
+    df.pipe(appliquer_remise, taux=0.10)
+      .pipe(filtrer_par_seuil, seuil=190.0)
+)
+
+print(df_traite[['Produit', 'Prix_HT', 'Prix_Promo', 'Total']])
+
+```
+
+La méthode .copy() permet de créer une copie indépendante d'un DataFrame (ou d'une Série) en mémoire.
+
+## Recherches et critères de filtrage
+
+Le filtrage consiste à extraire uniquement les lignes qui répondent à une ou plusieurs conditions logiques précises. Vous pouvez combiner plusieurs critères avec des opérateurs booléens pour un ciblage très granulaire.
+
+
+### Exemple 1 : 
+
+Isoler un catalogue avant une modification de prix et créer une grille tarifaire promotionnelle à partir du catalogue principal sans modifier les prix de base d'origine :
+
+```python
+import pandas as pd
+
+df = pd.DataFrame({
+    'Produit': ['Clavier', 'Souris', 'Casque'],
+    'Prix_HT': [50.0, 25.0, 80.0],
+    'Quantite': [3, 10, 2],
+    'Total': [180.0, 300.0, 192.0]
+})
+
+# Création d'une copie indépendante pour les soldes
+df_soldes = df.copy()
+
+# Modification sur la copie uniquement (baisse de 10% sur le Prix_HT)
+df_soldes['Prix_HT'] = df_soldes['Prix_HT'] * 0.9
+
+print("--- Original inchangé ---")
+print(df[['Produit', 'Prix_HT']])
+
+print("\n--- Copie modifiée (Soldes) ---")
+print(df_soldes[['Produit', 'Prix_HT']])
 
 ```
 
 ---
 
-## Le type `category` : gain de mémoire et de performance
-
-Par défaut, les colonnes textuelles répétitives (comme le nom d'un pays, un code postal ou une catégorie de produit) sont stockées en mémoire sous forme d'objets chaînes de caractères (`object`), ce qui est très gourmand en RAM.
-
-Le type de données **`category`** stocke en interne des entiers légers (des pointeurs) tout en affichant les libellés textuels correspondants.
-
-### Conversion d'une colonne en type catégoriel
+Filtrer et modifier un sous-ensemble (Éviter le `SettingWithCopyWarning`). Lorsque tu isoles des lignes spécifiques (par exemple, les produits dont la quantité vendue est supérieure à 2), l'utilisation conjointe du filtrage et de `.copy()` garantit que tu peux ajouter une nouvelle colonne sans déclencher d'avertissement ni corrompre la mémoire :
 
 ```python
-import pandas as pd
+# Extraction sécurisée des produits à forte rotation
+df_populaires = df[df['Quantite'] > 2].copy()
 
-df_produits = pd.DataFrame({
-    'Nom': ['Clavier', 'Souris', 'Casque', 'Webcam', 'Tapis'],
-    'Categorie': ['Accessoire', 'Accessoire', 'Audio', 'Audio', 'Accessoire']
-})
+# Ajout d'une colonne de statut sans risque
+df_populaires['Alerte_Stock'] = 'Réassort prioritaire'
 
-print("Type initial de la colonne Categorie :", df_produits['Categorie'].dtype)
-
-# Conversion explicite en catégorie
-df_produits['Categorie'] = df_produits['Categorie'].astype('category')
-
-print("Type après conversion :", df_produits['Categorie'].dtype)
-
-```
-
-### Mesure de l'optimisation mémoire
-
-```python
-import pandas as pd
-import numpy as np
-
-# Création d'un grand DataFrame avec une colonne textuelle très répétitive
-taille = 100000
-df_grand = pd.DataFrame({
-    'Region': np.random.choice(['Île-de-France', 'Auvergne-Rhône-Alpes', 'PACA', 'Grand Est'], size=taille),
-    'Valeur': np.random.randn(taille)
-})
-
-# Audit de la mémoire avant conversion
-print("--- Empreinte mémoire initiale (object) ---")
-df_grand.info(memory_usage='deep')
-
-# Conversion de la colonne textuelle en catégorie
-df_grand['Region'] = df_grand['Region'].astype('category')
-
-# Audit de la mémoire après conversion
-print("\n--- Empreinte mémoire optimisée (category) ---")
-df_grand.info(memory_usage='deep')
+print(df_populaires)
 
 ```
 
 ---
 
-## Exemple de synthèse :
+Conserver un historique de référence dans un pipeline de transformation. Dans un enchaînement de traitements, il est fréquent de dupliquer un DataFrame à une étape clé pour pouvoir comparer l'état initial et l'état final :
 
-Ce script réunit l'ensemble des bonnes pratiques abordées dans ce chapitre pour transformer un jeu de données brut e-commerce en un tableau propre et optimisé.
+```python
+# Sauvegarde de l'état initial (Baseline)
+df_reference = df.copy()
+
+# Traitement sur le DataFrame principal
+df['Chiffre_Affaires_Estime'] = df['Prix_HT'] * df['Quantite']
+
+# Comparaison directe entre la référence et le résultat traité
+comparaison = pd.DataFrame({
+    'Produit': df['Produit'],
+    'Total_Ref': df_reference['Total'],
+    'Total_Calcule': df['Chiffre_Affaires_Estime']
+})
+
+print(comparaison)
+
+```
+## Exemple de synthèse
+
+En analyse de données, la synthèse consiste à agréger les indicateurs clés (totaux, moyennes, extrêmes) pour obtenir une vue macroscopique en une seule instruction.
+
+Générer un rapport de synthèse global
 
 ```python
 import pandas as pd
-import numpy as np
 
-# Données brutes et chaotiques
-df_brut = pd.DataFrame({
-    'Reference': [' sku-01 ', 'SKU-02', 'sku-01', 'SKU-03', 'sku-04'],
-    'Produit': ['Clavier', 'Souris', 'Clavier', 'Casque', 'Webcam'],
-    'Categorie': [' Accessoire ', 'Accessoire', 'Accessoire', 'Audio', 'Audio'],
-    'Prix_HT': [50.0, 25.0, 50.0, -10.0, np.nan], # Contient un doublon, une valeur aberrante et un NaN
-    'Stock': [10, 15, 10, np.nan, 25]
+df = pd.DataFrame({
+    'Produit': ['Clavier', 'Souris', 'Casque'],
+    'Prix_HT': [50.0, 25.0, 80.0],
+    'Quantite': [3, 10, 2],
+    'Total': [180.0, 300.0, 192.0]
 })
 
-print("--- Données brutes d'origine ---")
-print(df_brut)
+# Utilisation de la méthode .agg() pour combiner plusieurs fonctions d'agrégation
+synthese_chiffres = df.agg({
+    'Prix_HT': ['mean', 'min', 'max'],
+    'Quantite': 'sum',
+    'Total': 'sum'
+})
 
-# ==========================================
-# PIPELINE DE NETTOYAGE ÉTAPE PAR ÉTAPE
-# ==========================================
+print("--- Indicateurs agrégés ---")
+print(synthese_chiffres)
 
-# A. Supprimer les doublons stricts basés sur les références
-df_propre = df_brut.drop_duplicates(subset=['Reference']).copy()
+# Extraction d'un résumé textuel des performances commerciales
+chiffre_affaires_global = df['Total'].sum()
+quantite_totale = df['Quantite'].sum()
+produit_phare = df.loc[df['Total'].idxmax(), 'Produit']
 
-# B. Nettoyer les chaînes de caractères (minuscules et suppression des espaces)
-df_propre['Reference'] = df_propre['Reference'].str.strip().str.upper()
-df_propre['Categorie'] = df_propre['Categorie'].str.strip().str.capitalize()
-
-# C. Traiter les valeurs aberrantes et les valeurs manquantes
-# Remplacement des prix aberrants (< 0) et des NaN par la médiane de la colonne
-mediane_prix = df_propre.loc[df_propre['Prix_HT'] > 0, 'Prix_HT'].median()
-df_propre['Prix_HT'] = df_propre['Prix_HT'].mask(df_propre['Prix_HT'] <= 0, np.nan)
-df_propre['Prix_HT'] = df_propre['Prix_HT'].fillna(mediane_prix)
-
-# Remplacer les stocks manquants par 0
-df_propre['Stock'] = df_propre['Stock'].fillna(0)
-
-# D. Optimiser la mémoire en convertissant la catégorie en type 'category'
-df_propre['Categorie'] = df_propre['Categorie'].astype('category')
-
-print("\n--- Données nettoyées et optimisées ---")
-print(df_propre)
-print("\nTypes des colonnes :")
-print(df_propre.dtypes)
+print("\n--- SYNTHÈSE COMMERCIALE ---")
+print(f"Chiffre d'affaires total : {chiffre_affaires_global} €")
+print(f"Volume total d'articles vendus : {quantite_totale} unités")
+print(f"Produit le plus performant (en CA) : {produit_phare}")
 
 ```
 
----
+* **`.agg()`** permet d'appliquer des fonctions statistiques différentes par colonne en une seule passe (par exemple, calculer la moyenne et les extrêmes sur les prix, mais la somme sur les quantités et les totaux).
+* **`idxmax()`** permet de récupérer l'index de la ligne ayant la valeur maximale dans une colonne donnée, ce qui est idéal pour identifier dynamiquement le meilleur produit sans avoir à trier tout le DataFrame.
 
 ## Exercices de fin de chapitre
 
-**Exercice 1 :** Détection et correction des anomalies de texte et de valeurs manquantes
 
-Vous disposez du DataFrame suivant simulant des inscrits à une newsletter :
+** Exercice 1** : Diagnostic et Audit d'un Dataset de Ventes
+
+Tu récupères un fichier CSV contenant des données de ventes brutes d'une entreprise e-commerce (`ventes_techno.csv`). Avant toute analyse marketing, tu dois mener un audit rigoureux de la structure et de la santé des données.
 
 ```python
 import pandas as pd
-import numpy as np
+import io
 
-df_inscrits = pd.DataFrame({
-    'Nom': [' Alice ', 'BOB', 'charlie', ' Alice ', np.nan],
-    'Age': [25, np.nan, 30, 25, 45],
-    'Score': [85, 90, np.nan, 85, 120] # 120 est une valeur aberrante (score max = 100)
+csv_data = """id_vente,produit,categorie,prix_unitaire,quantite,date_vente
+101,Clavier RGB,Accessoire,45.5,4,2026-05-10
+102,Écran 27,Moniteur,299.0,2,2026-05-11
+103,Souris Sans Fil,Accessoire,25.0,NaN,2026-05-11
+104,PC Portable Pro,Ordinateur,1200.0,1,2026-05-12
+105,Casque Audio,Accessoire,60.0,3,2026-05-13
+"""
+df_ventes = pd.read_csv(io.StringIO(csv_data))
+
+```
+
+* Importation et typage : Charge ce jeu de données en veillant à convertir la colonne `date_vente` directement en objets temporels (`datetime`) et à spécifier les colonnes catégorielles (`produit`, `categorie`).
+* Inspection structurelle : Affiche les dimensions du DataFrame, la liste des axes (`.axes` ou `.columns`/`.index`), ainsi que le diagnostic complet de l'empreinte mémoire avec `info(memory_usage='deep')`.
+* Audit des anomalies : Identifie le nombre de valeurs manquantes par colonne.
+* Statistiques descriptives : Affiche un résumé statistique global (incluant les variables textuelles/catégorielles) pour évaluer les fourchettes de prix et les volumes.
+
+---
+
+**Exercice 2 :** Pipeline de Transformation et Synthèse Commerciale
+
+À partir du catalogue de produits consolidé, tu dois appliquer une série de transformations sécurisées, calculer des métriques personnalisées ligne par ligne, et extraire un rapport de synthèse décisionnel.
+
+
+```python
+import pandas as pd
+
+df_catalogue = pd.DataFrame({
+    'Reference': ['SKU-01', 'SKU-02', 'SKU-03', 'SKU-04'],
+    'Produit': ['Clavier', 'Souris', 'Casque', 'Ecran'],
+    'Prix_HT': [50.0, 25.0, 80.0, 300.0],
+    'Stock': [15, 42, 8, 5]
 })
 
 ```
 
-Supprimez les lignes strictement dupliquées.
-Nettoyez la colonne `Nom` pour supprimer les espaces superflus et homogénéiser la casse (première lettre en majuscule).
-Remplacez les âges manquants par la médiane des âges, et corrigez le score aberrant (> 100) en y insérant une valeur manquante (`np.nan`) avant de combler les scores par la moyenne.
-
-**Exercice 2 :** Optimisation mémoire et traitement de chaînes
-
-Créez un DataFrame contenant 10 000 lignes avec deux colonnes :
-
-* `Departement` : contenant aléatoirement les valeurs `'75'`, `'69'`, `'13'` et `'31'`.
-* `Montant` : des chaînes de caractères représentant des prix textuels (ex: `"150.50 €"`).
-
-Nettoyez la colonne `Montant` pour la convertir en un type numérique (`float64`).
-Convertissez la colonne `Departement` en type `category`.
-Vérifiez l'empreinte mémoire du DataFrame optimisé à l'aide de `.info()`.
+* Isolation sécurisée (`.copy()`) : Crée une copie indépendante nommée `df_promo` pour préparer une opération promotionnelle sans risquer de corrompre le catalogue d'origine.
+* Transformation par Pipeline (`.pipe()`) : Écris une fonction `appliquer_taxe(df, tva)` qui ajoute une colonne `Prix_TTC` (calculée avec une TVA de 20%), puis enchaîne-la via `.pipe()`.
+* Traitement ligne par ligne (`.apply(axis=1)`) : À l'aide de `.apply()` et `axis=1`, génère une colonne `Valeur_Stock_HT` représentant la valorisation financière totale du stock pour chaque produit (`Prix_HT * Stock`).
+* Synthèse globale (`.agg()`) : Utilise `.agg()` pour obtenir simultanément le prix moyen, minimum et maximum des produits HT, ainsi que la somme totale de la valeur du stock de l'entreprise.

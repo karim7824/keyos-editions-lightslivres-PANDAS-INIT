@@ -1,299 +1,340 @@
-# Chapitre 13 : Visualisation de données avec Pandas (`df.plot()`)
+# Chapitre 13 : Gestion des structures multidimensionnelles
 
-L'analyse de données complexes nécessite souvent de manipuler des dimensions supplémentaires au-delà du simple tableau bidimensionnel. Ce chapitre vous présente les Panel Data et l'utilisation des MultiIndex pour structurer vos informations de manière hiérarchique et précise.
+L'analyse de données complexes nécessite souvent de manipuler des dimensions supplémentaires au-delà du simple tableau bidimensionnel. Qu'il s'agisse de croiser des informations géographiques, temporelles ou organisationnelles, Pandas propose des outils puissants pour structurer, indexer et remodeler vos données de manière hiérarchique.
 
 Dans ce chapitre :
 
-* Visualisation avec Matplotlib, Pyplot et Seaborn
-* Le catalogue des représentations graphiques
-* Habillage, personnalisation et multi-graphiques
-
-## Visualisation avec Matplotlib, Pyplot et Seaborn
-
-Bien que la méthode `df.plot()` suffise amplement pour l'exploration rapide et la génération de graphiques simples, l'écosystème Python de la visualisation repose sur trois piliers complémentaires. Pour concevoir des rapports de production avancés ou des analyses statistiques poussées, il est indispensable de savoir sortir de Pandas pour exploiter directement **Matplotlib**, son module **Pyplot**, et la bibliothèque statistique **Seaborn**.
-
----
-
-### La hiérarchie des outils de visualisation
-
-Pour comprendre comment ces outils s'articulent, il faut voir Pandas comme une surcouche de simplification :
-
-**Pandas (`df.plot()`)** : Intégré nativement, idéal pour prototyper et visualiser directement depuis un DataFrame. Il délague le travail d'affichage à Matplotlib en arrière-plan.
-**Matplotlib / Pyplot (`plt`)** : Le moteur graphique de référence en Python. Il offre un contrôle absolu sur chaque pixel, chaque axe, chaque annotation et la structure globale de la figure.
-**Seaborn (`sns`)** : Une bibliothèque construite *au-dessus* de Matplotlib, spécialisée dans la **visualisation statistique**. Elle gère nativement les regroupements complexes, les distributions et propose des designs modernes par défaut.
+* Introduction aux Panel Data
+* Utilisation du `MultiIndex`
+* Sélection et tri sur un `MultiIndex`
+* Tableaux croisés : `pivot()`, `pivot_table()` et `crosstab()`
+* Remodeler les données : `stack()`, `unstack()` et `melt()`
+* Exemple de synthèse : Analyse multidimensionnelle e-commerce
+* Exercices de fin de chapitre
 
 ---
 
-### Matplotlib et Pyplot (`plt`) : Le contrôle total sur la figure
+## Introduction aux Panel Data
 
-Quand les options de Pandas montrent leurs limites (par exemple pour superposer des graphiques de types différents, ajouter des annotations textuelles complexes ou gérer des figures multi-axes sophistiquées), on fait appel directement à `matplotlib.pyplot`.
+Les **Panel Data** (ou données de panel) combinent des données longitudinales (temporelles) et transversales (cross-sectional). Elles permettent de suivre plusieurs entités (par exemple, des magasins, des pays ou des produits) sur plusieurs périodes de temps (jours, mois, années).
+
+Sous Pandas, ces structures multidimensionnelles sont généralement gérées à l'aide d'un index hiérarchique (`MultiIndex`) ou par un remodelage tabulaire adapté.
+
+### Représentation conceptuelle d'un jeu de données de panel
 
 ```python
 import pandas as pd
-import matplotlib.pyplot as plt
 
-# Données d'exemple
-Mois = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai']
-CA_2025 = [10000, 12000, 11000, 13500, 15000]
-CA_2026 = [12500, 14000, 13800, 16000, 18500]
+# Données de ventes pour 2 magasins sur 2 trimestres
+data = {
+    'Chiffre_Affaires': [12000, 15000, 18000, 21000]
+}
 
-# Création explicite d'une figure et d'une zone de dessin (axes)
-fig, ax = plt.subplots(figsize=(8, 4))
+# Création d'un index à deux niveaux : (Magasin, Trimestre)
+index_panel = pd.MultiIndex.from_tuples([
+    ('Magasin_Paris', 'Q1'),
+    ('Magasin_Paris', 'Q2'),
+    ('Magasin_Lyon', 'Q1'),
+    ('Magasin_Lyon', 'Q2')
+], names=['Magasin', 'Trimestre'])
 
-# Tracé de deux courbes superposées avec personnalisation fine
-ax.plot(Mois, CA_2025, label='2025', color='gray', linestyle='--', marker='o')
-ax.plot(Mois, CA_2026, label='2026', color='teal', linewidth=2.5, marker='s')
-
-# Habillage professionnel via l'objet ax
-ax.set(title="Comparatif du Chiffre d'Affaires N-1 vs N",
-       xlabel="Mois",
-       ylabel="Euros (€)")
-ax.legend()
-ax.grid(True, alpha=0.3)
-
-plt.show()
+df_panel = pd.DataFrame(data, index=index_panel)
+print(df_panel)
 
 ```
 
----
+### Transformation d'un tableau large en format panel long
 
-### Seaborn (`sns`) : L'expert en statistiques et esthétique
-
-Seaborn brille particulièrement lorsqu'il s'agit d'analyser des distributions statistiques ou de croiser plusieurs variables catégorielles sans avoir à manipuler laborieusement les index de Pandas. Il intègre nativement des thèmes visuels élégants et gère les regroupements complexes en un seul argument (`hue`, `col`, etc.).
+Souvent, les données brutes arrivent sous forme "large" (une colonne par période). Il est nécessaire de les structurer en format panel exploitable.
 
 ```python
 import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
 
-# Application d'un thème Seaborn moderne
-sns.set_theme(style="whitegrid")
-
-# Données de test (répartition des prix par catégorie)
-df_produits = pd.DataFrame({
-    'Categorie': ['Accessoire', 'Accessoire', 'Audio', 'Audio', 'Moniteur', 'Moniteur', 'Accessoire', 'Audio'],
-    'Prix_HT': [50.0, 25.0, 80.0, 70.0, 250.0, 300.0, 40.0, 90.0],
-    'Canal': ['Web', 'Boutique', 'Web', 'Boutique', 'Web', 'Web', 'Boutique', 'Boutique']
+# Données larges initiales
+df_large = pd.DataFrame({
+    'Magasin': ['Paris', 'Lyon'],
+    '2025': [100000, 120000],
+    '2026': [110000, 135000]
 })
 
-# Génération d'un diagramme en boîte (boxplot) avec Seaborn
-# Il gère automatiquement la répartition statistique (médiane, quartiles, valeurs aberrantes)
-plt.figure(figsize=(8, 4))
-sns.boxplot(
-    data=df_produits, 
-    x='Categorie', 
-    y='Prix_HT', 
-    hue='Canal',          # Regroupement secondaire instantané
-    palette='Set2'
-)
+# Passage au format long (Panel Data) via la méthode melt
+df_panel_long = df_large.melt(
+    id_vars=['Magasin'], 
+    var_name='Annee', 
+    value_name='CA'
+).set_index(['Magasin', 'Annee'])
 
-plt.title("Distribution des prix par catégorie et canal de vente")
-plt.show()
+print(df_panel_long)
 
 ```
 
 ---
 
-### Synthèse : Quel outil choisir pour votre projet ?
+## Utilisation du `MultiIndex`
 
-| Outil | Niveau d'abstraction | Force principale | Cas d'usage idéal |
-| --- | --- | --- | --- |
-| **Pandas (`df.plot()`)** | Élevé (Intégré) | Rapidité d'exécution | Exploration de données rapide, graphiques simples intégrés à un script de nettoyage. |
-| **Matplotlib (`plt`)** | Bas / Intermédiaire | Contrôle chirurgical | Rapports de production sur-mesure, annotations complexes, multi-graphiques avancés. |
-| **Seaborn (`sns`)** | Intermédiaire (Statistique) | Esthétique moderne et inférence | Analyse exploratoire statistique, distributions, corrélations et graphiques multi-variables. |
+Le **`MultiIndex`** (ou index hiérarchique) permet d'associer plusieurs index à une même ligne ou à une même colonne. Il transforme un DataFrame bidimensionnel classique en une structure capable de représenter 3 dimensions ou plus.
 
-## Le catalogue des représentations graphiques 
-
-* **Le graphique linéaire (`kind='line'`)** : Suivi des tendances et des séries temporelles (ex: évolution du chiffre d'affaires au fil des mois).
-* **Le diagramme en barres (`kind='bar'` / `barh`)** : Comparaison de catégories (ex: volume des ventes par catégorie de produits).
-* **L'histogramme (`kind='hist'`)** : Analyse de la distribution statistique d'une variable numérique (ex: répartition des prix unitaires).
-* **Le nuage de points (`kind='scatter'`)** : Croisement de deux variables pour identifier des corrélations (ex: Prix vs Quantité vendue).
-* **Le diagramme circulaire (`kind='pie'`)** : Représentation des parts de marché (avec modération).
-
----
-
-### Le DataFrame de référence pour la visualisation
+### Création d'un MultiIndex à partir de listes de tuples
 
 ```python
 import pandas as pd
-import matplotlib.pyplot as plt
+import numpy as np
 
-# Création du DataFrame de test
-df_visualisation = pd.DataFrame({
-    'Date': pd.date_range(start='2026-10-01', periods=10, freq='D'),
-    'Produit': ['Clavier', 'Souris', 'Casque', 'Webcam', 'Tapis', 'Écran', 'Clavier', 'Souris', 'Casque', 'Webcam'],
-    'Categorie': ['Accessoire', 'Accessoire', 'Audio', 'Audio', 'Accessoire', 'Moniteur', 'Accessoire', 'Accessoire', 'Audio', 'Audio'],
-    'Prix_HT': [50.0, 25.0, 80.0, 70.0, 15.0, 250.0, 50.0, 25.0, 80.0, 70.0],
-    'Quantite': [5, 12, 3, 8, 15, 2, 7, 10, 4, 6]
-})
+# Définition de tuples hiérarchiques (Rayon, Produit)
+index_hierarchique = pd.MultiIndex.from_tuples([
+    ('Accessoire', 'Clavier'),
+    ('Accessoire', 'Souris'),
+    ('Audio', 'Casque'),
+    ('Audio', 'Microphone')
+], names=['Rayon', 'Produit'])
 
-# Calcul d'une colonne dérivée pour l'analyse
-df_visualisation['Chiffre_Affaires'] = df_visualisation['Prix_HT'] * df_visualisation['Quantite']
+df_multilignes = pd.DataFrame({
+    'Prix_HT': [50.0, 25.0, 80.0, 60.0],
+    'Stock': [120, 200, 45, 30]
+}, index=index_hierarchique)
 
-print(df_visualisation)
+print(df_multilignes)
+
+```
+
+### Création d'un MultiIndex par produit cartésien (`from_product`)
+
+Pour croiser toutes les combinaisons possibles entre des listes de valeurs (ex: des villes et des mois), la fonction `pd.MultiIndex.from_product()` automatise la génération.
+
+```python
+villes = ['Paris', 'Lyon']
+mois = ['Janvier', 'Février']
+
+# Génère toutes les combinaisons croisées Ville x Mois
+index_produit = pd.MultiIndex.from_product([villes, mois], names=['Ville', 'Mois'])
+
+df_meteo = pd.DataFrame({
+    'Temperature_Moy': [5.2, 6.1, 4.8, 5.5]
+}, index=index_produit)
+
+print(df_meteo)
 
 ```
 
 ---
 
-### Diagramme en barres (`kind='bar'`) : Comparer par catégorie
+## Sélection et tri sur un `MultiIndex`
 
-Idéal pour visualiser le chiffre d'affaires cumulé par grande famille de produits en couplant `groupby` et `plot()` :
+Manipuler un `MultiIndex` exige des méthodes de sélection adaptées pour interroger les différents niveaux de la hiérarchie. L'utilisation de l'objet **`pd.IndexSlice`** est indispensable pour réaliser des découpages (*slicing*) complexes.
 
-```python
-# Agréger le CA par catégorie et générer un graphique en barres
-df_visualisation.groupby('Categorie')['Chiffre_Affaires'].sum().plot(
-    kind='bar',
-    color='skyblue',
-    title="Chiffre d'Affaires par Catégorie",
-    rot=0 # Garde les libellés horizontaux
-)
-plt.ylabel('Euros (€)')
-plt.show()
-
-```
-
-### Graphique linéaire (`kind='line'`) : Suivre une série temporelle
-
-Parfait pour observer l'évolution des ventes au fil des jours :
-
-```python
-# Indexer par date pour un rendu temporel propre
-df_temporel = df_visualisation.set_index('Date')
-
-# Tracer l'évolution de la quantité vendue par jour
-df_temporel['Quantite'].plot(
-    kind='line',
-    marker='o',
-    color='green',
-    title="Évolution journalière des volumes vendus",
-    figsize=(10, 4)
-)
-plt.ylabel('Quantité')
-plt.show()
-
-```
-
-### Nuage de points (`kind='scatter'`) : Analyser une corrélation
-
-Utile pour étudier la relation entre le prix unitaire et les quantités achetées :
-
-```python
-# Croiser le prix et la quantité
-df_visualisation.plot(
-    kind='scatter',
-    x='Prix_HT',
-    y='Quantite',
-    color='purple',
-    title="Relation Prix / Quantité vendue"
-)
-plt.show()
-
-```
----
-## Habillage, personnalisation et multi-graphiques
-
-Un graphique brut généré par défaut est utile pour l'exploration rapide, mais un rapport professionnel exige un habillage rigoureux : des axes lisibles, des titres explicites, des couleurs adaptées et une mise en page soignée. Puisque Pandas s'appuie directement sur **Matplotlib** sous le capot, il est possible de personnaliser finement chaque rendu.
-
----
-
-### Personnalisation des axes et des titres
-
-Il est indispensable de nommer clairement les axes et d'ajouter un titre pour que le graphique soit compréhensible hors de son contexte. Ces paramètres peuvent être passés directement dans la méthode `.plot()` ou complétés via les fonctions de `matplotlib.pyplot`.
+### Sélection par niveau avec `.loc` et `IndexSlice`
 
 ```python
 import pandas as pd
-import matplotlib.pyplot as plt
 
-# Données d'exemple (ventes par jour)
+# Reprise de notre DataFrame hiérarchique (Rayon, Produit)
+index_hierarchique = pd.MultiIndex.from_tuples([
+    ('Accessoire', 'Clavier'),
+    ('Accessoire', 'Souris'),
+    ('Audio', 'Casque'),
+    ('Audio', 'Microphone')
+], names=['Rayon', 'Produit'])
+
+df = pd.DataFrame({
+    'Prix_HT': [50.0, 25.0, 80.0, 60.0]
+}, index=index_hierarchique)
+
+# A. Sélectionner tout le contenu du rayon 'Audio'
+print("--- Rayon Audio ---")
+print(df.loc['Audio'])
+
+# B. Sélectionner un produit précis en passant un tuple
+print("\n--- Prix du Casque ---")
+print(df.loc[('Audio', 'Casque'), 'Prix_HT'])
+
+```
+
+### Tri d'un MultiIndex avec `.sort_index()`
+
+Un `MultiIndex` non trié peut bloquer certaines opérations de sélection par tranche. Le tri hiérarchique s'effectue via `.sort_index()`.
+
+```python
+# Création d'un index volontairement désordonné
+index_desordonne = pd.MultiIndex.from_tuples([
+    ('Audio', 'Casque'),
+    ('Accessoire', 'Clavier'),
+    ('Audio', 'Microphone'),
+    ('Accessoire', 'Souris')
+], names=['Rayon', 'Produit'])
+
+df_vrac = pd.DataFrame({'Stock': [10, 20, 30, 40]}, index=index_desordonne)
+
+# Tri hiérarchique par ordre alphabétique des index
+df_trie = df_vrac.sort_index()
+print(df_trie)
+
+```
+
+---
+
+## Tableaux croisés : `pivot()`, `pivot_table()` et `crosstab()`
+
+Pour réorganiser des tableaux de données plates en matrices de synthèse croisées, Pandas propose trois fonctions majeures adaptées à des cas d'usage précis.
+
+* **`pivot()`** : Réorganise les données sans fonction d'agrégation (les doublons provoquent une erreur).
+* **`pivot_table()`** : Un tableau croisé dynamique puissant intégrant des fonctions d'agrégation (gestion des doublons).
+* **`crosstab()`** : Calcule une table de contingence (fréquence de croisement entre variables catégorielles).
+
+### Utilisation de `pivot_table()` pour synthétiser des ventes
+
+```python
+import pandas as pd
+
 df_ventes = pd.DataFrame({
-    'Jour': ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven'],
-    'CA': [1200, 1500, 950, 1800, 2200]
-}).set_index('Jour')
+    'Mois': ['Jan', 'Jan', 'Fév', 'Fév'],
+    'Magasin': ['Paris', 'Lyon', 'Paris', 'Lyon'],
+    'CA': [1000, 1500, 1200, 1600]
+})
 
-# Génération du graphique avec habillage intégré
-df_ventes.plot(
-    kind='bar',
-    title="Chiffre d'affaires journalier",  # Titre principal
-    rot=0                                  # Garde les libellés de l'axe X horizontaux
+# Création d'une table croisée : Mois en lignes, Magasins en colonnes, somme du CA
+table_croisee = df_ventes.pivot_table(
+    index='Mois', 
+    columns='Magasin', 
+    values='CA', 
+    aggfunc='sum'
 )
 
-# Personnalisation explicite des axes et de la légende
-plt.xlabel("Jours de la semaine")
-plt.ylabel("Montant en Euros (€)")
-plt.legend(["CA Global"])                  # Affichage et nom de la légende
-plt.show()
+print(table_croisee)
 
 ```
----
 
-### Mise en forme avancée : Dimensions, couleurs et styles
-
-Pour adapter la lisibilité d'un graphique (notamment pour l'intégrer dans un support de cours ou un rapport PDF), on joue sur trois leviers majeurs :
-
-* **`figsize=(largeur, hauteur)`** : Ajuste les proportions physiques de la figure en pouces.
-* **`colormap`** : Applique une palette de couleurs cohérente (ex: `'viridis'`, `'plasma'`, `'tab10'`).
-* **`linewidth` / `linestyle**` : Modifie l'épaisseur et le style des lignes pour les courbes.
+### Utilisation de `pd.crosstab()` pour compter des fréquences
 
 ```python
-# Traçage d'une courbe stylisée
-df_ventes.plot(
-    kind='line',
-    figsize=(9, 4),           # Figure large et moins haute
-    color='teal',             # Couleur principale
-    linewidth=3,              # Ligne épaisse
-    marker='o',               # Ajout de points sur les sommets
-    markersize=8,
-    title="Suivi de la performance hebdomadaire"
-)
+# Analyser la répartition des types de clients par canal de commande
+df_commandes = pd.DataFrame({
+    'Canal': ['Web', 'Boutique', 'Web', 'Web', 'Boutique'],
+    'Type_Client': ['VIP', 'Standard', 'Standard', 'VIP', 'VIP']
+})
 
-plt.grid(True, linestyle='--', alpha=0.6) # Ajout d'une grille en pointillés légers
-plt.ylabel("Euros (€)")
-plt.show()
+matrice_frequence = pd.crosstab(df_commandes['Canal'], df_commandes['Type_Client'])
+print(matrice_frequence)
 
 ```
 
 ---
 
-### Multi-subplots : Organiser plusieurs graphiques sur une grille
+## Remodeler les données : `stack()`, `unstack()` et `melt()`
 
-Lorsque l'on souhaite analyser plusieurs métriques en parallèle sans saturer un seul graphique, l'argument **`subplots=True`** ordonne à Pandas de créer un sous-graphique indépendant pour chaque colonne numérique. L'argument **`layout`** permet d'organiser ces graphiques sous forme de grille (lignes, colonnes).
+Le remodelage consiste à faire basculer un DataFrame de colonnes à lignes (`stack`), de lignes à colonnes (`unstack`), ou de le "fondre" pour le aplatir (`melt`).
+
+* **`stack()`** : Pivote les colonnes vers les lignes (augmente le nombre de lignes, réduit le nombre de colonnes).
+* **`unstack()`** : Pivote les lignes vers les colonnes (génère un MultiIndex sur les colonnes).
+* **`melt()`** : Transforme des colonnes larges en paires attribut-valeur (format long).
+
+### Utilisation croisée de `stack()` et `unstack()`
 
 ```python
-# DataFrame avec plusieurs métriques numériques
-df_multimetriques = pd.DataFrame({
-    'Date': pd.date_range(start='2026-10-01', periods=4, freq='D'),
-    'Visiteurs': [150, 200, 180, 250],
-    'Ventes': [12, 18, 15, 22],
-    'Panier_Moyen': [50.0, 55.0, 48.0, 52.0]
-}).set_index('Date')
+import pandas as pd
 
-# Création d'une grille de graphiques (2 lignes, 2 colonnes)
-df_multimetriques.plot(
-    kind='line',
-    subplots=True,            # Active les graphiques multiples
-    layout=(2, 2),            # Grille de 2x2
-    figsize=(10, 6),          # Dimensions globales de la figure
-    sharex=True,              # Partage l'axe des abscisses (dates)
-    marker='.'
-)
+# DataFrame avec des mois en colonnes
+df_large = pd.DataFrame({
+    'Jan': [100, 200],
+    'Fev': [150, 220]
+}, index=['Produit_A', 'Produit_B'])
 
-plt.suptitle("Tableau de bord multi-métriques", fontsize=14, fontweight='bold')
-plt.tight_layout()            # Évite le chevauchement des sous-graphiques
-plt.show()
+# Transformer les colonnes de mois en lignes avec stack()
+df_empile = df_large.stack()
+print("--- Après stack() ---")
+print(df_empile)
+
+# Revenir en arrière avec unstack()
+df_retrousse = df_empile.unstack()
+print("\n--- Après unstack() ---")
+print(df_retrousse)
 
 ```
 
-* **Les libellés (`xlabel`, `ylabel`, `title`)** garantissent l'autonomie sémantique du graphique.
-* **`figsize` et `colormap**` assurent l'harmonie visuelle et professionnelle de vos rapports.
-* **`subplots=True` couplé à `layout**` transforme un DataFrame multi-colonnes en un tableau de bord analytique structuré en une seule ligne de code.
+### Utilisation de `melt()` pour aplatir un tableau
+
+```python
+# Tableau de scores par trimestre
+df_trimestres = pd.DataFrame({
+    'Eleve': ['Alice', 'Bob'],
+    'Q1': [14, 12],
+    'Q2': [16, 15]
+})
+
+# Fusionner les colonnes de trimestres en lignes uniques
+df_fondu = df_trimestres.melt(
+    id_vars=['Eleve'], 
+    var_name='Trimestre', 
+    value_name='Note'
+)
+
+print(df_fondu)
+
+```
 
 ---
-### Synthèse
 
-La gestion des structures multidimensionnelles repose sur l'utilisation du `MultiIndex`, qui permet de structurer hiérarchiquement vos données pour une analyse fine des Panel Data.
+## Exemple de synthèse : Analyse multidimensionnelle e-commerce
 
-### Exercices
+Ce script complet met en œuvre le chaînage des opérations : création de données de panel, structuration via un `MultiIndex`, pivotement de table et extraction analytique.
 
-Créez un DataFrame avec un `MultiIndex` comportant deux niveaux : "Ville" et "Mois", et remplissez-le avec des données de température fictives.
-Utilisez `.loc` pour extraire toutes les données relatives à une seule ville de votre DataFrame hiérarchisé.
+```python
+import pandas as pd
+import numpy as np
+
+# Données brutes de ventes multi-critères
+df_brut = pd.DataFrame({
+    'Region': ['Nord', 'Nord', 'Sud', 'Sud', 'Nord', 'Sud'],
+    'Tranche_Horaire': ['Matin', 'Soir', 'Matin', 'Soir', 'Matin', 'Soir'],
+    'Categorie': ['Accessoire', 'Audio', 'Accessoire', 'Audio', 'Audio', 'Accessoire'],
+    'CA': [1200, 800, 950, 1400, 1100, 750]
+})
+
+print("--- Données brutes ---")
+print(df_brut)
+
+# Création d'une table croisée dynamique multidimensionnelle (Pivot Table)
+# Croisement : Région et Tranche horaire en lignes, Catégorie en colonnes
+table_synthese = df_brut.pivot_table(
+    index=['Region', 'Tranche_Horaire'],
+    columns='Categorie',
+    values='CA',
+    aggfunc='sum',
+    fill_value=0
+)
+
+print("\n--- Table croisée dynamique (MultiIndex en lignes) ---")
+print(table_synthese)
+
+# Remodeler la structure avec stack() pour analyse séquentielle
+df_empile = table_synthese.stack().reset_index(name='Chiffre_Affaires_Total')
+
+print("\n--- Structure aplatie (Format Long / Panel) ---")
+print(df_empile.head())
+
+```
+
+---
+
+## Exercices de fin de chapitre
+
+**Exercice 1 :** Manipulation d'un MultiIndex et sélection
+
+Créez un DataFrame comportant un `MultiIndex` à deux niveaux : `"Ville"` (`"Paris"`, `"Marseille"`) et `"Mois"` (`"Janvier"`, `"Février"`), contenant une colonne `"Consommation_Elec_kWh"`.
+Utilisez l'attribut `.loc` pour extraire l'ensemble des données relatives à la ville de `"Paris"`.
+
+**Exercice 2 :** Utilisation de `pivot_table` et de `melt`
+
+À partir du jeu de données suivant :
+
+```python
+import pandas as pd
+df_donnees = pd.DataFrame({
+    'Equipe': ['Dev', 'Dev', 'Ops', 'Ops'],
+    'Projet': ['Alpha', 'Beta', 'Alpha', 'Beta'],
+    'Budget': [50000, 30000, 20000, 45000]
+})
+
+```
+
+Transformez ce tableau à l'aide de `pivot_table` pour obtenir les équipes en lignes, les projets en colonnes, et les budgets en valeurs.
+Appliquez ensuite un `melt()` sur le résultat obtenu pour le ramener sous un format long.

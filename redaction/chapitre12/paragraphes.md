@@ -1,301 +1,203 @@
-# Chapitre 12: Rappel Pyplot – Les fondations graphiques de Python
+# Chapitre 12 :  Persistance et Formats 
 
-Bien que Pandas propose une surcouche intuitive avec `df.plot()` pour prototyper rapidement, l'écosystème graphique de Python repose en profondeur sur **Matplotlib** et son module d'interface haut niveau : **Pyplot** (`plt`). Maîtriser Pyplot est indispensable pour reprendre le contrôle total de la mise en page, structurer des figures complexes et produire des graphiques de qualité professionnelle.
+La persistance des données sous Pandas consiste à faire le pont entre la mémoire vive (le DataFrame en RAM) et le stockage sur disque (fichiers physiques). Qu'il s'agisse d'ingérer des données brutes issues de systèmes tiers ou d'exporter des rapports finalisés, Pandas propose des fonctions unifiées et performantes basées sur les préfixes **`read_`** et **`to_`**.
 
 Dans ce chapitre :
 
-* Architecture de Matplotlib : `Figure` et `Axes`
-* Tracer un graphique simple : `plt.plot()`
-* Titres, étiquettes, légendes et styles
-* Plusieurs graphiques dans une figure : `plt.subplots()`
-* Enregistrer une figure
+* Le format CSV (*Comma-Separated Values*) : Le standard tabulaire
+* Le format JSON (*JavaScript Object Notation*) : Le roi du Web
+* Le format XML (*Extensible Markup Language*) : Les données semi-structurées
+* Persistance des données via le format Pickle
 * Exemple de synthèse
 * Exercices de fin de chapitre
 
----
+## Le format CSV (*Comma-Separated Values*) : Le standard tabulaire
 
-## Architecture de Matplotlib : `Figure` et `Axes`
+Le CSV est le format universel pour les données tabulaires. Léger et lisible, il est géré nativement par la quasi-totalité des outils logiciels.
 
-Pour construire un graphique avec Matplotlib, il faut comprendre sa hiérarchie visuelle, reposant sur deux objets fondamentaux :
+### Lecture d'un fichier CSV (`pd.read_csv`)
 
-* **La `Figure**` : C'est la fenêtre globale ou la "feuille de dessin" qui contient l'ensemble des éléments graphiques (titres globaux, légende générale, sous-graphiques).
-* **Les `Axes**` : Ce sont les zones de traçage proprement dites (le système d'axes $X$ et $Y$ où les courbes et barres sont dessinées). Une `Figure` peut contenir un ou plusieurs `Axes`.
-
-### Création explicite d'une Figure et d'un unique objet Axes
+La fonction `pd.read_csv()` est la plus utilisée en science des données. Elle intègre de nombreux paramètres pour s'adapter à la structure du fichier source :
 
 ```python
-import matplotlib.pyplot as plt
+import pandas as pd
 
-# Création explicite de la figure (fig) et de la zone de tracé (ax)
-fig, ax = plt.subplots(figsize=(6, 3))
-
-# Tracé d'une ligne simple sur l'objet ax
-ax.plot([1, 2, 3, 4], [10, 20, 25, 30])
-
-plt.show()
-
-```
-
-### Manipulation des propriétés de l'objet Axes
-
-L'objet `ax` centralise toutes les commandes de modification des axes, ce qui rend le code plus modulaire et lisible que l'utilisation de fonctions globales.
-
-```python
-import matplotlib.pyplot as plt
-
-fig, ax = plt.subplots()
-
-# Utilisation de la méthode .set() pour configurer l'axe en une seule ligne
-ax.set(
-    title="Évolution des performances",
-    xlabel="Temps (en heures)",
-    ylabel="Score technique"
+# Lecture d'un fichier CSV avec gestion du séparateur et de l'encodage
+df_ventes = pd.read_csv(
+    'ventes_2026.csv',
+    sep=',',               # Séparateur de colonnes (virgule, point-virgule ';', tabulation '\t')
+    encoding='utf-8',      # Encodage des caractères (utf-8, latin-1 pour les accents français)
+    index_col=0,           # Utiliser la première colonne comme index du DataFrame
+    na_values=['NA', 'NULL', '?'] # Définition personnalisée des valeurs manquantes
 )
 
-ax.plot([0, 1, 2], [5, 12, 18])
-plt.show()
+print(df_ventes.head())
+
+```
+
+### Sauvegarde d'un DataFrame (`df.to_csv`)
+
+Pour exporter un DataFrame vers un fichier CSV, on utilise la méthode `.to_csv()` :
+
+```python
+# Exportation propre sans inclure l'index technique de Pandas
+df_ventes.to_csv(
+    'export_ventes_nettoye.csv',
+    index=False,           # Évite d'enregistrer l'index (souvent inutile)
+    sep=';',               # Privilégier le point-virgule pour Excel en version française
+    encoding='utf-8-sig'   # 'utf-8-sig' garantit l'affichage correct des accents sous Excel
+)
 
 ```
 
 ---
 
-## Tracer un graphique simple : `plt.plot()`
+## Le format JSON (*JavaScript Object Notation*) : Le roi du Web
 
-La fonction **`plt.plot()`** est la fonction universelle de Matplotlib pour tracer des graphiques linéaires ou des nuages de points reliés par des lignes. Elle accepte en arguments des listes ou des tableaux NumPy pour les coordonnées $X$ et $Y$.
+Le format JSON est omniprésent dans les architectures web et les API REST. Contrairement au CSV, il gère des structures **hiérarchiques** (imbrications d'objets et de listes).
 
-### Tracé linéaire basique à partir de listes Python
+### Lecture d'un fichier JSON (`pd.read_json`)
+
+Pandas analyse automatiquement la structure JSON pour la convertir sous forme tabulaire :
 
 ```python
-import matplotlib.pyplot as plt
+# Chargement d'un fichier JSON structuré en enregistrements
+df_produits = pd.read_json('catalogue.json', orient='records')
 
-# Coordonnées des abscisses (X) et des ordonnées (Y)
-jours = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven']
-visiteurs = [120, 250, 180, 300, 420]
-
-# Tracé du graphique linéaire
-plt.plot(jours, visiteurs)
-plt.show()
+print(df_produits.head())
 
 ```
 
-### Personnalisation directe des traits et des marqueurs dans `plt.plot()`
+### Sauvegarde au format JSON (`df.to_json`)
 
-Il est possible de modifier l'apparence des courbes directement via les arguments de la fonction `plt.plot()` (couleurs, épaisseur, style de ligne et symboles de sommets).
+L'argument **`orient`** est crucial lors de l'exportation JSON pour définir la structure géométrique du fichier final :
 
 ```python
-import numpy as np
-
-# Génération d'une onde sinusoïdale avec NumPy
-x = np.linspace(0, 10, 50)
-y = np.sin(x)
-
-# Tracé avec une ligne en tirets ('.--'), de couleur verte, avec des marqueurs ronds ('o')
-plt.plot(x, y, color='forestgreen', linestyle='--', linewidth=2, marker='o', markersize=4)
-plt.show()
+# Exportation au format liste d'enregistrements (idéal pour le web/API)
+df_produits.to_json(
+    'catalogue_export.json',
+    orient='records',      # Structure chaque ligne comme un objet JSON distinct
+    force_ascii=False,     # Conserve les caractères accentués en clair (non échappés)
+    indent=4               # Indentation pour rendre le fichier lisible par un humain
+)
 
 ```
 
 ---
 
-## Titres, étiquettes, légendes et styles
+## Le format XML (*Extensible Markup Language*) : Les données semi-structurées
 
-Un graphique professionnel doit être immédiatement compréhensible hors de son contexte. Cela nécessite l'ajout rigoureux de titres, d'étiquettes sur les axes (`xlabel`, `ylabel`), de légendes pour identifier les courbes, et éventuellement d'une grille de lecture.
+Bien que plus lourd que le JSON, le format XML reste la référence dans les environnements d'entreprise, bancaires ou administratifs (factures électroniques, flux RSS, configurations).
 
-### Ajout de titres, libellés d'axes et de légendes
+#### Lecture d'un fichier XML (`pd.read_xml`)
+
+Pandas intègre nativement un moteur d'analyse XML (nécessitant les bibliothèques `lxml` ou `html5lib` en arrière-plan) :
 
 ```python
-import matplotlib.pyplot as plt
+# Lecture d'un fichier XML en ciblant la balise répétitive (xpath)
+df_factures = pd.read_xml(
+    'factures.xml',
+    xpath='.//facture'     # XPath ciblant chaque nœud <facture> à transformer en ligne
+)
 
-mois = ['Jan', 'Fév', 'Mar', 'Avr']
-ca_2025 = [100, 120, 115, 130]
-ca_2026 = [110, 135, 140, 155]
-
-# Traçage des deux courbes avec des étiquettes (label)
-plt.plot(mois, ca_2025, label='Année 2025', color='gray', linestyle=':')
-plt.plot(mois, ca_2026, label='Année 2026', color='teal', linewidth=2)
-
-# Ajout des éléments textuels et de la légende
-plt.title("Comparatif annuel du Chiffre d'Affaires")
-plt.xlabel("Mois de l'année")
-plt.ylabel("Montant (k€)")
-plt.legend()       # Affiche la légende en se basant sur les arguments 'label'
-plt.grid(True, alpha=0.3) # Ajout d'une grille légère
-
-plt.show()
+print(df_factures.head())
 
 ```
 
-### Application d'un style global prédéfini
+### Sauvegarde au format XML (`df.to_xml`)
 
-Matplotlib propose des thèmes visuels intégrés pour modifier instantanément l'esthétique de vos figures sans tout reconfigurer à la main.
+Pour sérialiser un DataFrame en XML :
 
 ```python
-import matplotlib.pyplot as plt
-
-# Activer un style visuel moderne (ex: 'seaborn-v0_8-whitegrid' ou 'ggplot')
-plt.style.use('ggplot')
-
-x = [1, 2, 3, 4]
-y = [10, 25, 15, 30]
-
-plt.plot(x, y, marker='s')
-plt.title("Graphique avec le style 'ggplot'")
-plt.xlabel("Index")
-plt.ylabel("Valeur")
-plt.show()
+# Exportation en XML avec personnalisation des balises racines
+df_factures.to_xml(
+    'factures_export.xml',
+    root_name='Entreprise', # Nom de la balise racine globale
+    row_name='Facture',     # Nom de la balise représentant chaque ligne
+    index=False,
+    encoding='utf-8'
+)
 
 ```
 
 ---
 
-## Plusieurs graphiques dans une figure : `plt.subplots()`
+### Synthèse des méthodes de persistance
 
-Lorsque l'on souhaite comparer plusieurs métriques côte à côte sans surcharger un unique repère, on utilise un système de grille de sous-graphiques (*subplots*) via `plt.subplots(nrows, ncols)`.
+| Format | Fonction de lecture | Méthode d'écriture | Cas d'usage principal | 
+| --- | --- | --- | --- |
+| **CSV** | `pd.read_csv()` | `df.to_csv()` | Tableaux plats, exports Excel, volumétrie simple. | 
+| **JSON** | `pd.read_json()` | `df.to_json()` | Échanges avec des API web, données imbriquées. | 
+| **XML** | `pd.read_xml()` | `df.to_xml()` | Systèmes legacy, facturation électronique, flux RSS. | 
 
-### Grille de 1 ligne et 2 colonnes
+## Persistance des données via le format Pickle
 
-```python
-import matplotlib.pyplot as plt
-
-# Création d'une figure contenant 2 sous-graphiques côte à côte (1 ligne, 2 colonnes)
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
-
-# Premier graphique (à gauche) : Les ventes
-ax1.plot([1, 2, 3], [10, 20, 15], color='blue', marker='o')
-ax1.set_title("Volume des Ventes")
-ax1.set_xlabel("Semaine")
-
-# Second graphique (à droite) : Les profits
-ax2.plot([1, 2, 3], [2, 8, 5], color='orange', marker='s')
-ax2.set_title("Bénéfices nets")
-ax2.set_xlabel("Semaine")
-
-# Ajustement automatique de l'espacement entre les graphiques
-plt.tight_layout()
-plt.show()
-
-```
-
-### Grille matricielle de 2x2 sous-graphiques
+Le format Pickle permet de sérialiser des objets Python, ce qui signifie que vous pouvez sauvegarder un DataFrame exactement tel qu'il est, en conservant les types de données complexes et la structure des index. Cette méthode est idéale pour stocker des données temporaires entre deux sessions de travail sans perte d'information. Le format pickle est propre à Python
 
 ```python
-import matplotlib.pyplot as plt
-import numpy as np
+# Sauvegarde au format binaire Pickle
+df.to_pickle('donnees.pkl')
 
-# Création d'une grille 2x2 (retourne une matrice d'axes 2x2)
-fig, axes = plt.subplots(2, 2, figsize=(8, 6))
-
-# Accès aux sous-graphiques par leurs indices de ligne et colonne
-axes[0, 0].plot([1, 2], [3, 4], color='red')
-axes[0, 0].set_title("Graphique A")
-
-axes[0, 1].plot([1, 2], [4, 1], color='green')
-axes[0, 1].set_title("Graphique B")
-
-axes[1, 0].plot([1, 2], [2, 5], color='purple')
-axes[1, 0].set_title("Graphique C")
-
-axes[1, 1].plot([1, 2], [1, 1], color='brown')
-axes[1, 1].set_title("Graphique D")
-
-plt.tight_layout()
-plt.show()
+# Chargement du fichier Pickle
+df_recharge = pd.read_pickle('donnees.pkl')
 
 ```
-
----
-
-## Enregistrer une figure
-
-Une fois le graphique mis en forme, il est souvent nécessaire de l'exporter sous forme de fichier image (PNG, JPG) ou de format vectoriel haute qualité (PDF, SVG) pour l'insérer dans un rapport ou un e-book. On utilise pour cela la méthode **`plt.savefig()`**.
-
-### Exportation standard au format PNG haute résolution
-
-```python
-import matplotlib.pyplot as plt
-
-x = [1, 2, 3, 4]
-y = [10, 20, 25, 30]
-
-plt.plot(x, y, marker='o')
-plt.title("Rapport de performance")
-plt.xlabel("Mois")
-plt.ylabel("Score")
-
-# Sauvegarde de la figure avec une résolution élevée (dpi=300) et un fond propre
-plt.savefig("rapport_performance.png", dpi=300, bbox_inches='tight')
-plt.close() # Ferme la figure pour libérer la mémoire
-
-```
-
-### Exportation au format vectoriel SVG pour l'édition web ou print
-
-```python
-import matplotlib.pyplot as plt
-
-# Traçage d'une figure simple
-plt.figure(figsize=(5, 3))
-plt.plot([1, 2, 3], [5, 10, 15], color='crimson')
-plt.title("Graphique vectoriel")
-
-# Export en SVG (les lignes restent nettes peu importe le zoom)
-plt.savefig("graphique_vectoriel.svg", format='svg')
-plt.close()
-
-```
-
----
 
 ## Exemple de synthèse
-
-Ce script complet rassemble l'ensemble des notions de Pyplot abordées dans ce chapitre : création d'une figure structurée, génération d'une grille multi-axes (`plt.subplots`), personnalisation des styles, ajout de légendes et exportation finale sur disque.
+Le cycle complet de persistance du catalogue.Ce script démontre comment sauvegarder un même DataFrame sous les trois grands formats standards du marché en respectant les bonnes pratiques (gestion des accents, suppression des index superflus, formats structurés), puis à le recharger.
 
 ```python
-import matplotlib.pyplot as plt
-import numpy as np
+import pandas as pd
 
-# Préparation des données de test
-semaines = ['S1', 'S2', 'S3', 'S4', 'S5']
-trafic_web = [1200, 1500, 1350, 1800, 2100]
-taux_conversion = [2.1, 2.4, 2.3, 2.8, 3.2]
+# Données initiales (notre catalogue fil rouge)
+df_catalogue = pd.DataFrame({
+    'ID_Produit': [101, 102, 103],
+    'Produit': ['Clavier Mécanique', 'Souris Ergonomique', 'Casque Audio'],
+    'Prix_HT': [50.0, 25.0, 80.0],
+    'Disponible': [True, True, False]
+})
 
-# Création d'une figure avec 2 sous-graphiques verticaux (2 lignes, 1 colonne)
-fig, (ax_trafic, ax_conv) = plt.subplots(2, 1, figsize=(8, 6), sharex=True)
+print("--- DataFrame d'origine ---")
+print(df_catalogue)
 
-# Premier graphique : Évolution du trafic web (Ligne bleue avec marqueurs)
-ax_trafic.plot(semaines, trafic_web, color='royalblue', marker='o', linewidth=2, label='Visiteurs uniques')
-ax_trafic.set_title("Tableau de bord marketing - Suivi mensuel", fontsize=14, fontweight='bold')
-ax_trafic.set_ylabel("Nombre de visiteurs")
-ax_trafic.legend(loc='upper left')
-ax_trafic.grid(True, linestyle='--', alpha=0.5)
+# ==========================================
+# EXPORTATION MULTI-FORMATS
+# ==========================================
 
-# Second graphique : Évolution du taux de conversion (Ligne orange avec carrés)
-ax_conv.plot(semaines, taux_conversion, color='darkorange', marker='s', linewidth=2, label='Taux de conversion (%)')
-ax_conv.set_xlabel("Semaines de l'année")
-ax_conv.set_ylabel("Pourcentage (%)")
-ax_conv.legend(loc='upper left')
-ax_conv.grid(True, linestyle='--', alpha=0.5)
+# A. Format CSV (Idéal pour la bureautique et Excel en France)
+# -> index=False évite d'exporter la colonne d'index technique (0, 1, 2)
+# -> sep=';' et utf-8-sig garantissent un affichage parfait sous Excel
+df_catalogue.to_csv('catalogue.csv', index=False, sep=;', encoding='utf-8-sig')
 
-# Mise en page globale et exportation propre
-plt.tight_layout()
-plt.savefig("tableau_de_bord_marketing.png", dpi=300, bbox_inches='tight')
+# B. Format JSON (Idéal pour le Web, les API et NoSQL)
+# -> orient='records' structure chaque ligne comme un objet indépendant
+df_catalogue.to_json('catalogue.json', orient='records', force_ascii=False, indent=4)
 
-# Affichage à l'écran
-plt.show()
+# C. Format XML (Idéal pour les échanges d'entreprise et facturation)
+# -> root_name et row_name personnalisent les balises racines et de lignes
+df_catalogue.to_xml('catalogue.xml', root_name='Boutique', row_name='Article', index=False)
+
+print("\n[✔] Fichiers CSV, JSON et XML exportés avec succès sur le disque.")
+
+# ==========================================
+# RELECTURE ET VÉRIFICATION (EXEMPLE CSV)
+# ==========================================
+df_recharge = pd.read_csv('catalogue.csv', sep=';', encoding='utf-8-sig')
+
+print("\n--- Données rechargées depuis le fichier CSV ---")
+print(df_recharge)
 
 ```
 
 ---
+
+### Les règles d'or à retenir pour votre manuel :
+
+**Toujours utiliser `index=False**` lors des exports (`to_csv`, `to_xml`, etc.) sauf si l'index possède un sens métier avéré (comme une date ou une clé primaire explicite).
+**Soigner l'encodage (`utf-8-sig` ou `utf-8`)** pour ne jamais corrompre les caractères accentués lors du passage de Python vers des fichiers tiers.
+**Choisir le bon format selon l'écosystème cible** : CSV pour l'analyse tabulaire classique, JSON pour le développement web/API, et XML pour les flux d'entreprise stricts.
 
 ## Exercices de fin de chapitre
 
-**Exercice 1 :** Création d'une figure multi-axes personnalisée
-
-Créez un script Python qui génère une figure de taille `(8, 4)` contenant deux graphiques côte à côte (1 ligne, 2 colonnes) à l'aide de `plt.subplots()`.
-Sur le premier sous-graphique, tracez une fonction carrée ($y = x^2$ pour $x$ allant de 0 à 5) avec une ligne rouge en pointillés.
-Sur le second sous-graphique, tracez une fonction racine carrée ($y = \sqrt{x}$) avec une ligne bleue continue, puis enregistrez l'ensemble sous le nom `exercices_maths.png` à 300 DPI.
-
-**Exercice 2 :** Habillage et superposition de courbes
-
-À l'aide de `plt.plot()`, tracez sur un même repère deux courbes représentant l'évolution hypothétique des ventes de deux produits ("Produit A" et "Produit B") sur 4 trimestres.
-Personnalisez le graphique en ajoutant un titre explicite, des libellés sur les axes $X$ et $Y$, une légende positionnée en haut à droite, ainsi qu'une grille de fond en pointillés.
+**Exercice 1:** Créez un DataFrame, sauvegardez-le en format CSV, puis rechargez-le dans une nouvelle variable pour vérifier l'intégrité des données.
+**Exercice 2:** Expérimentez la sauvegarde d'un DataFrame contenant des types de données variés (nombres, textes, dates) au format Pickle et confirmez que les types sont conservés après le rechargement.

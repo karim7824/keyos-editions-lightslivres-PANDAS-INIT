@@ -293,7 +293,7 @@ temperatures = np.array([
 Calculez la température moyenne pour chaque jour (en effectuant l'opération sur les lignes, `axis=0`) en gérant proprement les valeurs manquantes (`np.nan`).
 Identifiez la ville (l'indice de la ligne) qui enregistre la température maximale globale sur l'ensemble de la période.
 
-# Chapitre 2 : Création et manipulation de Series
+# Chapitre 2 : Présentation des Series 
 
 Les `Series` constituent la structure de données unidimensionnelle fondamentale de Pandas, conçue pour stocker et manipuler efficacement des séquences de valeurs. Si elles s'apparentent de prime abord à un tableau unidimensionnel, elles se distinguent radicalement des `ndarray` de NumPy par un concept clé : **l'indexation explicite par étiquettes (labels)**.
 
@@ -617,7 +617,16 @@ print(statuts_bool)
 # dtype: bool
 
 ```
---- 
+---
+## Exemple de synthèse
+
+## Exercices de fin de chapitre
+
+**Exercice 1 :** 
+**Exercice 2 :** 
+---
+ 
+# Chapitre 3 : Manipuler les Series
 
 ## Opérations arithmétiques et alignement automatique
 
@@ -1056,7 +1065,7 @@ print(chiffre_affaires.describe())
 **Excerices 2:** Extraction de composantes temporelles (.dt) et transformation conditionnelle. Cet exemple illustre comment extraire des informations sémantiques à partir des dates (les jours de la semaine) pour ensuite appliquer une transformation conditionnelle (par exemple, appliquer un tarif week-end ou jour ouvré).
 
 
-# Chapitre 3 : Création et manipulation de DataFrames
+# Chapitre 4 : Présentation un DataFrame
 
 Le DataFrame est la structure de données pivot de Pandas, permettant de manipuler des tableaux bidimensionnels de manière flexible et efficace. Ce chapitre détaille comment structurer, créer et extraire des données au sein de cet environnement tabulaire.
 
@@ -1480,6 +1489,15 @@ import pandas as pd
 
 ```
 ---
+## Exemple de synthèse
+
+## Exercices de fin de chapitre
+
+**Exercice 1 :** 
+**Exercice 2 :** 
+---
+
+# Chapitre 5 : Manipuler un DataFrame
 
 ## Travailler sur les colonnes : sélection, calcul et nettoyage
 
@@ -1844,7 +1862,7 @@ print("\nPremier produit (position 0) :\n", premier_produit[['Nom', 'Prix_TTC']]
 **Exercice 2** Créez un DataFrame à partir d'un dictionnaire, puis utilisez `.iloc` pour extraire uniquement la première colonne de toutes les lignes.
 
 
-# Chapitre 4 : Opérations sur les données
+# Chapitre 6 : Opérations sur les données
 
 Apprendre à manipuler et transformer vos données est indispensable pour extraire des informations pertinentes. Ce chapitre vous permet de maîtriser le tri, l'itération et les fonctions avancées de transformation pour nettoyer et enrichir vos jeux de données.
 
@@ -2151,7 +2169,7 @@ df_catalogue = pd.DataFrame({
 * Synthèse globale (`.agg()`) : Utilise `.agg()` pour obtenir simultanément le prix moyen, minimum et maximum des produits HT, ainsi que la somme totale de la valeur du stock de l'entreprise.
 
 
-# Chapitre 5 : Filtrage et Mappage dans les DataFrames Pandas
+# Chapitre 7 : Filtrage et Mappage dans les DataFrames Pandas
 
 En programmation Python classique, on utilise souvent les fonctions intégrées **`filter()`** et **`map()`** sur des listes ou des itérables. Sous Pandas, ces concepts existent mais ont été entièrement repensés pour exploiter la vectorisation et offrir des performances de haut niveau sur des millions de lignes.
 
@@ -2382,7 +2400,7 @@ Réalisez une jointure (`pd.merge()`) de type **`left`** en prenant `df_ventes` 
 Calculez le montant total de chaque ligne (`Quantite * Prix_Unitaire`) dans une nouvelle colonne `CA_Ligne`.
 Filtrez enfin le DataFrame final pour n'afficher que les lignes dont le `CA_Ligne` dépasse 100 €.
 
-# Chapitre 6: Nettoyage et Préparation des Données
+# Chapitre 8: Nettoyage et Préparation des Données
 
 Le nettoyage des données (*Data Cleaning*) est souvent l'étape la plus chronophage et la plus cruciale de tout projet en science des données. Un modèle d'apprentissage ou une analyse statistique ne vaut que par la qualité des données qui l'alimentent. Les fichiers bruts contiennent fréquemment des valeurs manquantes, des doublons, des fautes de frappe textuelles ou des valeurs aberrantes.
 
@@ -2765,7 +2783,7 @@ Convertissez la colonne `Departement` en type `category`.
 Vérifiez l'empreinte mémoire du DataFrame optimisé à l'aide de `.info()`.
 
 
-# Chapitre 7 : Gestion des dates et séries temporelles
+# Chapitre 9 : Gestion des dates et séries temporelles
 
 La gestion des séries temporelles est un pilier fondamental en analyse de données. Pour manipuler des historiques de ventes, des logs ou des relevés, la fonction clé de Pandas est **`pd.date_range()`**. Elle permet de générer des séquences de dates régulières en spécifiant un point de départ, une fin (ou un nombre de périodes), et une fréquence (`freq`).
 
@@ -3033,7 +3051,7 @@ print(synthese_horaire)
 **Exercice 2:** Utilisez `period_range` pour générer une liste de 6 périodes trimestrielles commençant au premier trimestre 2026.
 
 
-# Chapitre 8 : Statistiques et agrégations
+# Chapitre 10 : Statistiques et agrégations
 
 L'analyse de données repose sur la capacité à synthétiser de vastes ensembles d'informations en indicateurs clés. Ce chapitre vous présente les outils pour calculer des statistiques descriptives et organiser vos données par catégories afin d'en extraire toute la valeur.
 
@@ -3275,7 +3293,7 @@ df_stocks = pd.DataFrame({
 * Traitement ligne par ligne :** À l'aide de `.apply()` avec `axis=1`, ajoute une colonne `Alerte_Reappro` qui retourne la chaîne de caractères `"Prioritaire"` si le stock est strictement inférieur à 5, et `"Normal"` dans le cas contraire.
 
 
-# Chapitre 9 : Jointures et fusion de données
+# Chapitre 11 : Jointures et fusion de données
 
 La fusion de données est une opération fondamentale pour consolider des informations provenant de sources multiples au sein d'un même projet. Ce chapitre détaille comment combiner vos structures de données pour obtenir une vision unifiée et complète.
 
@@ -3551,7 +3569,7 @@ print(catalogue_complet)
 **Exercice 2 :** Utilisez `pd.concat` pour ajouter une ligne supplémentaire à un DataFrame existant en créant un second DataFrame contenant uniquement cette ligne.
 
 
-# Chapitre 10 :  Persistance et Formats 
+# Chapitre 12 :  Persistance et Formats 
 
 La persistance des données sous Pandas consiste à faire le pont entre la mémoire vive (le DataFrame en RAM) et le stockage sur disque (fichiers physiques). Qu'il s'agisse d'ingérer des données brutes issues de systèmes tiers ou d'exporter des rapports finalisés, Pandas propose des fonctions unifiées et performantes basées sur les préfixes **`read_`** et **`to_`**.
 
@@ -3752,7 +3770,7 @@ print(df_recharge)
 **Exercice 2:** Expérimentez la sauvegarde d'un DataFrame contenant des types de données variés (nombres, textes, dates) au format Pickle et confirmez que les types sont conservés après le rechargement.
 
 
-# Chapitre 11 : Gestion des structures multidimensionnelles
+# Chapitre 13 : Gestion des structures multidimensionnelles
 
 L'analyse de données complexes nécessite souvent de manipuler des dimensions supplémentaires au-delà du simple tableau bidimensionnel. Qu'il s'agisse de croiser des informations géographiques, temporelles ou organisationnelles, Pandas propose des outils puissants pour structurer, indexer et remodeler vos données de manière hiérarchique.
 
@@ -4093,7 +4111,7 @@ df_donnees = pd.DataFrame({
 Transformez ce tableau à l'aide de `pivot_table` pour obtenir les équipes en lignes, les projets en colonnes, et les budgets en valeurs.
 Appliquez ensuite un `melt()` sur le résultat obtenu pour le ramener sous un format long.
 
-# Chapitre 12: Rappel Pyplot – Les fondations graphiques de Python
+# Chapitre 14: Rappel Pyplot – Les fondations graphiques de Python
 
 Bien que Pandas propose une surcouche intuitive avec `df.plot()` pour prototyper rapidement, l'écosystème graphique de Python repose en profondeur sur **Matplotlib** et son module d'interface haut niveau : **Pyplot** (`plt`). Maîtriser Pyplot est indispensable pour reprendre le contrôle total de la mise en page, structurer des figures complexes et produire des graphiques de qualité professionnelle.
 
@@ -4395,7 +4413,7 @@ Sur le second sous-graphique, tracez une fonction racine carrée ($y = \sqrt{x}$
 À l'aide de `plt.plot()`, tracez sur un même repère deux courbes représentant l'évolution hypothétique des ventes de deux produits ("Produit A" et "Produit B") sur 4 trimestres.
 Personnalisez le graphique en ajoutant un titre explicite, des libellés sur les axes $X$ et $Y$, une légende positionnée en haut à droite, ainsi qu'une grille de fond en pointillés.
 
-# Chapitre 13 : Visualisation de données avec Pandas (`df.plot()`)
+# Chapitre 15 : Visualisation de données avec Pandas (`df.plot()`)
 
 L'analyse de données complexes nécessite souvent de manipuler des dimensions supplémentaires au-delà du simple tableau bidimensionnel. Ce chapitre vous présente les Panel Data et l'utilisation des MultiIndex pour structurer vos informations de manière hiérarchique et précise.
 
@@ -4685,16 +4703,15 @@ plt.show()
 * **`subplots=True` couplé à `layout**` transforme un DataFrame multi-colonnes en un tableau de bord analytique structuré en une seule ligne de code.
 
 ---
-### Synthèse
+## Exemple de synthèse
 
-La gestion des structures multidimensionnelles repose sur l'utilisation du `MultiIndex`, qui permet de structurer hiérarchiquement vos données pour une analyse fine des Panel Data.
+## Exercices de fin de chapitre
 
-### Exercices
+**Exercice 1 :** Créez un DataFrame avec un `MultiIndex` comportant deux niveaux : "Ville" et "Mois", et remplissez-le avec des données de température fictives.
+**Exercice 2 :** Utilisez `.loc` pour extraire toutes les données relatives à une seule ville de votre DataFrame hiérarchisé.
+---
 
-Créez un DataFrame avec un `MultiIndex` comportant deux niveaux : "Ville" et "Mois", et remplissez-le avec des données de température fictives.
-Utilisez `.loc` pour extraire toutes les données relatives à une seule ville de votre DataFrame hiérarchisé.
-
-# Chapitre 14 : Étude de cas
+# Chapitre 16 : Étude de cas
 
 Analyse complète d'un jeu de données (Jeux Olympiques de Paris 2024) : https://github.com/rythamsaini/Paris-Olympic-Games-2024
 
