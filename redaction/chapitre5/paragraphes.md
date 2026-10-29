@@ -8,6 +8,8 @@ Dans ce chapitre :
 * Extraction de données : `.loc` vs `.iloc`
 * Exemple de synthèse
 * Exercices de fin de chapitre
+
+---  
 ## Travailler sur les colonnes : sélection, calcul et nettoyage
 
 Manipuler les colonnes est l'une des tâches les plus fréquentes en science des données. Cela permet d'enrichir un jeu de données avec de nouvelles variables, de nettoyer les structures en éliminant le superflu ou de clarifier les étiquettes.
