@@ -95,8 +95,6 @@ print(df[['Produit', 'Produit_Maj']])
 
 ```
 
----
-
 Appliquer une fonction ligne par ligne (`axis=1`). Lorsque l'on a besoin de croiser plusieurs colonnes d'une **même ligne**, on utilise `axis=1`. Par exemple, pour générer une phrase de synthèse descriptive pour chaque produit :
 
 ```python
