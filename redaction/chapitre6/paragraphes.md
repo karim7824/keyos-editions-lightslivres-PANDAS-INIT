@@ -213,6 +213,8 @@ comparaison = pd.DataFrame({
 print(comparaison)
 
 ```
+
+---
 ## Exemple de synthèse
 
 En analyse de données, la synthèse consiste à agréger les indicateurs clés (totaux, moyennes, extrêmes) pour obtenir une vue macroscopique en une seule instruction.
@@ -253,6 +255,8 @@ print(f"Produit le plus performant (en CA) : {produit_phare}")
 
 * **`.agg()`** permet d'appliquer des fonctions statistiques différentes par colonne en une seule passe (par exemple, calculer la moyenne et les extrêmes sur les prix, mais la somme sur les quantités et les totaux).
 * **`idxmax()`** permet de récupérer l'index de la ligne ayant la valeur maximale dans une colonne donnée, ce qui est idéal pour identifier dynamiquement le meilleur produit sans avoir à trier tout le DataFrame.
+
+---
 
 ## Exercices de fin de chapitre
 
