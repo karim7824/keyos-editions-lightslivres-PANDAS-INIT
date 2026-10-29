@@ -1,4 +1,4 @@
-# Chapitre 12 :  Persistance et Formats 
+# Chapitre 12 :  Persistance et formats 
 
 La persistance des données sous Pandas consiste à faire le pont entre la mémoire vive (le DataFrame en RAM) et le stockage sur disque (fichiers physiques). Qu'il s'agisse d'ingérer des données brutes issues de systèmes tiers ou d'exporter des rapports finalisés, Pandas propose des fonctions unifiées et performantes basées sur les préfixes **`read_`** et **`to_`**.
 
@@ -11,6 +11,7 @@ Dans ce chapitre :
 * Exemple de synthèse
 * Exercices de fin de chapitre
 
+---
 ## Le format CSV (*Comma-Separated Values*) : Le standard tabulaire
 
 Le CSV est le format universel pour les données tabulaires. Léger et lisible, il est géré nativement par la quasi-totalité des outils logiciels.
@@ -89,7 +90,7 @@ df_produits.to_json(
 
 Bien que plus lourd que le JSON, le format XML reste la référence dans les environnements d'entreprise, bancaires ou administratifs (factures électroniques, flux RSS, configurations).
 
-#### Lecture d'un fichier XML (`pd.read_xml`)
+### Lecture d'un fichier XML (`pd.read_xml`)
 
 Pandas intègre nativement un moteur d'analyse XML (nécessitant les bibliothèques `lxml` ou `html5lib` en arrière-plan) :
 
@@ -119,16 +120,59 @@ df_factures.to_xml(
 )
 
 ```
+---
+## Accès aux données stockées en base relationnelle (`sql`)
+
+
+Lecture d'une table entière depuis une base de données SQLite locale. Dans ce cas simple, on utilise un connecteur standard (`sqlite3`) pour importer directement une table relationnelle dans un `DataFrame`.
+
+```python
+import pandas as pd
+import sqlite3
+
+# Établissement de la connexion avec la base de données SQLite
+connexion = sqlite3.connect('entreprise.db')
+
+# Lecture intégrale d'une table "employes"
+df_employes = pd.read_sql("SELECT * FROM employes", con=connexion)
+
+print("--- Aperçu de la table importée ---")
+print(df_employes.head())
+
+# Fermeture de la connexion
+connexion.close()
+
+```
 
 ---
 
-### Synthèse des méthodes de persistance
+Exécution d'une requête filtrée via un moteur SQLAlchemy. En entreprise, on privilégie souvent **SQLAlchemy** pour s'interfacer avec divers SGBD (PostgreSQL, MySQL, SQL Server). Cela permet d'exécuter des requêtes paramétrées complexes directement depuis Pandas.
 
-| Format | Fonction de lecture | Méthode d'écriture | Cas d'usage principal | 
-| --- | --- | --- | --- |
-| **CSV** | `pd.read_csv()` | `df.to_csv()` | Tableaux plats, exports Excel, volumétrie simple. | 
-| **JSON** | `pd.read_json()` | `df.to_json()` | Échanges avec des API web, données imbriquées. | 
-| **XML** | `pd.read_xml()` | `df.to_xml()` | Systèmes legacy, facturation électronique, flux RSS. | 
+```python
+import pandas as pd
+from sqlalchemy import create_engine
+
+# Création du moteur de connexion (ex: base PostgreSQL ou SQLite)
+# Syntaxe : dialecte+driver://utilisateur:motdepasse@hote:port/nom_base
+engine = create_engine('sqlite:///entreprise.db')
+
+# Requête SQL ciblée (filtrage par département et tri)
+requete_sql = """
+    SELECT nom, departement, salaire 
+    FROM employes 
+    WHERE departement = 'Informatique' AND salaire > 3500
+    ORDER BY salaire DESC
+"""
+
+# Importation du résultat de la requête dans un DataFrame
+df_filtre = pd.read_sql(requete_sql, con=engine)
+
+print("--- Résultats filtrés depuis la base ---")
+print(df_filtre)
+
+```
+
+---
 
 ## Persistance des données via le format Pickle
 
@@ -142,6 +186,17 @@ df.to_pickle('donnees.pkl')
 df_recharge = pd.read_pickle('donnees.pkl')
 
 ```
+--- 
+## Synthèse des méthodes de persistance
+
+| Format | Fonction de lecture | Méthode d'écriture | Cas d'usage principal |
+| --- | --- | --- | --- |
+| **CSV** | `pd.read_csv()` | `df.to_csv()` | Tableaux plats, exports Excel, volumétrie simple. |
+| **JSON** | `pd.read_json()` | `df.to_json()` | Échanges avec des API web, données imbriquées. |
+| **XML** | `pd.read_xml()` | `df.to_xml()` | Systèmes legacy, facturation électronique, flux RSS. |
+| **SQL** | `pd.read_sql()` | `df.to_sql()` | Requêtage direct de SGBD (PostgreSQL, MySQL, SQLite), intégration en entreprise. |
+| **Pickle** | `pd.read_pickle()` | `df.to_pickle()` | Sauvegarde binaire rapide en local en conservant fidèlement les types de données et index complexes. |
+---
 
 ## Exemple de synthèse
 Le cycle complet de persistance du catalogue.Ce script démontre comment sauvegarder un même DataFrame sous les trois grands formats standards du marché en respectant les bonnes pratiques (gestion des accents, suppression des index superflus, formats structurés), puis à le recharger.
