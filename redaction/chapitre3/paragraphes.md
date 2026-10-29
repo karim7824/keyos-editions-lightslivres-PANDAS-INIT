@@ -132,13 +132,9 @@ L'une des grandes forces de Pandas réside dans la flexibilité de ses mécanism
 * Fonctionne exclusivement avec des **positions entières** (de `0` à `N-1`), exactement comme une liste Python classique ou un tableau NumPy.
 * Le borne de fin est exclusive lors d'un découpage (slicing).
 
-
 **`.loc` (pour *Location*) :**
 * Fonctionne exclusivement avec les **étiquettes (labels)** de l'index.
 * Le borne de fin est inclusive lors d'un découpage (contrairement aux habitudes de Python), ce qui est très pratique pour cibler explicitement une plage nommée.
-
-
----
 
 Imaginons une `Series` représentant la population (en millions) de quelques grandes villes françaises :
 
