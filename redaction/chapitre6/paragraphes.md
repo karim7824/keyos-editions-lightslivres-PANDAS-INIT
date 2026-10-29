@@ -284,8 +284,6 @@ df_ventes = pd.read_csv(io.StringIO(csv_data))
 * Audit des anomalies : Identifie le nombre de valeurs manquantes par colonne.
 * Statistiques descriptives : Affiche un résumé statistique global (incluant les variables textuelles/catégorielles) pour évaluer les fourchettes de prix et les volumes.
 
----
-
 **Exercice 2 :** Pipeline de Transformation et Synthèse Commerciale
 
 À partir du catalogue de produits consolidé, tu dois appliquer une série de transformations sécurisées, calculer des métriques personnalisées ligne par ligne, et extraire un rapport de synthèse décisionnel.
