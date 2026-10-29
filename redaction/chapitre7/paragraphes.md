@@ -1,5 +1,14 @@
 # Chapitre 7 : Filtrage et Mappage dans les DataFrames Pandas
 
+En programmation Python classique, on utilise souvent les fonctions intégrées **`filter()`** et **`map()`** sur des listes ou des itérables. Sous Pandas, ces concepts existent mais ont été entièrement repensés pour exploiter la vectorisation et offrir des performances de haut niveau sur des millions de lignes.
+
+| Opération | Fonction / Outil Pandas | Cas d'usage principal |
+| --- | --- | --- |
+| **Filtrer des lignes** | `df[condition]` ou `df.query()` | Extraire un sous-ensemble de données selon des critères chiffrés ou textuels. |
+| **Filtrer des colonnes** | `df.filter(like=...)` | Sélectionner rapidement des colonnes par motif ou nom. |
+| **Mapper des valeurs** | `serie.map(dictionnaire)` | Remplacer des codes par des libellés (tables de correspondance). |
+| **Appliquer une fonction** | `serie.apply()` / `df.map()` | Exécuter une logique de calcul personnalisée sur les données. |
+
 Dans ce chapitre :
 
 * Le Filtrage de données : Bien plus qu'un simple `filter()`
@@ -11,20 +20,7 @@ Dans ce chapitre :
 * Exemple de synthèse
 * Exercices de fin de chapitre
 
-En programmation Python classique, on utilise souvent les fonctions intégrées **`filter()`** et **`map()`** sur des listes ou des itérables. Sous Pandas, ces concepts existent mais ont été entièrement repensés pour exploiter la vectorisation et offrir des performances de haut niveau sur des millions de lignes.
-
-| Opération | Fonction / Outil Pandas | Cas d'usage principal |
-| --- | --- | --- |
-| **Filtrer des lignes** | `df[condition]` ou `df.query()` | Extraire un sous-ensemble de données selon des critères chiffrés ou textuels. |
-| **Filtrer des colonnes** | `df.filter(like=...)` | Sélectionner rapidement des colonnes par motif ou nom. |
-| **Mapper des valeurs** | `serie.map(dictionnaire)` | Remplacer des codes par des libellés (tables de correspondance). |
-| **Appliquer une fonction** | `serie.apply()` / `df.map()` | Exécuter une logique de calcul personnalisée sur les données. |
-
 ---
-
-## Le Filtrage de données : Bien plus qu'un simple `filter()`
-
-En Pandas, il existe deux manières distinctes de "filtrer" : le **filtrage conditionnel de lignes** (le plus fréquent) et le **filtrage de colonnes/index par nom**.
 
 ## Le filtrage conditionnel de lignes (Indexation booléenne)
 
@@ -76,6 +72,49 @@ df_selection = df.filter(items=['Produit', 'Stock'])
 
 La méthode **`.map()`** s'applique à une **Série** (une seule colonne). Elle est idéale pour remplacer des valeurs, traduire des codes numériques en libellés textuels, ou appliquer un dictionnaire de correspondance.
 
+Traduction de codes numériques en libellés textuels via un dictionnaire. Imaginons une série contenant des codes de statut de commande (0, 1, 2) que l'on souhaite expliciter pour un rapport métier.
+
+```python
+import pandas as pd
+
+# Série de codes de statuts de commandes
+statuts_codes = pd.Series([0, 1, 2, 0, 1], index=['C1', 'C2', 'C3', 'C4', 'C5'])
+
+# Dictionnaire de correspondance (mapping)
+correspondance_statuts = {
+    0: 'En attente',
+    1: 'Expédié',
+    2: 'Livré'
+}
+
+# Application du map pour traduire les codes en texte
+statuts_texte = statuts_codes.map(correspondance_statuts)
+
+print("--- Statuts traduits par dictionnaire ---")
+print(statuts_texte)
+
+```
+
+Application d'une fonction de transformation personnalisée. La méthode `.map()` accepte également une fonction ou une expression lambda pour modifier chaque élément de la série à la volée.
+
+```python
+import pandas as pd
+
+# Série de prénoms d'utilisateurs
+prenoms = pd.Series(['alice', 'bob', 'charlie', 'diane'])
+
+# Utilisation d'une fonction lambda pour capitaliser et ajouter un préfixe
+prenoms_formes = prenoms.map(lambda x: f"Utilisateur_{x.capitalize()}")
+
+print("\n--- Transformation dynamique via lambda ---")
+print(prenoms_formes)
+
+```
+
+> **Note :** Si une valeur présente dans la `Series` ne trouve pas de correspondance dans le dictionnaire passé à `.map()`, elle est automatiquement transformée en valeur manquante (`NaN`).
+
+---
+
 ## Traduire des codes catégories
 
 Imaginons une colonne contenant des identifiants numériques de catégories que l'on souhaite transformer en texte lisible :
@@ -121,6 +160,7 @@ print(df[['Produit', 'Prix_HT', 'Prix_Remise']])
 ```
 
 ---
+
 ## Exemple de synthèse
 
 Le nettoyage et l'enrichissement du catalogue e-commerce. Imaginons que nous récupérons un fichier de données brut comportant des codes de catégories chiffrés et des prix bruts. Notre objectif est de :
@@ -183,6 +223,8 @@ print(df_synthese)
 **Le `.map()` est l'outil roi** pour enrichir une colonne à partir d'un dictionnaire de correspondance, à condition de bien anticiper la gestion des valeurs inconnues (`NaN`).
 
 **Le `.apply()` offre une flexibilité totale** pour injecter du code Python personnalisé (comme des fonctions `lambda`) lorsque les opérations vectorisées de base ne suffisent plus.
+
+--- 
 
 ## Exercices de fin de chapitre
 
