@@ -1,231 +1,307 @@
-# Chapitre 4 : Filtrage et Mappage dans les DataFrames Pandas
+# Chapitre 4 : Opérations sur les données
 
-En programmation Python classique, on utilise souvent les fonctions intégrées **`filter()`** et **`map()`** sur des listes ou des itérables. Sous Pandas, ces concepts existent mais ont été entièrement repensés pour exploiter la vectorisation et offrir des performances de haut niveau sur des millions de lignes.
+Apprendre à manipuler et transformer vos données est indispensable pour extraire des informations pertinentes. Ce chapitre vous permet de maîtriser le tri, l'itération et les fonctions avancées de transformation pour nettoyer et enrichir vos jeux de données.
 
-| Opération | Fonction / Outil Pandas | Cas d'usage principal |
-| --- | --- | --- |
-| **Filtrer des lignes** | `df[condition]` ou `df.query()` | Extraire un sous-ensemble de données selon des critères chiffrés ou textuels. |
-| **Filtrer des colonnes** | `df.filter(like=...)` | Sélectionner rapidement des colonnes par motif ou nom. |
-| **Mapper des valeurs** | `serie.map(dictionnaire)` | Remplacer des codes par des libellés (tables de correspondance). |
-| **Appliquer une fonction** | `serie.apply()` / `df.map()` | Exécuter une logique de calcul personnalisée sur les données. |
+Dans ce chapitre :
 
----
+* Opération de Tri
+* Itération sur les lignes et modification
+* Utilisation des fonctions `apply`
+* Utilisation des `pipe`
+* Recherches et critères de filtrage
+* Exemple de synthèse
+* Exercices de fin de chapitre
 
-## Le Filtrage de données : Bien plus qu'un simple `filter()`
+## Opération de Tri
 
-En Pandas, il existe deux manières distinctes de "filtrer" : le **filtrage conditionnel de lignes** (le plus fréquent) et le **filtrage de colonnes/index par nom**.
+Le tri permet de réorganiser vos données selon les valeurs d'une ou plusieurs colonnes pour mieux visualiser les extrêmes ou les tendances. Vous pouvez trier par ordre croissant ou décroissant très simplement.
 
-## Le filtrage conditionnel de lignes (Indexation booléenne)
-
-Pour extraire des lignes selon un critère métier (ex: *tous les produits dont le prix dépasse 50€*), on n'utilise pas la fonction `filter()`, mais l'**indexation booléenne**, qui crée un masque de `True`/`False`.
+Tri simple par ordre décroissant (Trouver les meilleures ventes).Pour identifier immédiatement les produits qui génèrent le plus de chiffre d'affaires, on trie la colonne `Total` du plus grand au plus petit (`ascending=False`).
 
 ```python
-import pandas as pd
 
-# Données d'exemple (notre catalogue)
 df = pd.DataFrame({
-    'Produit': ['Clavier', 'Souris', 'Casque', 'Webcam'],
-    'Prix_HT': [50.0, 25.0, 80.0, 70.0],
-    'Stock': [10, 40, 5, 0]
+    'Produit': ['Clavier', 'Souris', 'Casque'],
+    'Prix_HT': [50.0, 25.0, 80.0],
+    'Quantite': [3, 10, 2],
+    'Prix_TTC': [60.0, 30.0, 96.0],
+    'Total': [180.0, 300.0, 192.0]
 })
 
-# Filtrer les produits dont le prix est supérieur à 50
-produits_chers = df[df['Prix_HT'] > 50]
-print("--- Produits chers (> 50) ---")
-print(produits_chers)
 
-# Combiner plusieurs conditions avec les opérateurs logiques (& pour ET, | ou OU)
-produits_disponibles_chers = df[(df['Prix_HT'] > 50) & (df['Stock'] > 0)]
+# Trier par chiffre d'affaires décroissant
+df_tri_desc = df.sort_values(by='Total', ascending=False)
+print(df_tri_desc)
 
 ```
 
-*Alternative élégante :* La méthode **`.query()`** permet d'écrire les conditions sous forme de chaîne de caractères textuelle, très lisible pour des requêtes complexes :
+Tri simple par ordre croissant (Trouver les prix les plus bas).Pour classer les articles du moins cher au plus cher, on utilise le tri croissant par défaut (`ascending=True`).
 
 ```python
-resultat = df.query("Prix_HT > 50 and Stock > 0")
+# Trier par prix unitaire HT croissant
+df_tri_asc = df.sort_values(by='Prix_HT', ascending=True)
+print(df_tri_asc)
 
 ```
 
-## La méthode `.filter()` : Sélectionner des colonnes ou des index par nom
-
-À l'inverse, la méthode `.filter()` de Pandas sert à **filtrer les étiquettes** (les noms des colonnes ou de l'index), et non les valeurs des lignes.
+Tri multicritères (Hiérarchiser selon plusieurs colonnes). Il est possible de trier selon plusieurs critères en passant une liste à `by` et à `ascending`. Par exemple, trier d'abord par `Quantite` décroissante, puis par `Prix_HT` croissant en cas d'égalité des quantités.
 
 ```python
-# Ne conserver que les colonnes dont le nom contient "Prix"
-df_filtre_cols = df.filter(like='Prix')
-
-# Sélectionner des colonnes spécifiques par leur nom exact
-df_selection = df.filter(items=['Produit', 'Stock'])
+# Tri sur deux colonnes avec des directions différentes
+df_multi_tri = df.sort_values(
+    by=['Quantite', 'Prix_HT'], 
+    ascending=[False, True]
+)
+print(df_multi_tri)
 
 ```
 
----
+## Itération sur les lignes et modification
 
-## Le Mappage (`.map()`) : Transformer et traduire des valeurs
+Bien que l'itération manuelle soit moins performante que les méthodes vectorisées, elle permet de modifier des lignes complexes individuellement. On utilise généralement `iterrows()` pour parcourir les lignes une par une.
 
-La méthode **`.map()`** s'applique à une **Série** (une seule colonne). Elle est idéale pour remplacer des valeurs, traduire des codes numériques en libellés textuels, ou appliquer un dictionnaire de correspondance.
+```python
+# Itération sur les lignes pour modifier une valeur at pour la celle
+for index, row in df.iterrows():
+    df.at[index, 'Score'] += 1
 
-## Traduire des codes catégories
+```
 
-Imaginons une colonne contenant des identifiants numériques de catégories que l'on souhaite transformer en texte lisible :
+Pour la lecture ou l'écriture d'une cellule isolée, df.at contourne la surcharge de sélection de Pandas et offre de meilleures performances en termes de temps d'exécution (très utile dans des boucles ou des scripts d'optimisation).
+
+## Utilisation des fonctions `apply`
+
+La méthode `apply` permet d'appliquer une fonction personnalisée à chaque ligne ou chaque colonne d'un DataFrame. C'est un outil très puissant pour réaliser des transformations complexes non supportées nativement par Pandas.
+
+Appliquer une transformation sur une colonne (Série). Pour transformer ou formater les valeurs d'une colonne spécifique (par exemple, mettre tous les noms de produits en majuscules) :
 
 ```python
 import pandas as pd
 
-df_ventes = pd.DataFrame({
-    'ID_Produit': [1, 2, 3],
-    'Code_Cat': [10, 20, 10]
+df = pd.DataFrame({
+    'Produit': ['Clavier', 'Souris', 'Casque'],
+    'Prix_HT': [50.0, 25.0, 80.0],
+    'Quantite': [3, 10, 2],
+    'Prix_TTC': [60.0, 30.0, 96.0],
+    'Total': [180.0, 300.0, 192.0]
 })
 
-# Dictionnaire de correspondance (Mapping)
-correspondance_cat = {
-    10: 'Accessoire Informatique',
-    20: 'Matériel Audio'
-}
+# Appliquer une fonction lambda pour mettre en majuscules la colonne 'Produit'
+df['Produit_Maj'] = df['Produit'].apply(lambda x: x.upper())
 
-# Appliquer le map via un dictionnaire
-df_ventes['Nom_Cat'] = df_ventes['Code_Cat'].map(correspondance_cat)
-
-print(df_ventes)
+print(df[['Produit', 'Produit_Maj']])
 
 ```
 
-> **Attention aux valeurs absentes :** Si `.map()` rencontre une valeur qui n'existe pas dans le dictionnaire de correspondance, elle la remplace par `NaN` (valeur manquante). Pour éviter cela, on peut passer une fonction ou utiliser `.replace()`.
-
 ---
 
-## Aller plus loin : `.apply()` et `.applymap()` (ou `.map()` global)
-
-Quand le mapping par dictionnaire ne suffit plus et qu'on souhaite appliquer une fonction personnalisée (ou une fonction lambda) sur tout un DataFrame ou une colonne :
-
-* **Sur une Série (`colonne.apply()`)** : Applique une fonction ligne par ligne sur une colonne.
-* **Sur tout le DataFrame (`df.map()**` - anciennement `applymap` dans les anciennes versions de Pandas) : Applique une fonction cellule par cellule sur l'ensemble de la table.
+Appliquer une fonction ligne par ligne (`axis=1`). Lorsque l'on a besoin de croiser plusieurs colonnes d'une **même ligne**, on utilise `axis=1`. Par exemple, pour générer une phrase de synthèse descriptive pour chaque produit :
 
 ```python
-# Appliquer une fonction lambda pour appliquer une remise de 10% sur tous les prix
-df['Prix_Remise'] = df['Prix_HT'].apply(lambda x: x * 0.9)
+# Combiner les valeurs de plusieurs colonnes par ligne
+df['Resume'] = df.apply(
+    lambda row: f"Le {row['Produit']} (qté: {row['Quantite']}) génère un total de {row['Total']}€", 
+    axis=1
+)
 
-print(df[['Produit', 'Prix_HT', 'Prix_Remise']])
+print(df['Resume'])
+
+```
+
+## Utilisation des `pipe`
+
+La méthode `pipe` permet d'enchaîner plusieurs fonctions de transformation de manière lisible et structurée. Cette approche facilite la maintenance du code en isolant chaque étape de traitement dans des fonctions séparées.
+
+Lorsque les transformations se succèdent, `pipe` permet de lier des fonctions personnalisées de manière séquentielle et lisible :
+
+```python
+import pandas as pd
+
+df = pd.DataFrame({
+    'Produit': ['Clavier', 'Souris', 'Casque'],
+    'Prix_HT': [50.0, 25.0, 80.0],
+    'Quantite': [3, 10, 2],
+    'Total': [180.0, 300.0, 192.0]
+})
+
+# Première fonction : appliquer une remise promotionnelle
+def appliquer_remise(data, taux):
+    data['Prix_Promo'] = data['Prix_HT'] * (1 - taux)
+    return data
+
+# Seconde fonction : filtrer les produits au-delà d'un seuil de chiffre d'affaires
+def filtrer_par_seuil(data, seuil):
+    return data[data['Total'] >= seuil].copy()
+
+# Enchaînement propre et lisible avec pipe
+df_traite = (
+    df.pipe(appliquer_remise, taux=0.10)
+      .pipe(filtrer_par_seuil, seuil=190.0)
+)
+
+print(df_traite[['Produit', 'Prix_HT', 'Prix_Promo', 'Total']])
+
+```
+
+La méthode .copy() permet de créer une copie indépendante d'un DataFrame (ou d'une Série) en mémoire.
+
+## Recherches et critères de filtrage
+
+Le filtrage consiste à extraire uniquement les lignes qui répondent à une ou plusieurs conditions logiques précises. Vous pouvez combiner plusieurs critères avec des opérateurs booléens pour un ciblage très granulaire.
+
+
+### Exemple 1 : 
+
+Isoler un catalogue avant une modification de prix et créer une grille tarifaire promotionnelle à partir du catalogue principal sans modifier les prix de base d'origine :
+
+```python
+import pandas as pd
+
+df = pd.DataFrame({
+    'Produit': ['Clavier', 'Souris', 'Casque'],
+    'Prix_HT': [50.0, 25.0, 80.0],
+    'Quantite': [3, 10, 2],
+    'Total': [180.0, 300.0, 192.0]
+})
+
+# Création d'une copie indépendante pour les soldes
+df_soldes = df.copy()
+
+# Modification sur la copie uniquement (baisse de 10% sur le Prix_HT)
+df_soldes['Prix_HT'] = df_soldes['Prix_HT'] * 0.9
+
+print("--- Original inchangé ---")
+print(df[['Produit', 'Prix_HT']])
+
+print("\n--- Copie modifiée (Soldes) ---")
+print(df_soldes[['Produit', 'Prix_HT']])
 
 ```
 
 ---
+
+Filtrer et modifier un sous-ensemble (Éviter le `SettingWithCopyWarning`). Lorsque tu isoles des lignes spécifiques (par exemple, les produits dont la quantité vendue est supérieure à 2), l'utilisation conjointe du filtrage et de `.copy()` garantit que tu peux ajouter une nouvelle colonne sans déclencher d'avertissement ni corrompre la mémoire :
+
+```python
+# Extraction sécurisée des produits à forte rotation
+df_populaires = df[df['Quantite'] > 2].copy()
+
+# Ajout d'une colonne de statut sans risque
+df_populaires['Alerte_Stock'] = 'Réassort prioritaire'
+
+print(df_populaires)
+
+```
+
+---
+
+Conserver un historique de référence dans un pipeline de transformation. Dans un enchaînement de traitements, il est fréquent de dupliquer un DataFrame à une étape clé pour pouvoir comparer l'état initial et l'état final :
+
+```python
+# Sauvegarde de l'état initial (Baseline)
+df_reference = df.copy()
+
+# Traitement sur le DataFrame principal
+df['Chiffre_Affaires_Estime'] = df['Prix_HT'] * df['Quantite']
+
+# Comparaison directe entre la référence et le résultat traité
+comparaison = pd.DataFrame({
+    'Produit': df['Produit'],
+    'Total_Ref': df_reference['Total'],
+    'Total_Calcule': df['Chiffre_Affaires_Estime']
+})
+
+print(comparaison)
+
+```
 ## Exemple de synthèse
 
-Le nettoyage et l'enrichissement du catalogue e-commerce. Imaginons que nous récupérons un fichier de données brut comportant des codes de catégories chiffrés et des prix bruts. Notre objectif est de :
+En analyse de données, la synthèse consiste à agréger les indicateurs clés (totaux, moyennes, extrêmes) pour obtenir une vue macroscopique en une seule instruction.
 
-**Filtrer** les articles disponibles et dont le prix dépasse un certain seuil.
-**Traduire** les codes de catégories en libellés explicites grâce à un dictionnaire de mapping.
-**Appliquer** une fonction de calcul personnalisée pour simuler un nouveau tarif promotionnel.
+Générer un rapport de synthèse global
 
 ```python
 import pandas as pd
 
-# Données brutes issues de l'importation
-df_brut = pd.DataFrame({
-    'Reference': ['SKU-01', 'SKU-02', 'SKU-03', 'SKU-04', 'SKU-05'],
-    'Produit': ['Clavier', 'Souris', 'Casque', 'Webcam', 'Tapis'],
-    'Code_Cat': [10, 20, 30, 20, 10],
-    'Prix_Brut': [60.0, 25.0, 120.0, 85.0, 15.0],
-    'En_Stock': [True, False, True, True, True]
+df = pd.DataFrame({
+    'Produit': ['Clavier', 'Souris', 'Casque'],
+    'Prix_HT': [50.0, 25.0, 80.0],
+    'Quantite': [3, 10, 2],
+    'Total': [180.0, 300.0, 192.0]
 })
 
-print("--- 1. Données brutes d'origine ---")
-print(df_brut)
+# Utilisation de la méthode .agg() pour combiner plusieurs fonctions d'agrégation
+synthese_chiffres = df.agg({
+    'Prix_HT': ['mean', 'min', 'max'],
+    'Quantite': 'sum',
+    'Total': 'sum'
+})
 
-# ==========================================
-# APPLICATION DU FILTRAGE ET DU MAPPING
-# ==========================================
+print("--- Indicateurs agrégés ---")
+print(synthese_chiffres)
 
-# Filtrer uniquement les produits en stock ET dont le prix dépasse 20€
-# (Utilisation d'un masque booléen combiné)
-df_filtre = df_brut[(df_brut['En_Stock'] == True) & (df_brut['Prix_Brut'] > 20)].copy()
+# Extraction d'un résumé textuel des performances commerciales
+chiffre_affaires_global = df['Total'].sum()
+quantite_totale = df['Quantite'].sum()
+produit_phare = df.loc[df['Total'].idxmax(), 'Produit']
 
-# Mappage des codes de catégories vers des libellés métier explicites
-dictionnaire_categories = {
-    10: 'Accessoires',
-    20: 'Périphériques',
-    30: 'Audio & Son'
-}
-df_filtre['Categorie'] = df_filtre['Code_Cat'].map(dictionnaire_categories)
-
-# Appliquer une fonction personnalisée (.apply) : Remise de 15% sur les prix
-df_filtre['Prix_Promo'] = df_filtre['Prix_Brut'].apply(lambda x: round(x * 0.85, 2))
-
-# ==========================================
-# SÉLECTION FINALE (Propreté du rapport)
-# ==========================================
-# On isole uniquement les colonnes pertinentes pour l'analyse
-df_synthese = df_filtre[['Reference', 'Produit', 'Categorie', 'Prix_Brut', 'Prix_Promo']]
-
-print("\n--- 3. Tableau de synthèse final (Filtré, Mappé et Calculé) ---")
-print(df_synthese)
+print("\n--- SYNTHÈSE COMMERCIALE ---")
+print(f"Chiffre d'affaires total : {chiffre_affaires_global} €")
+print(f"Volume total d'articles vendus : {quantite_totale} unités")
+print(f"Produit le plus performant (en CA) : {produit_phare}")
 
 ```
 
----
-
-### Les clés de la réussite à rappeler à votre lecteur :
-
-**Le filtrage se fait sur les lignes** via des conditions booléennes (`df[...]` ou `.query()`), tandis que `.filter()` est réservé aux étiquettes de colonnes ou d'index.
-
-**Le `.map()` est l'outil roi** pour enrichir une colonne à partir d'un dictionnaire de correspondance, à condition de bien anticiper la gestion des valeurs inconnues (`NaN`).
-
-**Le `.apply()` offre une flexibilité totale** pour injecter du code Python personnalisé (comme des fonctions `lambda`) lorsque les opérations vectorisées de base ne suffisent plus.
+* **`.agg()`** permet d'appliquer des fonctions statistiques différentes par colonne en une seule passe (par exemple, calculer la moyenne et les extrêmes sur les prix, mais la somme sur les quantités et les totaux).
+* **`idxmax()`** permet de récupérer l'index de la ligne ayant la valeur maximale dans une colonne donnée, ce qui est idéal pour identifier dynamiquement le meilleur produit sans avoir à trier tout le DataFrame.
 
 ## Exercices de fin de chapitre
 
-**Exercice 1:** Analyse temporelle et extraction des pics d'activité
-Manipuler les séries temporelles, convertir des chaînes de caractères en objets `datetime`, extraire des composantes temporelles et réaliser une agrégation croisée.
 
-Vous disposez d'un journal de transactions brutes sous forme de texte. La direction souhaite identifier quels jours de la semaine génèrent le plus de chiffre d'affaires.
+** Exercice 1** : Diagnostic et Audit d'un Dataset de Ventes
 
-Créez un DataFrame contenant ces données brutes :
+Tu récupères un fichier CSV contenant des données de ventes brutes d'une entreprise e-commerce (`ventes_techno.csv`). Avant toute analyse marketing, tu dois mener un audit rigoureux de la structure et de la santé des données.
+
+```python
+import pandas as pd
+import io
+
+csv_data = """id_vente,produit,categorie,prix_unitaire,quantite,date_vente
+101,Clavier RGB,Accessoire,45.5,4,2026-05-10
+102,Écran 27,Moniteur,299.0,2,2026-05-11
+103,Souris Sans Fil,Accessoire,25.0,NaN,2026-05-11
+104,PC Portable Pro,Ordinateur,1200.0,1,2026-05-12
+105,Casque Audio,Accessoire,60.0,3,2026-05-13
+"""
+df_ventes = pd.read_csv(io.StringIO(csv_data))
+
+```
+
+* Importation et typage : Charge ce jeu de données en veillant à convertir la colonne `date_vente` directement en objets temporels (`datetime`) et à spécifier les colonnes catégorielles (`produit`, `categorie`).
+* Inspection structurelle : Affiche les dimensions du DataFrame, la liste des axes (`.axes` ou `.columns`/`.index`), ainsi que le diagnostic complet de l'empreinte mémoire avec `info(memory_usage='deep')`.
+* Audit des anomalies : Identifie le nombre de valeurs manquantes par colonne.
+* Statistiques descriptives : Affiche un résumé statistique global (incluant les variables textuelles/catégorielles) pour évaluer les fourchettes de prix et les volumes.
+
+---
+
+**Exercice 2 :** Pipeline de Transformation et Synthèse Commerciale
+
+À partir du catalogue de produits consolidé, tu dois appliquer une série de transformations sécurisées, calculer des métriques personnalisées ligne par ligne, et extraire un rapport de synthèse décisionnel.
+
+
 ```python
 import pandas as pd
 
-df_logs = pd.DataFrame({
-    'Horodatage': ['2026-10-01 09:30:00', '2026-10-02 14:15:00', '2026-10-03 18:45:00', 
-                   '2026-10-04 10:00:00', '2026-10-05 16:20:00', '2026-10-06 11:10:00'],
-    'Montant_EUR': [120.5, 45.0, 300.0, 85.0, 210.0, 95.0]
-})
-
-```
-Convertissez la colonne `Horodatage` en un type `datetime` exploitable.
-Extrayez le **nom du jour de la semaine** (ex: *Monday*, *Tuesday*...) dans une nouvelle colonne nommée `Jour_Semaine`.
-Réalisez un regroupement (`groupby`) par `Jour_Semaine` pour calculer la somme totale du chiffre d'affaires (`Montant_EUR`) et le nombre de transactions par jour.
-
-
-**Exercice 2:**  Enrichissement relationnel, Mapping et Filtrage
-Croiser deux tables hétérogènes avec `pd.merge()`, traduire des codes via `.map()` et appliquer un filtre conditionnel multicritère.
-
-Vous gérez deux sources de données distinctes dans votre boutique : un historique de ventes contenant des identifiants produits, et un catalogue général fournissant les détails et les catégories.
-
-Partez des deux DataFrames suivants :
-```python
-# Table des ventes
-df_ventes = pd.DataFrame({
-    'ID_Produit': [101, 102, 101, 103, 102],
-    'Quantite': [2, 1, 5, 3, 2]
-})
-
-# Table du catalogue produits
 df_catalogue = pd.DataFrame({
-    'ID_Produit': [101, 102, 103, 104],
-    'Nom': ['Clavier', 'Souris', 'Casque', 'Webcam'],
-    'Code_Cat': [1, 2, 3, 2],
-    'Prix_Unitaire': [50.0, 25.0, 80.0, 70.0]
+    'Reference': ['SKU-01', 'SKU-02', 'SKU-03', 'SKU-04'],
+    'Produit': ['Clavier', 'Souris', 'Casque', 'Ecran'],
+    'Prix_HT': [50.0, 25.0, 80.0, 300.0],
+    'Stock': [15, 42, 8, 5]
 })
 
 ```
 
-
-Réalisez une jointure (`pd.merge()`) de type **`left`** en prenant `df_ventes` comme table principale pour y intégrer les informations du catalogue.
-À l'aide d'un dictionnaire de correspondance, créez une colonne `Categorie` en mappant les `Code_Cat` selon la règle suivante :
-* `1` : *Bureautique*
-* `2` : *Accessoire*
-* `3` : *Audio*
-
-Calculez le montant total de chaque ligne (`Quantite * Prix_Unitaire`) dans une nouvelle colonne `CA_Ligne`.
-Filtrez enfin le DataFrame final pour n'afficher que les lignes dont le `CA_Ligne` dépasse 100 €.
-
+* Isolation sécurisée (`.copy()`) : Crée une copie indépendante nommée `df_promo` pour préparer une opération promotionnelle sans risquer de corrompre le catalogue d'origine.
+* Transformation par Pipeline (`.pipe()`) : Écris une fonction `appliquer_taxe(df, tva)` qui ajoute une colonne `Prix_TTC` (calculée avec une TVA de 20%), puis enchaîne-la via `.pipe()`.
+* Traitement ligne par ligne (`.apply(axis=1)`) : À l'aide de `.apply()` et `axis=1`, génère une colonne `Valeur_Stock_HT` représentant la valorisation financière totale du stock pour chaque produit (`Prix_HT * Stock`).
+* Synthèse globale (`.agg()`) : Utilise `.agg()` pour obtenir simultanément le prix moyen, minimum et maximum des produits HT, ainsi que la somme totale de la valeur du stock de l'entreprise.

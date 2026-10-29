@@ -1,274 +1,272 @@
-# Chapitre 7 : Jointures et fusion de données
+# Chapitre 7 : Gestion des dates et séries temporelles
 
-La fusion de données est une opération fondamentale pour consolider des informations provenant de sources multiples au sein d'un même projet. Ce chapitre détaille comment combiner vos structures de données pour obtenir une vision unifiée et complète.
+La gestion des séries temporelles est un pilier fondamental en analyse de données. Pour manipuler des historiques de ventes, des logs ou des relevés, la fonction clé de Pandas est **`pd.date_range()`**. Elle permet de générer des séquences de dates régulières en spécifiant un point de départ, une fin (ou un nombre de périodes), et une fréquence (`freq`).
 
 Dans ce chapitre :
 
-* Concaténation de structures de données (`concat`)
-* Jointures complexes (`merge`, `join`)
+* Les 4 modèles fondamentaux du temps dans Pandas
+* Manipulation de plages temporelles avec `period_range`
+* Combiner `pd.date_range()` avec un dictionnaire de données
+* Modèles de temps
+* Manipulation de plages temporelles
+* Extraire le mois, le jour et l'heure
+* Exemple de synthèse
+* Exercices de fin de chapitre
 
-## Concaténation de structures
+## Les 4 modèles fondamentaux du temps dans Pandas
 
-La fonction `concat` permet d'assembler des DataFrames ou des Séries les uns aux autres, soit verticalement (en ajoutant des lignes), soit horizontalement (en ajoutant des colonnes). C'est l'outil idéal pour regrouper des jeux de données de structure identique.
+### `Timestamp` : Un instant précis (Le point dans le temps)
 
-Le principe de base de `pd.concat()`. Contrairement aux jointures complexes (`pd.merge`), `pd.concat()` réalise un assemblage **structurel** basé sur les axes :
-
-* **`axis=0`** (Vertical) : On ajoute des **lignes** (les DataFrames ont les mêmes colonnes mais des périodes ou des sources différentes).
-* **`axis=1`** (Horizontal) : On ajoute des **colonnes** (les DataFrames partagent le même index mais apportent des informations différentes).
-
----
-
-### Concaténation verticale (`axis=0`) : Empiler des lignes
-
-C'est le cas le plus fréquent, par exemple pour fusionner les ventes de janvier et les ventes de février dans un seul grand historique.
+Un `Timestamp` représente une date et une heure exactes (l'équivalent optimisé du `datetime` de Python). C'est l'élément de base qui compose les index temporels (`DatetimeIndex`).
 
 ```python
 import pandas as pd
 
-# Premier DataFrame : Catalogue A
-df_partie1 = pd.DataFrame({
-    'Produit': ['Clavier', 'Souris'],
-    'Prix_HT': [50.0, 25.0]
-})
+# Créer un instant précis
+instant = pd.Timestamp('2026-10-28 14:30:00')
 
-# Deuxième DataFrame : Catalogue B
-df_partie2 = pd.DataFrame({
-    'Produit': ['Casque', 'Webcam'],
-    'Prix_HT': [80.0, 70.0]
-})
-
-# Assemblage vertical (par défaut axis=0)
-catalogue_global = pd.concat([df_partie1, df_partie2])
-
-print(catalogue_global)
+print(instant)
+print(type(instant))
+# Extraction d'attributs clés
+print(f"Année : {instant.year}, Mois : {instant.month}, Jour de la semaine : {instant.day_name()}")
 
 ```
 
-### Le piège de l'index et la bonne pratique. 
+---
 
-Par défaut, `pd.concat()` conserve les index d'origine de chaque DataFrame (ce qui peut donner des index du style `0, 1, 0, 1`). Pour réinitialiser proprement l'index du tableau final, on utilise l'argument **`ignore_index=True`** :
+### `Datetime` (et `to_datetime`) : La conversion et l'indexation
+
+En pratique, les dates proviennent souvent de fichiers CSV sous forme de texte (chaînes de caractères). La fonction `pd.to_datetime()` permet de les convertir proprement en objets temporels exploitables.
 
 ```python
-# Assemblage propre avec réindexation séquentielle
-catalogue_propre = pd.concat([df_partie1, df_partie2], ignore_index=True)
-print(catalogue_propre)
+# Série de dates brutes (texte)
+dates_texte = ['2026-10-01', '2026-10-02', '2026-10-03']
+
+# Conversion en objets Datetime de Pandas
+dates_dt = pd.to_datetime(dates_texte)
+
+print(dates_dt)
+# Résultat : DatetimeIndex(['2026-10-01', '2026-10-02', '2026-10-03'], dtype='datetime64[ns]', freq=None)
 
 ```
 
 ---
 
-### Concaténation horizontale (`axis=1`) : Juxtaposer des colonnes
+### `Timedelta` : Une durée ou un écart temporel
 
-Plus rare, cette opération permet d'associer deux tableaux qui partagent exactement le même index (par exemple, un tableau de prix d'un côté et un tableau de stocks de l'autre).
+Un `Timedelta` représente une durée (par exemple : 5 jours, 3 heures, 45 secondes). Il permet d'effectuer des opérations arithmétiques directement sur les dates (ajouter ou soustraire du temps).
 
 ```python
-# Tableau 1 : Les prix
-df_prix = pd.DataFrame({
-    'Produit': ['Clavier', 'Souris', 'Casque'],
-    'Prix_HT': [50.0, 25.0, 80.0]
-}, index=['A', 'B', 'C'])
+# Définir une date de référence
+date_achat = pd.Timestamp('2026-10-01')
 
-# Tableau 2 : Les stocks (avec le même index)
-df_stocks = pd.DataFrame({
-    'Quantite': [10, 25, 4]
-}, index=['A', 'B', 'C'])
+# Créer un décalage (Timedelta) de 10 jours et 4 heures
+delai = pd.Timedelta(days=10, hours=4)
 
-# Assemblage horizontal (axis=1)
-df_complet = pd.concat([df_prix, df_stocks], axis=1)
+# Calculer la date de livraison estimée
+date_livraison = date_achat + delai
 
-print(df_complet)
+print(f"Date d'achat : {date_achat}")
+print(f"Date de livraison estimée : {date_livraison}")
 
 ```
 
 ---
 
-* **`pd.concat([df1, df2], axis=0)`** $\rightarrow$ **Vertical (V)** : On empile les lignes. Idéal pour concaténer des fichiers mensuels ou des historiques. Pense à `ignore_index=True` pour nettoyer l'index.
-* **`pd.concat([df1, df2], axis=1)`** $\rightarrow$ **Horizontal (H)** : On met les tableaux côte à côte en se basant sur l'index commun.
+### `Period` : Une période ou un intervalle temporel fixe
 
+Contrairement au `Timestamp` qui cible une *milliseconde* précise, le `Period` représente une **durée calendaire entière** (un mois complet, un trimestre, une année). C'est particulièrement utile pour la comptabilité et l'agrégation macro-économique.
 
+```python
+# Définir une période correspondant au mois d'octobre 2026
+periode_mois = pd.Period('2026-10', freq='M')
+
+print(periode_mois)
+print(f"Début de la période : {periode_mois.start_time}")
+print(f"Fin de la période : {periode_mois.end_time}")
+
+# Avancer d'une période
+mois_suivant = periode_mois + 1
+print(f"Mois suivant : {mois_suivant}")
+
+```
+
+**En résumé pour ton lecteur :**
+
+* **`Timestamp`** $\rightarrow$ Une date/heure isolée (ex: *le 28/10/2026 à 14h30*).
+* **`Datetime`** $\rightarrow$ Le type de données global pour manipuler ces instants.
+* **`Timedelta`** $\rightarrow$ Un intervalle de temps mathématique (ex: *+ 7 jours*).
+* **`Period`** $\rightarrow$ Une tranche calendaire fixe (ex: *tout le mois d'octobre 2026*).
+Créer des intervalles de dates par **jour** et par **mois**, accompagnés d'exemples pratiques.
 
 ---
 
-## `pd.merge()` : Le couteau suisse des jointures (Basé sur des colonnes ou des clés)
+## Manipulation de plages temporelles avec `period_range`
 
-Les jointures sont indispensables en analyse de données dès que l'information est répartie dans plusieurs tables distinctes (par exemple, une table de produits et une table de stocks, ou une table de clients et une table de commandes).
-
-En Pandas, on distingue deux outils principaux : **`pd.merge()`** (le plus puissant, inspiré du `JOIN` en SQL) et **`.join()`** (plus spécialisé, basé sur les index).
-
-| Fonction / Méthode | Objectif principal | Critère de fusion | Cas d'usage type |
-| --- | --- | --- | --- |
-| **`pd.merge()`** | Croiser des tables relationnelles | Des **colonnes** communes (`on`, `left_on`, `right_on`) | Relier des ventes à un catalogue produits via une clé étrangère. |
-| **`.join()`** | Fusion rapide de tables indexées | Les **index** des DataFrames | Assembler deux tableaux partageant exactement la même granularité d'index (ex: chronologique ou géographique). |
-
-`pd.merge()` permet de croiser deux DataFrames en se basant sur une ou plusieurs colonnes communes (les **clés de jointure**).
-
-### Les 4 grands types de jointures (`how`) :
-
-* **`'inner'`** (Par défaut) : Ne conserve que les lignes dont la clé est présente dans **les deux** tables (intersection).
-* **`'left'`** : Conserve toutes les lignes de la table de **gauche**, même si aucune correspondance n'existe dans la droite (les valeurs manquantes deviennent des `NaN`).
-* **`'right'`** : Conserve toutes les lignes de la table de **droite**.
-* **`'outer'`** : Conserve toutes les lignes des **deux** tables (union complète).
-
-### Enrichir un catalogue avec les stocks
+### intervalle de jours
+Générer un intervalle de jours (`freq='D'`). Pour créer une séquence quotidienne (par exemple, pour simuler un historique de ventes sur une semaine) :
 
 ```python
 import pandas as pd
 
-# Table 1 : Le catalogue des produits
-df_produits = pd.DataFrame({
-    'ID_Produit': [1, 2, 3],
-    'Nom_Produit': ['Clavier', 'Souris', 'Casque'],
-    'Prix_HT': [50.0, 25.0, 80.0]
-})
+# Créer une série de 7 jours consécutifs à partir d'aujourd'hui
+jours = pd.date_range(start='2026-10-01', periods=7, freq='D')
 
-# Table 2 : Les stocks disponibles (gérés par un autre service)
-df_stocks = pd.DataFrame({
-    'ID_Produit': [1, 2, 4], # Note l'ID 4 qui n'existe pas dans les produits, et le 3 absent ici
-    'Quantite': [15, 42, 10]
-})
+print(jours)
+# Résultat : DatetimeIndex(['2026-10-01', '2026-10-02', ..., '2026-10-07'], dtype='datetime64[ns]', freq='D')
 
-# Jointure interne (inner join) : uniquement les produits présents dans les deux tables
-df_interne = pd.merge(df_produits, df_stocks, on='ID_Produit', how='inner')
-print("--- Jointure Inner ---")
-print(df_interne)
+```
 
-# Jointure à gauche (left join) : conserve tout le catalogue, même sans stock renseigné
-df_gauche = pd.merge(df_produits, df_stocks, on='ID_Produit', how='left')
-print("\n--- Jointure Left ---")
-print(df_gauche)
+---
+### intervalle de mois
+
+Générer un intervalle de mois (`freq='MS'` ou `'M'`). Pour planifier des bilans ou analyser des données mensuelles, on utilise la fréquence mensuelle.
+
+* `'MS'` (Month Start) place la date au **premier jour** du mois.
+* `'M'` place la date au **dernier jour** du mois.
+
+```python
+# Créer les dates de début de mois pour l'année 2026 (12 mois)
+mois_debut = pd.date_range(start='2026-01-01', periods=12, freq='MS')
+
+print(mois_debut)
+# Résultat : DatetimeIndex(['2026-01-01', '2026-02-01', '2026-03-01', ..., '2026-12-01'], freq='MS')
 
 ```
 
 ---
 
-## La méthode `.join()` : Le spécialiste des index
+## Combiner `pd.date_range()` avec un dictionnaire de données
 
-Alors que `pd.merge()` cherche des colonnes, la méthode `.join()` est conçue pour fusionner des DataFrames **directement via leurs index**. C'est une écriture plus courte et élégante lorsque les données sont déjà indexées par la même clé (par exemple, un identifiant client ou une date).
-
-### Fusionner par l'index
+Créer un DataFrame temporel pour nos produits. On peut combiner `pd.date_range()` avec un dictionnaire de données pour structurer un DataFrame prêt à l'analyse temporelle (par exemple, suivre les ventes quotidiennes d'un Clavier) :
 
 ```python
-# Table 1 : Prix indexés par la référence produit
-df_prix = pd.DataFrame({
-    'Prix_HT': [50.0, 25.0, 80.0]
-}, index=['SKU-01', 'SKU-02', 'SKU-03'])
+import numpy as np
 
-# Table 2 : Stocks indexés par la même référence produit
-df_stocks = pd.DataFrame({
-    'Quantite': [15, 42, 8]
-}, index=['SKU-01', 'SKU-02', 'SKU-03'])
+# Générer un index de 5 jours consécutifs
+dates = pd.date_range(start='2026-10-01', periods=5, freq='D')
 
-# Utilisation directe de .join() sur l'index commun
-df_catalogue_complet = df_prix.join(df_stocks)
+# Associer ces dates à un DataFrame de ventes
+df_ventes_journalieres = pd.DataFrame({
+    'Date': dates,
+    'Produit': ['Clavier', 'Clavier', 'Clavier', 'Clavier', 'Clavier'],
+    'Quantite_Vendue': [3, 5, 2, 8, 4]
+})
 
-print(df_catalogue_complet)
+# Transformer la colonne 'Date' en index temporel (très utile pour Pandas)
+df_ventes_journalieres = df_ventes_journalieres.set_index('Date')
+
+print(df_ventes_journalieres)
 
 ```
 
+## Modèles de temps
+
+Pandas offre une gestion précise du temps grâce à quatre types d'objets principaux : `Timestamp` pour un instant précis, `Datetime` pour les types de données temporelles, `Timedelta` pour les durées, et `Period` pour représenter un intervalle de temps défini. Ces outils permettent de manipuler des calendriers complexes avec une grande rigueur syntaxique.
+
+```python
+import pandas as pd
+
+# Création d'un instant précis (Timestamp)
+instant = pd.Timestamp('2026-07-06 18:00:00')
+
+# Calcul d'une durée (Timedelta)
+duree = pd.Timedelta(days=5)
+nouveau_temps = instant + duree
+
+```
+
+## Manipulation de plages temporelles
+
+La fonction `period_range` permet de générer des séquences régulières de périodes temporelles sur un intervalle donné. Cette fonctionnalité est particulièrement utile pour créer des index basés sur des fréquences spécifiques, comme des mois ou des trimestres.
+
+```python
+# Génération d'une plage de périodes mensuelles
+plage = pd.period_range(start='2026-01', periods=3, freq='M')
+
+# Utilisation dans une Série
+s = pd.Series([10, 20, 30], index=plage)
+
+```
+## Extraire le mois, le jour et l'heure
+
+Pour extraire des composantes spécifiques (année, mois, jour, heure, minute) à partir d'une colonne de type date (`datetime`) dans Pandas, on utilise l'accesseur **`.dt`**.
+
+Les principaux attributs de l'accesseur `.dt` :
+
+| Attribut | Ce qu'il extrait | Exemple de résultat |
+| --- | --- | --- |
+| `.dt.year` | L'année | `2026` |
+| `.dt.month` | Le numéro du mois (1-12) | `10` |
+| `.dt.day` | Le numéro du jour du mois (1-31) | `28` |
+| `.dt.hour` | L'heure (0-23) | `14` |
+| `.dt.minute` | La minute (0-59) | `30` |
+| `.dt.day_name()` | Le nom complet du jour (ex: *Monday*) | `'Wednesday'` |
+| `.dt.month_name()` | Le nom complet du mois (ex: *October*) | `'October'` |
+
+```python
+import pandas as pd
+
+# Création d'un DataFrame avec des dates et heures précises
+df_logs = pd.DataFrame({
+    'Timestamp_Brut': ['2026-10-28 08:30:00', '2026-10-29 14:15:45', '2026-10-30 19:00:30'],
+    'Valeur': [100, 250, 180]
+})
+
+# Conversion indispensable en objet datetime
+df_logs['Date_Heure'] = pd.to_datetime(df_logs['Timestamp_Brut'])
+
+# Extraction du mois, du jour et de l'heure via l'accesseur .dt
+df_logs['Mois'] = df_logs['Date_Heure'].dt.month
+df_logs['Jour'] = df_logs['Date_Heure'].dt.day
+df_logs['Heure'] = df_logs['Date_Heure'].dt.hour
+df_logs['Jour_Semaine'] = df_logs['Date_Heure'].dt.day_name() # Nom du jour en anglais par défaut
+
+print(df_logs[['Date_Heure', 'Mois', 'Jour', 'Heure', 'Jour_Semaine']])
+
+```
 ---
 
 ## Exemple de synthèse
 
-### Le Scénario Global : La Cuisine des Données
-
-Imaginons que tu gères les données d'une boutique informatique. Tes sources sont éparpillées :
-
-1. Les ventes de janvier et de février proviennent de fichiers distincts $\rightarrow$ **On les empile (`concat`).**
-2. Le catalogue des produits doit être enrichi avec les coordonnées des fournisseurs via une référence commune $\rightarrow$ **On les croise (`merge`).**
-3. Les tableaux de prix et de stocks partagent exactement la même référence produit en index $\rightarrow$ **On les fusionne (`join`).**
-
----
-
-### `pd.concat()` : Empiler les historiques (Vertical)
-
-* **Objectif :** Réunir des tables qui ont la **même structure** (mêmes colonnes) mais des périodes différentes.
+Rapport de synthèse des ventes par heure de la journée.Imaginons un journal de transactions e-commerce avec des horodatages précis. Nous voulons savoir à quelles heures la structure réalise le plus de chiffre d'affaires.
 
 ```python
 import pandas as pd
 
-# Ventes de janvier
-df_janvier = pd.DataFrame({
-    'Produit': ['Clavier', 'Souris'],
-    'Quantite': [10, 25]
+# Données de ventes brutes avec horodatage
+df_transactions = pd.DataFrame({
+    'Horodatage': [
+        '2026-10-01 09:15:00', '2026-10-01 10:30:00', '2026-10-01 14:10:00',
+        '2026-10-02 09:45:00', '2026-10-02 14:20:00', '2026-10-02 18:05:00',
+        '2026-10-03 10:00:00', '2026-10-03 14:50:00', '2026-10-03 18:30:00'
+    ],
+    'Montant': [50.0, 25.0, 120.0, 50.0, 80.0, 250.0, 25.0, 75.0, 100.0]
 })
 
-# Ventes de février
-df_fevrier = pd.DataFrame({
-    'Produit': ['Clavier', 'Souris'],
-    'Quantite': [15, 30]
-})
+# Conversion indispensable en objet datetime
+df_transactions['Horodatage'] = pd.to_datetime(df_transactions['Horodatage'])
 
-# Assemblage vertical avec réindexation propre
-historique_ventes = pd.concat([df_janvier, df_fevrier], ignore_index=True)
-print("--- 1. CONCAT (Empilement) ---")
-print(historique_ventes)
+# Extraction des composantes temporelles via l'accesseur .dt
+df_transactions['Heure'] = df_transactions['Horodatage'].dt.hour
+df_transactions['Jour'] = df_transactions['Horodatage'].dt.day_name()
+
+# Synthèse : Grouper par heure pour analyser les créneaux les plus rentables
+synthese_horaire = df_transactions.groupby('Heure').agg(
+    Nombre_Commandes=('Montant', 'count'),  # Volume de transactions
+    Chiffre_Affaires=('Montant', 'sum'),    # CA total cumulé
+    Panier_Moyen=('Montant', 'mean')        # Montant moyen par commande
+).reset_index()
+
+print(synthese_horaire)
 
 ```
 
----
+**La chaîne logique :** On convertit d'abord la colonne brute en `datetime`, on extrait les informations fines (`.dt.hour`, `.dt.day_name()`), puis on structure l'analyse macroscopique avec `.groupby().agg()`.
+**La puissance du multi-indicateur :** En une seule passe, `.agg()` permet d'isoler à la fois le volume, la somme et la moyenne par tranche horaire, fournissant un tableau de bord directement exploitable par les équipes métiers.
 
-### `pd.merge()` : Relier des tables par colonnes (Relationnel)
+## Exercices de fin de chapitre 
 
-* **Objectif :** Croiser des informations hétérogènes grâce à une **clé commune** (ex: ID Produit ou Code Fournisseur).
+**Exercice 1 :** Créez un `Timestamp` correspondant à la date d'aujourd'hui et ajoutez-lui un `Timedelta` de 48 heures.
 
-```python
-# Le catalogue des produits
-df_catalogue = pd.DataFrame({
-    'ID_Produit': [1, 2],
-    'Nom': ['Clavier', 'Souris'],
-    'ID_Fournisseur': [101, 102]
-})
-
-# La table des fournisseurs
-df_fournisseurs = pd.DataFrame({
-    'ID_Fournisseur': [101, 103], # Note l'ID 103 absent du catalogue
-    'Nom_Fournisseur': ['TechGlobal', 'AudioPro']
-})
-
-# Jointure externe (outer) pour ne rien perdre
-bilan_fournisseurs = pd.merge(df_catalogue, df_fournisseurs, on='ID_Fournisseur', how='outer')
-print("\n--- 2. MERGE (Jointure par clé) ---")
-print(bilan_fournisseurs)
-
-```
-
----
-
-### `.join()` : Fusionner des tables indexées
-
-* **Objectif :** Assembler rapidement deux tables qui partagent **exactement le même index** (sans avoir à spécifier de colonnes de jointure).
-
-```python
-# Tableau 1 : Les prix indexés par SKU
-df_prix = pd.DataFrame({
-    'Prix_HT': [50.0, 25.0]
-}, index=['SKU-01', 'SKU-02'])
-
-# Tableau 2 : Les stocks indexés par le même SKU
-df_stocks = pd.DataFrame({
-    'Stock': [10, 45]
-}, index=['SKU-01', 'SKU-02'])
-
-# Fusion directe par l'index
-catalogue_complet = df_prix.join(df_stocks)
-print("\n--- 3. JOIN (Fusion par index) ---")
-print(catalogue_complet)
-
-```
-
----
-
-### Bilan synthétique pour le manuel
-
-| Méthode | Axe de travail | Critère d'association | Cas d'usage type |
-| --- | --- | --- | --- |
-| **`pd.concat()`** | Principalement **Vertical** (`axis=0`) | Aucun (empilement pur) | Fusionner des historiques de fichiers mensuels. |
-| **`pd.merge()`** | **Colonnes** | Une clé commune (`on`, `left_on`) | Relier des commandes à des clients ou des produits. |
-| **`.join()`** | **Index** | Les index des DataFrames | Assembler des métriques partageant la même granularité indicielle. |
-
-
-## Exercices de fin de chapitre
-
-**Exercice 1 :** Créez deux petits DataFrames avec une colonne identique et utilisez `merge` pour les fusionner.
-
-**Exercice 2 :** Utilisez `pd.concat` pour ajouter une ligne supplémentaire à un DataFrame existant en créant un second DataFrame contenant uniquement cette ligne.
+**Exercice 2:** Utilisez `period_range` pour générer une liste de 6 périodes trimestrielles commençant au premier trimestre 2026.

@@ -1,200 +1,244 @@
-# Chapitre 8 :  Persistance et Formats 
+# Chapitre 8 : Statistiques et agrégations
 
-La persistance des données sous Pandas consiste à faire le pont entre la mémoire vive (le DataFrame en RAM) et le stockage sur disque (fichiers physiques). Qu'il s'agisse d'ingérer des données brutes issues de systèmes tiers ou d'exporter des rapports finalisés, Pandas propose des fonctions unifiées et performantes basées sur les préfixes **`read_`** et **`to_`**.
+L'analyse de données repose sur la capacité à synthétiser de vastes ensembles d'informations en indicateurs clés. Ce chapitre vous présente les outils pour calculer des statistiques descriptives et organiser vos données par catégories afin d'en extraire toute la valeur.
 
 Dans ce chapitre :
 
-* Lecture et écriture de fichiers CSV
-* Persistance des données via le format Pickle
+* Statistiques descriptives
+* Agrégations par catégories (`groupby`)
+* Agrégation avec plusieurs fonctions de réduction (`.agg`)
+* `.agg` vs `.groupby`
+* Exemple de synthèse
+* Exercices de fin de chapitre
 
-## Le format CSV (*Comma-Separated Values*) : Le standard tabulaire
+## Statistiques descriptives
 
-Le CSV est le format universel pour les données tabulaires. Léger et lisible, il est géré nativement par la quasi-totalité des outils logiciels.
-
-### Lecture d'un fichier CSV (`pd.read_csv`)
-
-La fonction `pd.read_csv()` est la plus utilisée en science des données. Elle intègre de nombreux paramètres pour s'adapter à la structure du fichier source :
+Les statistiques descriptives permettent d'obtenir une vue d'ensemble rapide de la distribution et de la tendance centrale de vos données. Pandas propose des méthodes intégrées pour calculer instantanément des mesures comme la moyenne (`mean`), la somme (`sum`), le minimum (`min`), le maximum (`max`) ou l'écart-type (`std`) sur une série ou un DataFrame.
 
 ```python
 import pandas as pd
 
-# Lecture d'un fichier CSV avec gestion du séparateur et de l'encodage
-df_ventes = pd.read_csv(
-    'ventes_2026.csv',
-    sep=',',               # Séparateur de colonnes (virgule, point-virgule ';', tabulation '\t')
-    encoding='utf-8',      # Encodage des caractères (utf-8, latin-1 pour les accents français)
-    index_col=0,           # Utiliser la première colonne comme index du DataFrame
-    na_values=['NA', 'NULL', '?'] # Définition personnalisée des valeurs manquantes
-)
+# Création d'un jeu de données de scores
+df = pd.DataFrame({'Scores': [10, 20, 30, 40, 50]})
 
-print(df_ventes.head())
+# Calculs statistiques classiques
+moyenne = df['Scores'].mean()  # Retourne 30.0
+ecart_type = df['Scores'].std() # Mesure la dispersion
+maxi = df['Scores'].max()      # Retourne 50
 
 ```
 
-### Sauvegarde d'un DataFrame (`df.to_csv`)
+## Agrégations par catégories (`groupby`)
 
-Pour exporter un DataFrame vers un fichier CSV, on utilise la méthode `.to_csv()` :
+Le groupement de données est une étape fondamentale pour analyser des sous-ensembles selon des catégories spécifiques. La méthode `groupby` segmente vos données en groupes, vous permettant d'appliquer des calculs statistiques indépendamment pour chaque catégorie identifiée.
+
+La méthode **`groupby()`** est l'équivalent sous Pandas du fameux `GROUP BY en SQL`. Elle repose sur le concept puissant du **Split-Apply-Combine** (Diviser - Appliquer - Combiner) : elle segmente le DataFrame en sous-groupes selon une ou plusieurs catégories, applique une fonction d'agrégation sur chacun d'eux, puis rassemble le tout dans un nouveau tableau synthétique.
 
 ```python
-# Exportation propre sans inclure l'index technique de Pandas
-df_ventes.to_csv(
-    'export_ventes_nettoye.csv',
-    index=False,           # Évite d'enregistrer l'index (souvent inutile)
-    sep=';',               # Privilégier le point-virgule pour Excel en version française
-    encoding='utf-8-sig'   # 'utf-8-sig' garantit l'affichage correct des accents sous Excel
-)
+# Données avec une colonne catégorielle
+data = {'Equipe': ['A', 'B', 'A', 'B'], 'Scores': [10, 20, 30, 40]}
+df = pd.DataFrame(data)
+
+# Calcul de la moyenne par équipe
+resultat = df.groupby('Equipe')['Scores'].mean()
+# Le résultat montre la moyenne pour A (20) et B (30)
 
 ```
+
+```python
+import pandas as pd
+
+df = pd.DataFrame({
+    'Produit': ['Clavier', 'Souris', 'Casque', 'Webcam', 'Tapis'],
+    'Categorie': ['Accessoire', 'Accessoire', 'Audio', 'Audio', 'Accessoire'],
+    'Prix_HT': [50.0, 25.0, 80.0, 70.0, 15.0],
+    'Quantite': [3, 10, 2, 5, 20],
+    'Total': [150.0, 250.0, 160.0, 350.0, 300.0]
+})
+
+```
+
+Calculer une métrique simple par catégorie. Pour obtenir rapidement le chiffre d'affaires total généré par chaque famille de produits :
+
+```python
+# Grouper par catégorie et sommer la colonne 'Total'
+ca_par_categorie = df.groupby('Categorie')['Total'].sum()
+
+print(ca_par_categorie)
+
+```
+
+* **Ce qui se passe :** Pandas isole les lignes par `Categorie` ('Accessoire' d'un côté, 'Audio' de l'autre), additionne les valeurs de la colonne `Total` pour chaque groupe, et renvoie une Série indexée par les catégories.
 
 ---
 
-## Le format JSON (*JavaScript Object Notation*) : Le roi du Web
-
-Le format JSON est omniprésent dans les architectures web et les API REST. Contrairement au CSV, il gère des structures **hiérarchiques** (imbrications d'objets et de listes).
-
-### Lecture d'un fichier JSON (`pd.read_json`)
-
-Pandas analyse automatiquement la structure JSON pour la convertir sous forme tabulaire :
+Appliquer plusieurs fonctions d'agrégation (`.agg()`). Tout comme nous l'avons vu pour l'ensemble du DataFrame, `.agg()` s'associe parfaitement à `groupby` pour croiser plusieurs indicateurs par groupe :
 
 ```python
-# Chargement d'un fichier JSON structuré en enregistrements
-df_produits = pd.read_json('catalogue.json', orient='records')
+# Appliquer des fonctions différentes selon les colonnes pour chaque catégorie
+synthese_categorie = df.groupby('Categorie').agg({
+    'Prix_HT': 'mean',        # Prix moyen par catégorie
+    'Quantite': 'sum',        # Volume total d'articles vendus
+    'Total': ['sum', 'max']   # CA total et CA maximal atteint
+})
 
-print(df_produits.head())
+print(synthese_categorie)
 
 ```
 
-### Sauvegarde au format JSON (`df.to_json`)
-
-L'argument **`orient`** est crucial lors de l'exportation JSON pour définir la structure géométrique du fichier final :
-
-```python
-# Exportation au format liste d'enregistrements (idéal pour le web/API)
-df_produits.to_json(
-    'catalogue_export.json',
-    orient='records',      # Structure chaque ligne comme un objet JSON distinct
-    force_ascii=False,     # Conserve les caractères accentués en clair (non échappés)
-    indent=4               # Indentation pour rendre le fichier lisible par un humain
-)
-
-```
+* **Ce qui se passe :** Pandas génère un tableau croisé dynamique à colonnes multiples (MultiIndex) permettant d'auditer finement chaque rayon.
 
 ---
 
-## Le format XML (*Extensible Markup Language*) : Les données semi-structurées
-
-Bien que plus lourd que le JSON, le format XML reste la référence dans les environnements d'entreprise, bancaires ou administratifs (factures électroniques, flux RSS, configurations).
-
-#### Lecture d'un fichier XML (`pd.read_xml`)
-
-Pandas intègre nativement un moteur d'analyse XML (nécessitant les bibliothèques `lxml` ou `html5lib` en arrière-plan) :
+L'agrégation nommée pour des rapports propres. Pour éviter d'obtenir des noms de colonnes complexes ou imbriqués lors d'agrégations multiples, la syntaxe moderne de **l'agrégation nommée** permet de renommer directement les colonnes à la volée :
 
 ```python
-# Lecture d'un fichier XML en ciblant la balise répétitive (xpath)
-df_factures = pd.read_xml(
-    'factures.xml',
-    xpath='.//facture'     # XPath ciblant chaque nœud <facture> à transformer en ligne
-)
+# Création d'un rapport synthétique avec des noms de colonnes explicites
+rapport_propre = df.groupby('Categorie').agg(
+    Prix_Moyen=('Prix_HT', 'mean'),
+    Volume_Ventes=('Quantite', 'sum'),
+    Chiffre_Affaires=('Total', 'sum')
+).reset_index()
 
-print(df_factures.head())
+print(rapport_propre)
 
 ```
 
-### Sauvegarde au format XML (`df.to_xml`)
+* **Ce qui se passe :** L'utilisation de `.reset_index()` transforme l'index catégoriel en colonne classique, ce qui rend le DataFrame immédiatement exploitable pour un export ou la génération de graphiques.
 
-Pour sérialiser un DataFrame en XML :
+## Agrégation avec plusieurs fonctions de réduction (`.agg`) 
+
+La méthode **`.agg()`** (abréviation d'*aggregate*, ou son alias `.aggregate()`) est l'outil de synthèse par excellence sous Pandas. Elle permet d'appliquer une ou plusieurs fonctions de réduction (moyenne, somme, minimum, maximum, etc.) sur un DataFrame ou une Série, de manière globale ou personnalisée par colonne.
+
+Appliquer une fonction unique à toutes les colonnes numériques
 
 ```python
-# Exportation en XML avec personnalisation des balises racines
-df_factures.to_xml(
-    'factures_export.xml',
-    root_name='Entreprise', # Nom de la balise racine globale
-    row_name='Facture',     # Nom de la balise représentant chaque ligne
-    index=False,
-    encoding='utf-8'
-)
+# Calcule la somme de toutes les colonnes numériques
+print(df.agg('sum'))
 
 ```
 
----
-
-### Synthèse des méthodes de persistance
-
-| Format | Fonction de lecture | Méthode d'écriture | Cas d'usage principal | 
-| --- | --- | --- | --- |
-| **CSV** | `pd.read_csv()` | `df.to_csv()` | Tableaux plats, exports Excel, volumétrie simple. | 
-| **JSON** | `pd.read_json()` | `df.to_json()` | Échanges avec des API web, données imbriquées. | 
-| **XML** | `pd.read_xml()` | `df.to_xml()` | Systèmes legacy, facturation électronique, flux RSS. | 
-
-## Persistance des données via le format Pickle
-
-Le format Pickle permet de sérialiser des objets Python, ce qui signifie que vous pouvez sauvegarder un DataFrame exactement tel qu'il est, en conservant les types de données complexes et la structure des index. Cette méthode est idéale pour stocker des données temporaires entre deux sessions de travail sans perte d'information. Le format pickle est propre à Python
+Appliquer plusieurs fonctions à la fois. En passant une liste de fonctions, Pandas retourne un tableau récapitulatif structuré :
 
 ```python
-# Sauvegarde au format binaire Pickle
-df.to_pickle('donnees.pkl')
+# Calcule à la fois la moyenne et l'écart-type sur les colonnes numériques
+print(df.agg(['mean', 'std']))
 
-# Chargement du fichier Pickle
-df_recharge = pd.read_pickle('donnees.pkl')
+```
 
+Appliquer des fonctions différentes selon les colonnes (Le plus puissant). En passant un **dictionnaire**, tu peux spécifier exactement quel indicateur calculer pour chaque colonne, ce qui est particulièrement utile pour un rapport de synthèse :
+
+```python
+synthese = df.agg({
+    'Prix_HT': ['mean', 'min', 'max'], # Moyenne et extrêmes pour les prix
+    'Quantite': 'sum',               # Volume total vendu
+    'Total': ['sum', 'mean']         # CA total et panier moyen global
+})
+
+print(synthese)
+
+```
+
+Contrairement aux méthodes directes comme `df['Prix_HT'].mean()` qui s'exécutent colonne par colonne séparément, `.agg()` centralise la logique de calcul et permet d'obtenir une **matrice de synthèse multi-métriques** en une seule ligne de code propre et lisible.
+
+## `.agg` vs `.groupby`
+
+C'est la syntaxe standard en analyse de données pour obtenir des rapports structurés et multi-indicateurs par catégorie :
+* groupby() : Le découpeur (Structure)
+* agg() (ou aggregate) : Le calculateur (Synthèse)
+
+```python 
+import pandas as pd
+
+df = pd.DataFrame({
+    'Produit': ['Clavier', 'Souris', 'Casque', 'Webcam'],
+    'Categorie': ['Accessoire', 'Accessoire', 'Audio', 'Audio'],
+    'Prix_HT': [50.0, 25.0, 80.0, 70.0],
+    'Quantite': [3, 10, 2, 5]
+})
+
+# GROUPBY crée les groupes ('Accessoire', 'Audio')
+# AGG calcule les métriques spécifiques pour chaque groupe
+rapport = df.groupby('Categorie').agg(
+    Prix_Moyen=('Prix_HT', 'mean'),
+    Volume_Total=('Quantite', 'sum')
+)
+
+print(rapport)
 ```
 
 ## Exemple de synthèse
-Le cycle complet de persistance du catalogue.Ce script démontre comment sauvegarder un même DataFrame sous les trois grands formats standards du marché en respectant les bonnes pratiques (gestion des accents, suppression des index superflus, formats structurés), puis à le recharger.
+
+Rapport de synthèse commercial par catégorie
+Reprenons notre catalogue enrichi avec une colonne 'Categorie'
 
 ```python
 import pandas as pd
 
-# 1. Données initiales (notre catalogue fil rouge)
-df_catalogue = pd.DataFrame({
-    'ID_Produit': [101, 102, 103],
-    'Produit': ['Clavier Mécanique', 'Souris Ergonomique', 'Casque Audio'],
-    'Prix_HT': [50.0, 25.0, 80.0],
-    'Disponible': [True, True, False]
+# Données de départ
+df = pd.DataFrame({
+    'Produit': ['Clavier', 'Souris', 'Casque', 'Webcam', 'Tapis'],
+    'Categorie': ['Accessoire', 'Accessoire', 'Audio', 'Audio', 'Accessoire'],
+    'Prix_HT': [50.0, 25.0, 80.0, 70.0, 15.0],
+    'Quantite': [3, 10, 2, 5, 20],
+    'Total': [150.0, 250.0, 160.0, 350.0, 300.0]
 })
 
-print("--- 1. DataFrame d'origine ---")
-print(df_catalogue)
+# Combinaison de groupby et agg (avec l'agrégation nommée)
+synthese_par_categorie = df.groupby('Categorie').agg(
+    Nombre_References=('Produit', 'count'),    # Nombre de produits distincts dans la catégorie
+    Prix_Moyen_HT=('Prix_HT', 'mean'),          # Prix moyen unitaire
+    Volume_Ventes=('Quantite', 'sum'),          # Nombre total d'articles vendus
+    Chiffre_Affaires_Total=('Total', 'sum')     # CA total généré
+).reset_index()
 
-# ==========================================
-# EXPORTATION MULTI-FORMATS
-# ==========================================
-
-# A. Format CSV (Idéal pour la bureautique et Excel en France)
-# -> index=False évite d'exporter la colonne d'index technique (0, 1, 2)
-# -> sep=';' et utf-8-sig garantissent un affichage parfait sous Excel
-df_catalogue.to_csv('catalogue.csv', index=False, sep=;', encoding='utf-8-sig')
-
-# B. Format JSON (Idéal pour le Web, les API et NoSQL)
-# -> orient='records' structure chaque ligne comme un objet indépendant
-df_catalogue.to_json('catalogue.json', orient='records', force_ascii=False, indent=4)
-
-# C. Format XML (Idéal pour les échanges d'entreprise et facturation)
-# -> root_name et row_name personnalisent les balises racines et de lignes
-df_catalogue.to_xml('catalogue.xml', root_name='Boutique', row_name='Article', index=False)
-
-print("\n[✔] Fichiers CSV, JSON et XML exportés avec succès sur le disque.")
-
-# ==========================================
-# RELECTURE ET VÉRIFICATION (EXEMPLE CSV)
-# ==========================================
-df_recharge = pd.read_csv('catalogue.csv', sep=';', encoding='utf-8-sig')
-
-print("\n--- 3. Données rechargées depuis le fichier CSV ---")
-print(df_recharge)
-
+print(synthese_par_categorie)
 ```
-
----
-
-### Les règles d'or à retenir pour votre manuel :
-
-**Toujours utiliser `index=False**` lors des exports (`to_csv`, `to_xml`, etc.) sauf si l'index possède un sens métier avéré (comme une date ou une clé primaire explicite).
-**Soigner l'encodage (`utf-8-sig` ou `utf-8`)** pour ne jamais corrompre les caractères accentués lors du passage de Python vers des fichiers tiers.
-**Choisir le bon format selon l'écosystème cible** : CSV pour l'analyse tabulaire classique, JSON pour le développement web/API, et XML pour les flux d'entreprise stricts.
 
 ## Exercices de fin de chapitre
 
-**Exercice 1:** Créez un DataFrame, sauvegardez-le en format CSV, puis rechargez-le dans une nouvelle variable pour vérifier l'intégrité des données.
-**Exercice 2:** Expérimentez la sauvegarde d'un DataFrame contenant des types de données variés (nombres, textes, dates) au format Pickle et confirmez que les types sont conservés après le rechargement.
+**Exercice 1 :** Rapport de synthèse décisionnel par catégorie (`groupby` et `agg`)
 
+En tant qu'analyste de données, la direction te demande de produire un tableau de bord synthétique pour analyser les performances des ventes par grande catégorie de produits.
+
+```python
+import pandas as pd
+
+df_catalogue = pd.DataFrame({
+    'Produit': ['Clavier', 'Souris', 'Casque', 'Webcam', 'Tapis', 'Écran'],
+    'Categorie': ['Accessoire', 'Accessoire', 'Audio', 'Audio', 'Accessoire', 'Moniteur'],
+    'Prix_HT': [50.0, 25.0, 80.0, 70.0, 15.0, 250.0],
+    'Quantite_Vendue': [12, 45, 8, 15, 30, 5],
+    'Chiffre_Affaires': [600.0, 1125.0, 640.0, 1050.0, 450.0, 1250.0]
+})
+
+```
+
+À l'aide d'un enchaînement `groupby()` et `agg()`, construis un DataFrame de synthèse qui regroupe les données par `Categorie` et calcule pour chacune d'elles :
+
+* Le nombre total de références distinctes (`count` sur la colonne `Produit`).
+* Le prix unitaire moyen HT (`mean` sur la colonne `Prix_HT`), renommé explicitement `Prix_Moyen`.
+* Le volume total d'articles vendus (`sum` sur la colonne `Quantite_Vendue`), renommé `Volume_Total`.
+* Le chiffre d'affaires cumulé (`sum` sur la colonne `Chiffre_Affaires`), renommé `CA_Total`.
+* Transforme l'index de groupe en colonne classique pour obtenir un tableau propre et plat.
+
+---
+
+**Exercice 2 :** Pipeline de transformation sécurisée et enrichissement (`copy`, `pipe`, `apply`)
+Préparer une simulation commerciale : appliquer une politique de remise promotionnelle ciblée et générer des libellés textuels automatisés pour chaque ligne, sans altérer le jeu de données initial.
+
+```python
+import pandas as pd
+
+df_stocks = pd.DataFrame({
+    'Reference': ['REF-01', 'REF-02', 'REF-03'],
+    'Produit': ['Clavier', 'Souris', 'Casque'],
+    'Prix_Actuel': [50.0, 25.0, 80.0],
+    'Stock_Restant': [10, 25, 4]
+})
+
+```
+
+* Isolation sécurisée :** Créer une copie indépendante du DataFrame nommée `df_simulation` pour travailler sans risque de modification de l'original.
+* Pipeline de remise :** Écrire une fonction personnalisée `appliquer_promo(df, taux)` qui calcule un nouveau prix `Prix_Promo` en appliquant le taux de réduction fourni (par exemple 15%), puis intègre cette fonction dans un appel `.pipe()`.
+* Traitement ligne par ligne :** À l'aide de `.apply()` avec `axis=1`, ajoute une colonne `Alerte_Reappro` qui retourne la chaîne de caractères `"Prioritaire"` si le stock est strictement inférieur à 5, et `"Normal"` dans le cas contraire.

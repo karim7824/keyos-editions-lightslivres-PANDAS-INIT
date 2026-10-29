@@ -1,299 +1,203 @@
-# Chapitre 10 : Visualisation de données avec Pandas (`df.plot()`)
+# Chapitre 10 :  Persistance et Formats 
 
-L'analyse de données complexes nécessite souvent de manipuler des dimensions supplémentaires au-delà du simple tableau bidimensionnel. Ce chapitre vous présente les Panel Data et l'utilisation des MultiIndex pour structurer vos informations de manière hiérarchique et précise.
+La persistance des données sous Pandas consiste à faire le pont entre la mémoire vive (le DataFrame en RAM) et le stockage sur disque (fichiers physiques). Qu'il s'agisse d'ingérer des données brutes issues de systèmes tiers ou d'exporter des rapports finalisés, Pandas propose des fonctions unifiées et performantes basées sur les préfixes **`read_`** et **`to_`**.
 
 Dans ce chapitre :
 
-* Introduction aux Panel Data
-* Utilisation du `MultiIndex`
+* Le format CSV (*Comma-Separated Values*) : Le standard tabulaire
+* Le format JSON (*JavaScript Object Notation*) : Le roi du Web
+* Le format XML (*Extensible Markup Language*) : Les données semi-structurées
+* Persistance des données via le format Pickle
+* Exemple de synthèse
+* Exercices de fin de chapitre
 
-## Visualisation avec Matplotlib, Pyplot et Seaborn
+## Le format CSV (*Comma-Separated Values*) : Le standard tabulaire
 
-Bien que la méthode `df.plot()` suffise amplement pour l'exploration rapide et la génération de graphiques simples, l'écosystème Python de la visualisation repose sur trois piliers complémentaires. Pour concevoir des rapports de production avancés ou des analyses statistiques poussées, il est indispensable de savoir sortir de Pandas pour exploiter directement **Matplotlib**, son module **Pyplot**, et la bibliothèque statistique **Seaborn**.
+Le CSV est le format universel pour les données tabulaires. Léger et lisible, il est géré nativement par la quasi-totalité des outils logiciels.
 
----
+### Lecture d'un fichier CSV (`pd.read_csv`)
 
-### La hiérarchie des outils de visualisation
-
-Pour comprendre comment ces outils s'articulent, il faut voir Pandas comme une surcouche de simplification :
-
-1. **Pandas (`df.plot()`)** : Intégré nativement, idéal pour prototyper et visualiser directement depuis un DataFrame. Il délague le travail d'affichage à Matplotlib en arrière-plan.
-2. **Matplotlib / Pyplot (`plt`)** : Le moteur graphique de référence en Python. Il offre un contrôle absolu sur chaque pixel, chaque axe, chaque annotation et la structure globale de la figure.
-3. **Seaborn (`sns`)** : Une bibliothèque construite *au-dessus* de Matplotlib, spécialisée dans la **visualisation statistique**. Elle gère nativement les regroupements complexes, les distributions et propose des designs modernes par défaut.
-
----
-
-### Matplotlib et Pyplot (`plt`) : Le contrôle total sur la figure
-
-Quand les options de Pandas montrent leurs limites (par exemple pour superposer des graphiques de types différents, ajouter des annotations textuelles complexes ou gérer des figures multi-axes sophistiquées), on fait appel directement à `matplotlib.pyplot`.
+La fonction `pd.read_csv()` est la plus utilisée en science des données. Elle intègre de nombreux paramètres pour s'adapter à la structure du fichier source :
 
 ```python
 import pandas as pd
-import matplotlib.pyplot as plt
 
-# Données d'exemple
-Mois = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai']
-CA_2025 = [10000, 12000, 11000, 13500, 15000]
-CA_2026 = [12500, 14000, 13800, 16000, 18500]
-
-# Création explicite d'une figure et d'une zone de dessin (axes)
-fig, ax = plt.subplots(figsize=(8, 4))
-
-# Tracé de deux courbes superposées avec personnalisation fine
-ax.plot(Mois, CA_2025, label='2025', color='gray', linestyle='--', marker='o')
-ax.plot(Mois, CA_2026, label='2026', color='teal', linewidth=2.5, marker='s')
-
-# Habillage professionnel via l'objet ax
-ax.set(title="Comparatif du Chiffre d'Affaires N-1 vs N",
-       xlabel="Mois",
-       ylabel="Euros (€)")
-ax.legend()
-ax.grid(True, alpha=0.3)
-
-plt.show()
-
-```
-
----
-
-### Seaborn (`sns`) : L'expert en statistiques et esthétique
-
-Seaborn brille particulièrement lorsqu'il s'agit d'analyser des distributions statistiques ou de croiser plusieurs variables catégorielles sans avoir à manipuler laborieusement les index de Pandas. Il intègre nativement des thèmes visuels élégants et gère les regroupements complexes en un seul argument (`hue`, `col`, etc.).
-
-```python
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
-
-# Application d'un thème Seaborn moderne
-sns.set_theme(style="whitegrid")
-
-# Données de test (répartition des prix par catégorie)
-df_produits = pd.DataFrame({
-    'Categorie': ['Accessoire', 'Accessoire', 'Audio', 'Audio', 'Moniteur', 'Moniteur', 'Accessoire', 'Audio'],
-    'Prix_HT': [50.0, 25.0, 80.0, 70.0, 250.0, 300.0, 40.0, 90.0],
-    'Canal': ['Web', 'Boutique', 'Web', 'Boutique', 'Web', 'Web', 'Boutique', 'Boutique']
-})
-
-# Génération d'un diagramme en boîte (boxplot) avec Seaborn
-# Il gère automatiquement la répartition statistique (médiane, quartiles, valeurs aberrantes)
-plt.figure(figsize=(8, 4))
-sns.boxplot(
-    data=df_produits, 
-    x='Categorie', 
-    y='Prix_HT', 
-    hue='Canal',          # Regroupement secondaire instantané
-    palette='Set2'
+# Lecture d'un fichier CSV avec gestion du séparateur et de l'encodage
+df_ventes = pd.read_csv(
+    'ventes_2026.csv',
+    sep=',',               # Séparateur de colonnes (virgule, point-virgule ';', tabulation '\t')
+    encoding='utf-8',      # Encodage des caractères (utf-8, latin-1 pour les accents français)
+    index_col=0,           # Utiliser la première colonne comme index du DataFrame
+    na_values=['NA', 'NULL', '?'] # Définition personnalisée des valeurs manquantes
 )
 
-plt.title("Distribution des prix par catégorie et canal de vente")
-plt.show()
+print(df_ventes.head())
+
+```
+
+### Sauvegarde d'un DataFrame (`df.to_csv`)
+
+Pour exporter un DataFrame vers un fichier CSV, on utilise la méthode `.to_csv()` :
+
+```python
+# Exportation propre sans inclure l'index technique de Pandas
+df_ventes.to_csv(
+    'export_ventes_nettoye.csv',
+    index=False,           # Évite d'enregistrer l'index (souvent inutile)
+    sep=';',               # Privilégier le point-virgule pour Excel en version française
+    encoding='utf-8-sig'   # 'utf-8-sig' garantit l'affichage correct des accents sous Excel
+)
 
 ```
 
 ---
 
-### Synthèse : Quel outil choisir pour votre projet ?
+## Le format JSON (*JavaScript Object Notation*) : Le roi du Web
 
-| Outil | Niveau d'abstraction | Force principale | Cas d'usage idéal |
+Le format JSON est omniprésent dans les architectures web et les API REST. Contrairement au CSV, il gère des structures **hiérarchiques** (imbrications d'objets et de listes).
+
+### Lecture d'un fichier JSON (`pd.read_json`)
+
+Pandas analyse automatiquement la structure JSON pour la convertir sous forme tabulaire :
+
+```python
+# Chargement d'un fichier JSON structuré en enregistrements
+df_produits = pd.read_json('catalogue.json', orient='records')
+
+print(df_produits.head())
+
+```
+
+### Sauvegarde au format JSON (`df.to_json`)
+
+L'argument **`orient`** est crucial lors de l'exportation JSON pour définir la structure géométrique du fichier final :
+
+```python
+# Exportation au format liste d'enregistrements (idéal pour le web/API)
+df_produits.to_json(
+    'catalogue_export.json',
+    orient='records',      # Structure chaque ligne comme un objet JSON distinct
+    force_ascii=False,     # Conserve les caractères accentués en clair (non échappés)
+    indent=4               # Indentation pour rendre le fichier lisible par un humain
+)
+
+```
+
+---
+
+## Le format XML (*Extensible Markup Language*) : Les données semi-structurées
+
+Bien que plus lourd que le JSON, le format XML reste la référence dans les environnements d'entreprise, bancaires ou administratifs (factures électroniques, flux RSS, configurations).
+
+#### Lecture d'un fichier XML (`pd.read_xml`)
+
+Pandas intègre nativement un moteur d'analyse XML (nécessitant les bibliothèques `lxml` ou `html5lib` en arrière-plan) :
+
+```python
+# Lecture d'un fichier XML en ciblant la balise répétitive (xpath)
+df_factures = pd.read_xml(
+    'factures.xml',
+    xpath='.//facture'     # XPath ciblant chaque nœud <facture> à transformer en ligne
+)
+
+print(df_factures.head())
+
+```
+
+### Sauvegarde au format XML (`df.to_xml`)
+
+Pour sérialiser un DataFrame en XML :
+
+```python
+# Exportation en XML avec personnalisation des balises racines
+df_factures.to_xml(
+    'factures_export.xml',
+    root_name='Entreprise', # Nom de la balise racine globale
+    row_name='Facture',     # Nom de la balise représentant chaque ligne
+    index=False,
+    encoding='utf-8'
+)
+
+```
+
+---
+
+### Synthèse des méthodes de persistance
+
+| Format | Fonction de lecture | Méthode d'écriture | Cas d'usage principal | 
 | --- | --- | --- | --- |
-| **Pandas (`df.plot()`)** | Élevé (Intégré) | Rapidité d'exécution | Exploration de données rapide, graphiques simples intégrés à un script de nettoyage. |
-| **Matplotlib (`plt`)** | Bas / Intermédiaire | Contrôle chirurgical | Rapports de production sur-mesure, annotations complexes, multi-graphiques avancés. |
-| **Seaborn (`sns`)** | Intermédiaire (Statistique) | Esthétique moderne et inférence | Analyse exploratoire statistique, distributions, corrélations et graphiques multi-variables. |
+| **CSV** | `pd.read_csv()` | `df.to_csv()` | Tableaux plats, exports Excel, volumétrie simple. | 
+| **JSON** | `pd.read_json()` | `df.to_json()` | Échanges avec des API web, données imbriquées. | 
+| **XML** | `pd.read_xml()` | `df.to_xml()` | Systèmes legacy, facturation électronique, flux RSS. | 
 
-## Le catalogue des représentations graphiques 
+## Persistance des données via le format Pickle
 
-* **Le graphique linéaire (`kind='line'`)** : Suivi des tendances et des séries temporelles (ex: évolution du chiffre d'affaires au fil des mois).
-* **Le diagramme en barres (`kind='bar'` / `barh`)** : Comparaison de catégories (ex: volume des ventes par catégorie de produits).
-* **L'histogramme (`kind='hist'`)** : Analyse de la distribution statistique d'une variable numérique (ex: répartition des prix unitaires).
-* **Le nuage de points (`kind='scatter'`)** : Croisement de deux variables pour identifier des corrélations (ex: Prix vs Quantité vendue).
-* **Le diagramme circulaire (`kind='pie'`)** : Représentation des parts de marché (avec modération).
+Le format Pickle permet de sérialiser des objets Python, ce qui signifie que vous pouvez sauvegarder un DataFrame exactement tel qu'il est, en conservant les types de données complexes et la structure des index. Cette méthode est idéale pour stocker des données temporaires entre deux sessions de travail sans perte d'information. Le format pickle est propre à Python
 
----
+```python
+# Sauvegarde au format binaire Pickle
+df.to_pickle('donnees.pkl')
 
-### Le DataFrame de référence pour la visualisation
+# Chargement du fichier Pickle
+df_recharge = pd.read_pickle('donnees.pkl')
+
+```
+
+## Exemple de synthèse
+Le cycle complet de persistance du catalogue.Ce script démontre comment sauvegarder un même DataFrame sous les trois grands formats standards du marché en respectant les bonnes pratiques (gestion des accents, suppression des index superflus, formats structurés), puis à le recharger.
 
 ```python
 import pandas as pd
-import matplotlib.pyplot as plt
 
-# 1. Création du DataFrame de test
-df_visualisation = pd.DataFrame({
-    'Date': pd.date_range(start='2026-10-01', periods=10, freq='D'),
-    'Produit': ['Clavier', 'Souris', 'Casque', 'Webcam', 'Tapis', 'Écran', 'Clavier', 'Souris', 'Casque', 'Webcam'],
-    'Categorie': ['Accessoire', 'Accessoire', 'Audio', 'Audio', 'Accessoire', 'Moniteur', 'Accessoire', 'Accessoire', 'Audio', 'Audio'],
-    'Prix_HT': [50.0, 25.0, 80.0, 70.0, 15.0, 250.0, 50.0, 25.0, 80.0, 70.0],
-    'Quantite': [5, 12, 3, 8, 15, 2, 7, 10, 4, 6]
+# Données initiales (notre catalogue fil rouge)
+df_catalogue = pd.DataFrame({
+    'ID_Produit': [101, 102, 103],
+    'Produit': ['Clavier Mécanique', 'Souris Ergonomique', 'Casque Audio'],
+    'Prix_HT': [50.0, 25.0, 80.0],
+    'Disponible': [True, True, False]
 })
 
-# Calcul d'une colonne dérivée pour l'analyse
-df_visualisation['Chiffre_Affaires'] = df_visualisation['Prix_HT'] * df_visualisation['Quantite']
+print("--- DataFrame d'origine ---")
+print(df_catalogue)
 
-print(df_visualisation)
+# ==========================================
+# EXPORTATION MULTI-FORMATS
+# ==========================================
 
-```
+# A. Format CSV (Idéal pour la bureautique et Excel en France)
+# -> index=False évite d'exporter la colonne d'index technique (0, 1, 2)
+# -> sep=';' et utf-8-sig garantissent un affichage parfait sous Excel
+df_catalogue.to_csv('catalogue.csv', index=False, sep=;', encoding='utf-8-sig')
 
----
+# B. Format JSON (Idéal pour le Web, les API et NoSQL)
+# -> orient='records' structure chaque ligne comme un objet indépendant
+df_catalogue.to_json('catalogue.json', orient='records', force_ascii=False, indent=4)
 
-### Diagramme en barres (`kind='bar'`) : Comparer par catégorie
+# C. Format XML (Idéal pour les échanges d'entreprise et facturation)
+# -> root_name et row_name personnalisent les balises racines et de lignes
+df_catalogue.to_xml('catalogue.xml', root_name='Boutique', row_name='Article', index=False)
 
-Idéal pour visualiser le chiffre d'affaires cumulé par grande famille de produits en couplant `groupby` et `plot()` :
+print("\n[✔] Fichiers CSV, JSON et XML exportés avec succès sur le disque.")
 
-```python
-# Agréger le CA par catégorie et générer un graphique en barres
-df_visualisation.groupby('Categorie')['Chiffre_Affaires'].sum().plot(
-    kind='bar',
-    color='skyblue',
-    title="Chiffre d'Affaires par Catégorie",
-    rot=0 # Garde les libellés horizontaux
-)
-plt.ylabel('Euros (€)')
-plt.show()
+# ==========================================
+# RELECTURE ET VÉRIFICATION (EXEMPLE CSV)
+# ==========================================
+df_recharge = pd.read_csv('catalogue.csv', sep=';', encoding='utf-8-sig')
 
-```
-
-### Graphique linéaire (`kind='line'`) : Suivre une série temporelle
-
-Parfait pour observer l'évolution des ventes au fil des jours :
-
-```python
-# Indexer par date pour un rendu temporel propre
-df_temporel = df_visualisation.set_index('Date')
-
-# Tracer l'évolution de la quantité vendue par jour
-df_temporel['Quantite'].plot(
-    kind='line',
-    marker='o',
-    color='green',
-    title="Évolution journalière des volumes vendus",
-    figsize=(10, 4)
-)
-plt.ylabel('Quantité')
-plt.show()
-
-```
-
-### Nuage de points (`kind='scatter'`) : Analyser une corrélation
-
-Utile pour étudier la relation entre le prix unitaire et les quantités achetées :
-
-```python
-# Croiser le prix et la quantité
-df_visualisation.plot(
-    kind='scatter',
-    x='Prix_HT',
-    y='Quantite',
-    color='purple',
-    title="Relation Prix / Quantité vendue"
-)
-plt.show()
-
-```
----
-## Habillage, personnalisation et multi-graphiques
-
-Un graphique brut généré par défaut est utile pour l'exploration rapide, mais un rapport professionnel exige un habillage rigoureux : des axes lisibles, des titres explicites, des couleurs adaptées et une mise en page soignée. Puisque Pandas s'appuie directement sur **Matplotlib** sous le capot, il est possible de personnaliser finement chaque rendu.
-
----
-
-### Personnalisation des axes et des titres
-
-Il est indispensable de nommer clairement les axes et d'ajouter un titre pour que le graphique soit compréhensible hors de son contexte. Ces paramètres peuvent être passés directement dans la méthode `.plot()` ou complétés via les fonctions de `matplotlib.pyplot`.
-
-```python
-import pandas as pd
-import matplotlib.pyplot as plt
-
-# Données d'exemple (ventes par jour)
-df_ventes = pd.DataFrame({
-    'Jour': ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven'],
-    'CA': [1200, 1500, 950, 1800, 2200]
-}).set_index('Jour')
-
-# Génération du graphique avec habillage intégré
-df_ventes.plot(
-    kind='bar',
-    title="Chiffre d'affaires journalier",  # Titre principal
-    rot=0                                  # Garde les libellés de l'axe X horizontaux
-)
-
-# Personnalisation explicite des axes et de la légende
-plt.xlabel("Jours de la semaine")
-plt.ylabel("Montant en Euros (€)")
-plt.legend(["CA Global"])                  # Affichage et nom de la légende
-plt.show()
-
-```
----
-
-### Mise en forme avancée : Dimensions, couleurs et styles
-
-Pour adapter la lisibilité d'un graphique (notamment pour l'intégrer dans un support de cours ou un rapport PDF), on joue sur trois leviers majeurs :
-
-* **`figsize=(largeur, hauteur)`** : Ajuste les proportions physiques de la figure en pouces.
-* **`colormap`** : Applique une palette de couleurs cohérente (ex: `'viridis'`, `'plasma'`, `'tab10'`).
-* **`linewidth` / `linestyle**` : Modifie l'épaisseur et le style des lignes pour les courbes.
-
-```python
-# Traçage d'une courbe stylisée
-df_ventes.plot(
-    kind='line',
-    figsize=(9, 4),           # Figure large et moins haute
-    color='teal',             # Couleur principale
-    linewidth=3,              # Ligne épaisse
-    marker='o',               # Ajout de points sur les sommets
-    markersize=8,
-    title="Suivi de la performance hebdomadaire"
-)
-
-plt.grid(True, linestyle='--', alpha=0.6) # Ajout d'une grille en pointillés légers
-plt.ylabel("Euros (€)")
-plt.show()
+print("\n--- Données rechargées depuis le fichier CSV ---")
+print(df_recharge)
 
 ```
 
 ---
 
-### Multi-subplots : Organiser plusieurs graphiques sur une grille
+### Les règles d'or à retenir pour votre manuel :
 
-Lorsque l'on souhaite analyser plusieurs métriques en parallèle sans saturer un seul graphique, l'argument **`subplots=True`** ordonne à Pandas de créer un sous-graphique indépendant pour chaque colonne numérique. L'argument **`layout`** permet d'organiser ces graphiques sous forme de grille (lignes, colonnes).
+**Toujours utiliser `index=False**` lors des exports (`to_csv`, `to_xml`, etc.) sauf si l'index possède un sens métier avéré (comme une date ou une clé primaire explicite).
+**Soigner l'encodage (`utf-8-sig` ou `utf-8`)** pour ne jamais corrompre les caractères accentués lors du passage de Python vers des fichiers tiers.
+**Choisir le bon format selon l'écosystème cible** : CSV pour l'analyse tabulaire classique, JSON pour le développement web/API, et XML pour les flux d'entreprise stricts.
 
-```python
-# DataFrame avec plusieurs métriques numériques
-df_multimetriques = pd.DataFrame({
-    'Date': pd.date_range(start='2026-10-01', periods=4, freq='D'),
-    'Visiteurs': [150, 200, 180, 250],
-    'Ventes': [12, 18, 15, 22],
-    'Panier_Moyen': [50.0, 55.0, 48.0, 52.0]
-}).set_index('Date')
+## Exercices de fin de chapitre
 
-# Création d'une grille de graphiques (2 lignes, 2 colonnes)
-df_multimetriques.plot(
-    kind='line',
-    subplots=True,            # Active les graphiques multiples
-    layout=(2, 2),            # Grille de 2x2
-    figsize=(10, 6),          # Dimensions globales de la figure
-    sharex=True,              # Partage l'axe des abscisses (dates)
-    marker='.'
-)
-
-plt.suptitle("Tableau de bord multi-métriques", fontsize=14, fontweight='bold')
-plt.tight_layout()            # Évite le chevauchement des sous-graphiques
-plt.show()
-
-```
-
-* **Les libellés (`xlabel`, `ylabel`, `title`)** garantissent l'autonomie sémantique du graphique.
-* **`figsize` et `colormap**` assurent l'harmonie visuelle et professionnelle de vos rapports.
-* **`subplots=True` couplé à `layout**` transforme un DataFrame multi-colonnes en un tableau de bord analytique structuré en une seule ligne de code.
-
----
-### Synthèse
-
-La gestion des structures multidimensionnelles repose sur l'utilisation du `MultiIndex`, qui permet de structurer hiérarchiquement vos données pour une analyse fine des Panel Data.
-
-### Exercices
-
-1. Créez un DataFrame avec un `MultiIndex` comportant deux niveaux : "Ville" et "Mois", et remplissez-le avec des données de température fictives.
-2. Utilisez `.loc` pour extraire toutes les données relatives à une seule ville de votre DataFrame hiérarchisé.
-
+**Exercice 1:** Créez un DataFrame, sauvegardez-le en format CSV, puis rechargez-le dans une nouvelle variable pour vérifier l'intégrité des données.
+**Exercice 2:** Expérimentez la sauvegarde d'un DataFrame contenant des types de données variés (nombres, textes, dates) au format Pickle et confirmez que les types sont conservés après le rechargement.
