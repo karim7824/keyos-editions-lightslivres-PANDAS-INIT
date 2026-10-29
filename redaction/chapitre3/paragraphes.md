@@ -8,6 +8,9 @@ Dans ce chapitre :
 * Transformation des valeurs d'une `Series`
 * Exemple de synthèse
 * Exercices de fin de chapitre
+
+---
+
 ## Opérations arithmétiques et alignement automatique
 
 Contrairement aux tableaux NumPy ou aux listes Python classiques qui s'appuient uniquement sur la position des éléments, Pandas effectue toutes ses opérations arithmétiques **en s'appuyant sur les index (les étiquettes)**.
@@ -117,6 +120,7 @@ print(stock_global)
 # dtype: float64
 
 ```
+---
 
 ## Extraction et recherche de données
 
@@ -296,6 +300,7 @@ print(subset)
 # dtype: int64
 
 ```
+---
 
 ## Transformation des valeurs d'une `Series`
 
