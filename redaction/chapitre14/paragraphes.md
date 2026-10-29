@@ -18,10 +18,10 @@ Dans ce chapitre :
 
 Pour construire un graphique avec Matplotlib, il faut comprendre sa hiérarchie visuelle, reposant sur deux objets fondamentaux :
 
-* **La `Figure**` : C'est la fenêtre globale ou la "feuille de dessin" qui contient l'ensemble des éléments graphiques (titres globaux, légende générale, sous-graphiques).
-* **Les `Axes**` : Ce sont les zones de traçage proprement dites (le système d'axes $X$ et $Y$ où les courbes et barres sont dessinées). Une `Figure` peut contenir un ou plusieurs `Axes`.
+* **La `Figure`** : C'est la fenêtre globale ou la "feuille de dessin" qui contient l'ensemble des éléments graphiques (titres globaux, légende générale, sous-graphiques).
+* **Les `Axes`** : Ce sont les zones de traçage proprement dites (le système d'axes $X$ et $Y$ où les courbes et barres sont dessinées). Une `Figure` peut contenir un ou plusieurs `Axes`.
 
-### Création explicite d'une Figure et d'un unique objet Axes
+Création explicite d'une Figure et d'un unique objet Axes
 
 ```python
 import matplotlib.pyplot as plt
@@ -36,7 +36,7 @@ plt.show()
 
 ```
 
-### Manipulation des propriétés de l'objet Axes
+Manipulation des propriétés de l'objet Axes
 
 L'objet `ax` centralise toutes les commandes de modification des axes, ce qui rend le code plus modulaire et lisible que l'utilisation de fonctions globales.
 
@@ -63,7 +63,7 @@ plt.show()
 
 La fonction **`plt.plot()`** est la fonction universelle de Matplotlib pour tracer des graphiques linéaires ou des nuages de points reliés par des lignes. Elle accepte en arguments des listes ou des tableaux NumPy pour les coordonnées $X$ et $Y$.
 
-### Tracé linéaire basique à partir de listes Python
+Tracé linéaire basique à partir de listes Python
 
 ```python
 import matplotlib.pyplot as plt
@@ -78,7 +78,7 @@ plt.show()
 
 ```
 
-### Personnalisation directe des traits et des marqueurs dans `plt.plot()`
+Personnalisation directe des traits et des marqueurs dans `plt.plot()`
 
 Il est possible de modifier l'apparence des courbes directement via les arguments de la fonction `plt.plot()` (couleurs, épaisseur, style de ligne et symboles de sommets).
 
@@ -101,7 +101,7 @@ plt.show()
 
 Un graphique professionnel doit être immédiatement compréhensible hors de son contexte. Cela nécessite l'ajout rigoureux de titres, d'étiquettes sur les axes (`xlabel`, `ylabel`), de légendes pour identifier les courbes, et éventuellement d'une grille de lecture.
 
-### Ajout de titres, libellés d'axes et de légendes
+Ajout de titres, libellés d'axes et de légendes
 
 ```python
 import matplotlib.pyplot as plt
@@ -125,7 +125,7 @@ plt.show()
 
 ```
 
-### Application d'un style global prédéfini
+Application d'un style global prédéfini
 
 Matplotlib propose des thèmes visuels intégrés pour modifier instantanément l'esthétique de vos figures sans tout reconfigurer à la main.
 
@@ -152,7 +152,7 @@ plt.show()
 
 Lorsque l'on souhaite comparer plusieurs métriques côte à côte sans surcharger un unique repère, on utilise un système de grille de sous-graphiques (*subplots*) via `plt.subplots(nrows, ncols)`.
 
-### Grille de 1 ligne et 2 colonnes
+Grille de 1 ligne et 2 colonnes
 
 ```python
 import matplotlib.pyplot as plt
@@ -176,7 +176,7 @@ plt.show()
 
 ```
 
-### Grille matricielle de 2x2 sous-graphiques
+Grille matricielle de 2x2 sous-graphiques
 
 ```python
 import matplotlib.pyplot as plt
@@ -209,7 +209,7 @@ plt.show()
 
 Une fois le graphique mis en forme, il est souvent nécessaire de l'exporter sous forme de fichier image (PNG, JPG) ou de format vectoriel haute qualité (PDF, SVG) pour l'insérer dans un rapport ou un e-book. On utilise pour cela la méthode **`plt.savefig()`**.
 
-### Exportation standard au format PNG haute résolution
+Exportation standard au format PNG haute résolution
 
 ```python
 import matplotlib.pyplot as plt
@@ -228,7 +228,7 @@ plt.close() # Ferme la figure pour libérer la mémoire
 
 ```
 
-### Exportation au format vectoriel SVG pour l'édition web ou print
+Exportation au format vectoriel SVG pour l'édition web ou print
 
 ```python
 import matplotlib.pyplot as plt
