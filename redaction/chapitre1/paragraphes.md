@@ -34,7 +34,7 @@ En Python, les listes standard sont très souples (elles peuvent contenir du tex
 
 Le `ndarray` est l'objet central de NumPy. Ses propriétés fondamentales sont le type des données (`dtype`) et les dimensions (`shape`).
 
-### Exemple 1 : Création d'un tableau unidimensionnel et inspection de sa structure
+Création d'un tableau unidimensionnel et inspection de sa structure
 
 ```python
 import numpy as np
@@ -48,7 +48,7 @@ print("Dimensions (.shape) :", notes_array.shape)        # Affiche (4,) -> 4 él
 
 ```
 
-### Création d'une matrice bidimensionnelle avec typage explicite
+Création d'une matrice bidimensionnelle avec typage explicite
 
 Pour représenter un tableau de données tabulaires (lignes et colonnes), on utilise un tableau 2D en forçant un type précis de données (par exemple, des nombres à virgule `float64`).
 
