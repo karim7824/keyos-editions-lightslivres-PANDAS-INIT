@@ -20,8 +20,6 @@ Dans ce chapitre :
 * Exemple de synthèse
 * Exercices de fin de chapitre
 
----
-
 ## Le filtrage conditionnel de lignes (Indexation booléenne)
 
 Pour extraire des lignes selon un critère métier (ex: *tous les produits dont le prix dépasse 50€*), on n'utilise pas la fonction `filter()`, mais l'**indexation booléenne**, qui crée un masque de `True`/`False`.
@@ -65,8 +63,6 @@ df_filtre_cols = df.filter(like='Prix')
 df_selection = df.filter(items=['Produit', 'Stock'])
 
 ```
-
----
 
 ## Le Mappage (`.map()`) : Transformer et traduire des valeurs
 
@@ -113,8 +109,6 @@ print(prenoms_formes)
 
 > **Note :** Si une valeur présente dans la `Series` ne trouve pas de correspondance dans le dictionnaire passé à `.map()`, elle est automatiquement transformée en valeur manquante (`NaN`).
 
----
-
 ## Traduire des codes catégories
 
 Imaginons une colonne contenant des identifiants numériques de catégories que l'on souhaite transformer en texte lisible :
@@ -142,8 +136,6 @@ print(df_ventes)
 
 > **Attention aux valeurs absentes :** Si `.map()` rencontre une valeur qui n'existe pas dans le dictionnaire de correspondance, elle la remplace par `NaN` (valeur manquante). Pour éviter cela, on peut passer une fonction ou utiliser `.replace()`.
 
----
-
 ## Aller plus loin : `.apply()` et `.applymap()` (ou `.map()` global)
 
 Quand le mapping par dictionnaire ne suffit plus et qu'on souhaite appliquer une fonction personnalisée (ou une fonction lambda) sur tout un DataFrame ou une colonne :
@@ -158,8 +150,6 @@ df['Prix_Remise'] = df['Prix_HT'].apply(lambda x: x * 0.9)
 print(df[['Produit', 'Prix_HT', 'Prix_Remise']])
 
 ```
-
----
 
 ## Exemple de synthèse
 
@@ -228,7 +218,7 @@ print(df_synthese)
 
 ## Exercices de fin de chapitre
 
-**Exercice 1:** Analyse temporelle et extraction des pics d'activité
+**Exercice 1 :** Analyse temporelle et extraction des pics d'activité
 Manipuler les séries temporelles, convertir des chaînes de caractères en objets `datetime`, extraire des composantes temporelles et réaliser une agrégation croisée.
 
 Vous disposez d'un journal de transactions brutes sous forme de texte. La direction souhaite identifier quels jours de la semaine génèrent le plus de chiffre d'affaires.
@@ -249,7 +239,7 @@ Extrayez le **nom du jour de la semaine** (ex: *Monday*, *Tuesday*...) dans une 
 Réalisez un regroupement (`groupby`) par `Jour_Semaine` pour calculer la somme totale du chiffre d'affaires (`Montant_EUR`) et le nombre de transactions par jour.
 
 
-**Exercice 2:**  Enrichissement relationnel, Mapping et Filtrage
+**Exercice 2 :**  Enrichissement relationnel, Mapping et Filtrage
 Croiser deux tables hétérogènes avec `pd.merge()`, traduire des codes via `.map()` et appliquer un filtre conditionnel multicritère.
 
 Vous gérez deux sources de données distinctes dans votre boutique : un historique de ventes contenant des identifiants produits, et un catalogue général fournissant les détails et les catégories.
