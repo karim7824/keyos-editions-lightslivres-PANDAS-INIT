@@ -12,7 +12,6 @@ Dans ce chapitre :
 * Exemple de synthèse
 * Exercices de fin de chapitre
 
----
 ## Opération de Tri
 
 Le tri permet de réorganiser vos données selon les valeurs d'une ou plusieurs colonnes pour mieux visualiser les extrêmes ou les tendances. Vous pouvez trier par ordre croissant ou décroissant très simplement.
@@ -70,7 +69,6 @@ for index, row in df.iterrows():
 
 Pour la lecture ou l'écriture d'une cellule isolée, df.at contourne la surcharge de sélection de Pandas et offre de meilleures performances en termes de temps d'exécution (très utile dans des boucles ou des scripts d'optimisation).
 
----
 ## Utilisation des fonctions `apply`
 
 La méthode `apply` permet d'appliquer une fonction personnalisée à chaque ligne ou chaque colonne d'un DataFrame. C'est un outil très puissant pour réaliser des transformations complexes non supportées nativement par Pandas.
@@ -107,7 +105,6 @@ df['Resume'] = df.apply(
 print(df['Resume'])
 
 ```
----
 ## Utilisation des `pipe`
 
 La méthode `pipe` permet d'enchaîner plusieurs fonctions de transformation de manière lisible et structurée. Cette approche facilite la maintenance du code en isolant chaque étape de traitement dans des fonctions séparées.
@@ -144,8 +141,6 @@ print(df_traite[['Produit', 'Prix_HT', 'Prix_Promo', 'Total']])
 ```
 
 La méthode .copy() permet de créer une copie indépendante d'un DataFrame (ou d'une Série) en mémoire.
-
----
 
 ## Recherches et critères de filtrage
 
@@ -192,8 +187,6 @@ print(df_populaires)
 
 ```
 
----
-
 Conserver un historique de référence dans un pipeline de transformation. Dans un enchaînement de traitements, il est fréquent de dupliquer un DataFrame à une étape clé pour pouvoir comparer l'état initial et l'état final :
 
 ```python
@@ -214,7 +207,6 @@ print(comparaison)
 
 ```
 
----
 ## Exemple de synthèse
 
 En analyse de données, la synthèse consiste à agréger les indicateurs clés (totaux, moyennes, extrêmes) pour obtenir une vue macroscopique en une seule instruction.
@@ -260,7 +252,7 @@ print(f"Produit le plus performant (en CA) : {produit_phare}")
 
 ## Exercices de fin de chapitre
 
-**Exercice 1** : Diagnostic et Audit d'un Dataset de Ventes
+**Exercice 1 :** Diagnostic et Audit d'un Dataset de Ventes
 
 Tu récupères un fichier CSV contenant des données de ventes brutes d'une entreprise e-commerce (`ventes_techno.csv`). Avant toute analyse marketing, tu dois mener un audit rigoureux de la structure et de la santé des données.
 
