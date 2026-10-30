@@ -10,8 +10,6 @@ Dans ce chapitre :
 * Exemple de synthèse
 * Exercices de fin de chapitre
 
----
-
 ## Visualisation avec Matplotlib, Pyplot et Seaborn
 
 Bien que la méthode `df.plot()` suffise amplement pour l'exploration rapide et la génération de graphiques simples, l'écosystème Python de la visualisation repose sur trois piliers complémentaires. Pour concevoir des rapports de production avancés ou des analyses statistiques poussées, il est indispensable de savoir sortir de Pandas pour exploiter directement **Matplotlib**, son module **Pyplot**, et la bibliothèque statistique **Seaborn**.
@@ -98,8 +96,6 @@ plt.show()
 | **Matplotlib (`plt`)** | Bas / Intermédiaire | Contrôle chirurgical | Rapports de production sur-mesure, annotations complexes, multi-graphiques avancés. |
 | **Seaborn (`sns`)** | Intermédiaire (Statistique) | Esthétique moderne et inférence | Analyse exploratoire statistique, distributions, corrélations et graphiques multi-variables. |
 
----
-
 ## Le catalogue des représentations graphiques 
 
 * **Le graphique linéaire (`kind='line'`)** : Suivi des tendances et des séries temporelles (ex: évolution du chiffre d'affaires au fil des mois).
@@ -129,8 +125,6 @@ df_visualisation['Chiffre_Affaires'] = df_visualisation['Prix_HT'] * df_visualis
 print(df_visualisation)
 
 ```
-
----
 
 ### Diagramme en barres (`kind='bar'`) : Comparer par catégorie
 
@@ -186,8 +180,6 @@ df_visualisation.plot(
 plt.show()
 
 ```
-
----
 
 ## Habillage, personnalisation et multi-graphiques
 
@@ -281,8 +273,6 @@ plt.show()
 * **`figsize` et `colormap**` assurent l'harmonie visuelle et professionnelle de vos rapports.
 * **`subplots=True` couplé à `layout**` transforme un DataFrame multi-colonnes en un tableau de bord analytique structuré en une seule ligne de code.
 
----
-
 ## Exemple de synthèse
 
 Utilisation combinée de la visualisation sous Pandas, Matplotlib et Seaborn.
@@ -356,6 +346,7 @@ plt.ylabel("CA Journalier (€)")
 plt.show()
 
 ```
+
 ## Exercices de fin de chapitre
 
 **Exercice 1 :** Création d'un graphique linéaire multi-courbes et habillage personnalisé
