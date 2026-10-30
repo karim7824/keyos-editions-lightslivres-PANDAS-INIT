@@ -28,8 +28,6 @@ En Python, les listes standard sont très souples (elles peuvent contenir du tex
 * **La vectorisation** : Les calculs sont délégués à des routines écrites en C/C++, s'affranchissant totalement des boucles `for` en Python.
 * **Le socle de Pandas** : Une `Series` ou une colonne de `DataFrame` n'est rien d'autre qu'un `ndarray` enrichi d'un index sémantique (des étiquettes).
 
----
-
 ## Le `ndarray` : création, `shape`, `dtype`
 
 Le `ndarray` est l'objet central de NumPy. Ses propriétés fondamentales sont le type des données (`dtype`) et les dimensions (`shape`).
@@ -65,8 +63,6 @@ print("Type forcé (.dtype) :", matrice_prix.dtype)   # Affiche float64
 print("Forme de la matrice (.shape) :", matrice_prix.shape) # Affiche (3, 2) -> 3 lignes, 2 colonnes
 
 ```
-
----
 
 ## Indexation et slicing
 
@@ -108,8 +104,6 @@ print("Tous les stocks :", catalogue[:, 1])
 
 ```
 
----
-
 ## Opérations vectorisées et broadcasting
 
 Les opérations vectorisées appliquent une formule mathématique à l'ensemble du tableau instantanément. Le **broadcasting** (diffusion) permet quant à lui d'effectuer des calculs entre des tableaux de dimensions différentes (par exemple, ajouter une constante à une matrice ou additionner un vecteur à une matrice).
@@ -146,8 +140,6 @@ tarifs_avec_port = tarifs + frais_port[:, np.newaxis]
 print("Tarifs avec frais de port :\n", tarifs_avec_port)
 
 ```
-
----
 
 ## Fonctions mathématiques et statistiques de base (`sum`, `mean`, paramètre `axis`)
 
@@ -189,8 +181,6 @@ print("Moyenne de chaque élève :", moyenne_eleves)
 
 ```
 
----
-
 ## Valeurs manquantes : `np.nan` et ses pièges
 
 En analyse de données, l'absence d'information est courante. NumPy représente les valeurs manquantes ou non valides par la constante spéciale **`np.nan`** (Not a Number).
@@ -225,8 +215,6 @@ donnees_valides = mesures[~np.isnan(mesures)]
 print("Données nettoyées :", donnees_valides)
 
 ```
-
----
 
 ## Exemple de synthèse
 
@@ -267,8 +255,6 @@ print("\n--- Vente moyenne par trimestre ---")
 print(moyenne_trimestre)
 
 ```
-
----
 
 ## Exercices de fin de chapitre
 
