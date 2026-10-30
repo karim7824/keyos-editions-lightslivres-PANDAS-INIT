@@ -80,7 +80,7 @@ Contrairement au `Timestamp` qui cible une *milliseconde* précise, le `Period` 
 
 ```python
 # Définir une période correspondant au mois d'octobre 2026
-periode_mois = pd.Period('2026-10', freq='M')
+periode_mois = pd.Period('2026-10', freq='ME')
 
 print(periode_mois)
 print(f"Début de la période : {periode_mois.start_time}")
@@ -121,10 +121,10 @@ print(jours)
 ---
 ### intervalle de mois
 
-Générer un intervalle de mois (`freq='MS'` ou `'M'`). Pour planifier des bilans ou analyser des données mensuelles, on utilise la fréquence mensuelle.
+Générer un intervalle de mois (`freq='MS'` ou `'ME'`). Pour planifier des bilans ou analyser des données mensuelles, on utilise la fréquence mensuelle.
 
 * `'MS'` (Month Start) place la date au **premier jour** du mois.
-* `'M'` place la date au **dernier jour** du mois.
+* `'ME'` place la date au **dernier jour** du mois.
 
 ```python
 # Créer les dates de début de mois pour l'année 2026 (12 mois)
@@ -186,7 +186,7 @@ La fonction `period_range` permet de générer des séquences régulières de p�
 
 ```python
 # Génération d'une plage de périodes mensuelles
-plage = pd.period_range(start='2026-01', periods=3, freq='M')
+plage = pd.period_range(start='2026-01', periods=3, freq='ME')
 
 # Utilisation dans une Série
 s = pd.Series([10, 20, 30], index=plage)
