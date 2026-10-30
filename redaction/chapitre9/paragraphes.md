@@ -13,7 +13,6 @@ Dans ce chapitre :
 * Exemple de synthèse
 * Exercices de fin de chapitre
 
----
 ## Les 4 modèles fondamentaux du temps dans Pandas
 
 ### `Timestamp` : Un instant précis (Le point dans le temps)
@@ -51,8 +50,6 @@ print(dates_dt)
 
 ```
 
----
-
 ### `Timedelta` : Une durée ou un écart temporel
 
 Un `Timedelta` représente une durée (par exemple : 5 jours, 3 heures, 45 secondes). Il permet d'effectuer des opérations arithmétiques directement sur les dates (ajouter ou soustraire du temps).
@@ -71,8 +68,6 @@ print(f"Date d'achat : {date_achat}")
 print(f"Date de livraison estimée : {date_livraison}")
 
 ```
-
----
 
 ### `Period` : Une période ou un intervalle temporel fixe
 
@@ -100,8 +95,6 @@ print(f"Mois suivant : {mois_suivant}")
 * **`Period`** $\rightarrow$ Une tranche calendaire fixe (ex: *tout le mois d'octobre 2026*).
 Créer des intervalles de dates par **jour** et par **mois**, accompagnés d'exemples pratiques.
 
----
-
 ## Manipulation de plages temporelles avec `period_range`
 
 ### intervalle de jours
@@ -118,7 +111,6 @@ print(jours)
 
 ```
 
----
 ### intervalle de mois
 
 Générer un intervalle de mois (`freq='MS'` ou `'ME'`). Pour planifier des bilans ou analyser des données mensuelles, on utilise la fréquence mensuelle.
@@ -161,8 +153,6 @@ print(df_ventes_journalieres)
 
 ```
 
----
-
 ## Modèles de temps
 
 Pandas offre une gestion précise du temps grâce à quatre types d'objets principaux : `Timestamp` pour un instant précis, `Datetime` pour les types de données temporelles, `Timedelta` pour les durées, et `Period` pour représenter un intervalle de temps défini. Ces outils permettent de manipuler des calendriers complexes avec une grande rigueur syntaxique.
@@ -178,7 +168,6 @@ duree = pd.Timedelta(days=5)
 nouveau_temps = instant + duree
 
 ```
----
 
 ## Manipulation de plages temporelles
 
@@ -192,7 +181,7 @@ plage = pd.period_range(start='2026-01', periods=3, freq='ME')
 s = pd.Series([10, 20, 30], index=plage)
 
 ```
----
+
 ## Extraire le mois, le jour et l'heure
 
 Pour extraire des composantes spécifiques (année, mois, jour, heure, minute) à partir d'une colonne de type date (`datetime`) dans Pandas, on utilise l'accesseur **`.dt`**.
@@ -230,7 +219,6 @@ df_logs['Jour_Semaine'] = df_logs['Date_Heure'].dt.day_name() # Nom du jour en a
 print(df_logs[['Date_Heure', 'Mois', 'Jour', 'Heure', 'Jour_Semaine']])
 
 ```
----
 
 ## Exemple de synthèse
 
@@ -270,9 +258,8 @@ print(synthese_horaire)
 **La chaîne logique :** On convertit d'abord la colonne brute en `datetime`, on extrait les informations fines (`.dt.hour`, `.dt.day_name()`), puis on structure l'analyse macroscopique avec `.groupby().agg()`.
 **La puissance du multi-indicateur :** En une seule passe, `.agg()` permet d'isoler à la fois le volume, la somme et la moyenne par tranche horaire, fournissant un tableau de bord directement exploitable par les équipes métiers.
 
----
 ## Exercices de fin de chapitre 
 
 **Exercice 1 :** Créez un `Timestamp` correspondant à la date d'aujourd'hui et ajoutez-lui un `Timedelta` de 48 heures.
 
-**Exercice 2:** Utilisez `period_range` pour générer une liste de 6 périodes trimestrielles commençant au premier trimestre 2026.
+**Exercice 2 :** Utilisez `period_range` pour générer une liste de 6 périodes trimestrielles commençant au premier trimestre 2026.
