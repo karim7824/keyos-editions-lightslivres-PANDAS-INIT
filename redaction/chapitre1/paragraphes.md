@@ -4,7 +4,7 @@ Avant d'explorer la puissance des structures de Pandas (`Series` et `DataFrame`)
 
 Dans ce chapitre :
 
-* Pourquoi NumPy pour comprendre Pandas 
+* Pourquoi NumPy pour comprendre Pandas ?
 * Le `ndarray` : création, `shape`, `dtype`
 * Indexation et slicing
 * Opérations vectorisées et broadcasting
