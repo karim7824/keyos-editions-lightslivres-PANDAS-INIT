@@ -231,8 +231,6 @@ L'extraction de sous-ensembles est une opération quotidienne en science des don
 
 Ces outils permettent d'isoler des valeurs uniques, des tranches (slices) ou des combinaisons complexes de lignes et de colonnes en une seule commande.
 
----
-
 ### Extraction par étiquette avec `.loc`
 
 Si votre `DataFrame` possède des étiquettes claires (par exemple un nom ou un identifiant), `.loc` permet d'accéder directement à une ligne, une colonne ou une cellule précise.
