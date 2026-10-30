@@ -11,8 +11,6 @@ Dans ce chapitre :
 * Exemple de synthèse
 * Exercices de fin de chapitre
 
----
-
 ## Statistiques descriptives
 
 Les statistiques descriptives permettent d'obtenir une vue d'ensemble rapide de la distribution et de la tendance centrale de vos données. Pandas propose des méthodes intégrées pour calculer instantanément des mesures comme la moyenne (`mean`), la somme (`sum`), le minimum (`min`), le maximum (`max`) ou l'écart-type (`std`) sur une série ou un DataFrame.
@@ -171,8 +169,6 @@ rapport = df.groupby('Categorie').agg(
 print(rapport)
 ```
 
----
-
 ## Exemple de synthèse
 
 Rapport de synthèse commercial par catégorie
@@ -201,8 +197,6 @@ synthese_par_categorie = df.groupby('Categorie').agg(
 print(synthese_par_categorie)
 ```
 
----
-
 ## Exercices de fin de chapitre
 
 **Exercice 1 :** Rapport de synthèse décisionnel par catégorie (`groupby` et `agg`)
@@ -229,8 +223,6 @@ df_catalogue = pd.DataFrame({
 * Le volume total d'articles vendus (`sum` sur la colonne `Quantite_Vendue`), renommé `Volume_Total`.
 * Le chiffre d'affaires cumulé (`sum` sur la colonne `Chiffre_Affaires`), renommé `CA_Total`.
 * Transforme l'index de groupe en colonne classique pour obtenir un tableau propre et plat.
-
----
 
 **Exercice 2 :** Pipeline de transformation sécurisée et enrichissement (`copy`, `pipe`, `apply`)
 
