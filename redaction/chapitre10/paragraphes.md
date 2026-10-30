@@ -28,7 +28,6 @@ maxi = df['Scores'].max()      # Retourne 50
 
 ```
 
----
 ## Agrégations par catégories (`groupby`)
 
 Le groupement de données est une étape fondamentale pour analyser des sous-ensembles selon des catégories spécifiques. La méthode `groupby` segmente vos données en groupes, vous permettant d'appliquer des calculs statistiques indépendamment pour chaque catégorie identifiée.
