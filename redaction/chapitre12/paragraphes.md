@@ -7,7 +7,7 @@ Dans ce chapitre :
 * Le format CSV (*Comma-Separated Values*) : Le standard tabulaire
 * Le format JSON (*JavaScript Object Notation*) : Le roi du Web
 * Le format XML (*Extensible Markup Language*) : Les données semi-structurées
-* Accès aux données stockées en base relationnelle (sql)
+* accès aux données stockées en base relationnelle (`sql`)
 * Persistance des données via le format Pickle
 * synthèse des méthodes de persistance
 * Exemple de synthèse
