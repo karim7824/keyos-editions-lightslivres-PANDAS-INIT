@@ -11,7 +11,6 @@ Dans ce chapitre :
 * Exemple de synthèse
 * Exercices de fin de chapitre
 
----
 ## Le format CSV (*Comma-Separated Values*) : Le standard tabulaire
 
 Le CSV est le format universel pour les données tabulaires. Léger et lisible, il est géré nativement par la quasi-totalité des outils logiciels.
@@ -51,8 +50,6 @@ df_ventes.to_csv(
 
 ```
 
----
-
 ## Le format JSON (*JavaScript Object Notation*) : Le roi du Web
 
 Le format JSON est omniprésent dans les architectures web et les API REST. Contrairement au CSV, il gère des structures **hiérarchiques** (imbrications d'objets et de listes).
@@ -83,8 +80,6 @@ df_produits.to_json(
 )
 
 ```
-
----
 
 ## Le format XML (*Extensible Markup Language*) : Les données semi-structurées
 
@@ -120,7 +115,7 @@ df_factures.to_xml(
 )
 
 ```
----
+
 ## Accès aux données stockées en base relationnelle (`sql`)
 
 
@@ -143,8 +138,6 @@ print(df_employes.head())
 connexion.close()
 
 ```
-
----
 
 Exécution d'une requête filtrée via un moteur SQLAlchemy. En entreprise, on privilégie souvent **SQLAlchemy** pour s'interfacer avec divers SGBD (PostgreSQL, MySQL, SQL Server). Cela permet d'exécuter des requêtes paramétrées complexes directement depuis Pandas.
 
@@ -172,8 +165,6 @@ print(df_filtre)
 
 ```
 
----
-
 ## Persistance des données via le format Pickle
 
 Le format Pickle permet de sérialiser des objets Python, ce qui signifie que vous pouvez sauvegarder un DataFrame exactement tel qu'il est, en conservant les types de données complexes et la structure des index. Cette méthode est idéale pour stocker des données temporaires entre deux sessions de travail sans perte d'information. Le format pickle est propre à Python
@@ -186,7 +177,7 @@ df.to_pickle('donnees.pkl')
 df_recharge = pd.read_pickle('donnees.pkl')
 
 ```
---- 
+ 
 ## Synthèse des méthodes de persistance
 
 | Format | Fonction de lecture | Méthode d'écriture | Cas d'usage principal |
@@ -245,8 +236,6 @@ print(df_recharge)
 
 ```
 
----
-
 ### Les règles d'or à retenir pour votre manuel :
 
 **Toujours utiliser `index=False`** lors des exports (`to_csv`, `to_xml`, etc.) sauf si l'index possède un sens métier avéré (comme une date ou une clé primaire explicite).
@@ -257,6 +246,6 @@ print(df_recharge)
 
 ## Exercices de fin de chapitre
 
-**Exercice 1:** Créez un DataFrame, sauvegardez-le en format CSV, puis rechargez-le dans une nouvelle variable pour vérifier l'intégrité des données.
+**Exercice 1 :** Créez un DataFrame, sauvegardez-le en format CSV, puis rechargez-le dans une nouvelle variable pour vérifier l'intégrité des données.
 
-**Exercice 2:** Expérimentez la sauvegarde d'un DataFrame contenant des types de données variés (nombres, textes, dates) au format Pickle et confirmez que les types sont conservés après le rechargement.
+**Exercice 2 :** Expérimentez la sauvegarde d'un DataFrame contenant des types de données variés (nombres, textes, dates) au format Pickle et confirmez que les types sont conservés après le rechargement.
