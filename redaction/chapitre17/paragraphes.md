@@ -384,7 +384,7 @@ sns.boxplot(data=df, x='Cat', y='Prix', hue='Canal', palette='Set2')
 
 ## 15. Pipeline type d'analyse
 
-```
+```text
 Charger  →  Inspecter  →  Nettoyer  →  Transformer  →  Agréger  →  Visualiser
 read_*      shape/info     dropna       colonnes       groupby     plot / savefig
             describe       drop_dup     map/apply      pivot_table
