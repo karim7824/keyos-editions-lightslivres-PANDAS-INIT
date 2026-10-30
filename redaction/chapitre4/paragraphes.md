@@ -21,8 +21,6 @@ La différence fondamentale entre les structures de Pandas (`Series` et `DataFra
 
 Cette structure permet un **accès sémantique** aux données, facilitant grandement leur interprétation et leur manipulation.
 
----
-
 ### Création d'une `Series` avec un index personnalisé
 
 Contrairement à un tableau simple, une `Series` associe chaque valeur à une étiquette explicite.
@@ -86,8 +84,6 @@ print("\nPandas DataFrame (avec étiquettes sémantiques) :")
 print(df_comparaison)
 
 ```
-
----
 
 ## Organisation interne et propriétés d'un DataFrame
 
@@ -233,7 +229,6 @@ df_clean = df.dropna()
 df_filled = df.fillna(0)
 
 ```
----
 
 ## Créations multiples : listes, tuples et dictionnaires
 
@@ -322,7 +317,6 @@ df_series = pd.DataFrame({
 print(df_series)
 
 ```
----
 
 ## Chargement de fichiers externes : CSV et Excel
 
@@ -333,8 +327,6 @@ Pandas propose des fonctions hautement performantes pour importer directement de
 * La gestion des valeurs manquantes (`NaN`).
 
 Pour être pleinement efficace, ces fonctions acceptent de nombreux paramètres de configuration (comme le séparateur de champs, l'encodage des caractères ou le choix des feuilles de calcul).
-
----
 
 ### Importation de base d'un fichier CSV
 
