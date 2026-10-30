@@ -44,8 +44,6 @@ ser = pd.Series([10, 20], index=['a', 'b'])
 
 **La gestion des données manquantes :** Si un label est absent lors d'une opération ou d'une fusion, Pandas gère l'incompatibilité en y associant proprement une valeur nulle (`NaN`), là où un `ndarray` provoquerait une erreur de dimension.
 
----
-
 ## Méthodes de création d'une `Series`
 
 Les `Series` peuvent être instanciées à partir de diverses structures de données en Python ou NumPy. Selon la source utilisée, Pandas sait interpréter automatiquement les données ou vous permet de spécifier un index sur mesure.
@@ -117,7 +115,6 @@ print(ser_scalaire)
 # dtype: int64
 
 ```
----
 
 ## Attributs et méthodes d'inspection d'une `Series`
 
@@ -157,7 +154,6 @@ print("\nRésumé statistique :")
 print(ser.describe())
 
 ```
---- 
 
 ## Les `Series` temporelles : gestion des dates et du temps
 
@@ -220,8 +216,6 @@ print(sous_serie)
 
 ```
 
----
-
 ### Extraction d'attributs temporels via l'accesseur `.dt`
 
 Une fois l'index ou les données typés en temps, l'accesseur `.dt` offre une multitude de propriétés pour extraire instantanément des composantes calendaires (année, mois, jour, nom du jour, etc.).
@@ -238,7 +232,6 @@ print(mois)
 # Sortie : Index([10, 10, 10, 10, 10], dtype='int32')
 
 ```
---- 
 
 ## La conversion de type dans une `Series` (`.astype()`)
 
@@ -390,8 +383,6 @@ Créez une `Series` nommée `ser_prix` en utilisant la liste `prix_texte` pour l
 À l'aide de la méthode `.astype()`, convertissez cette `Series` en nombres à virgule flottante (`float64`).
 Calculez et affichez le prix de chaque article après application d'une augmentation générale de 10 % (multiplication vectorisée par `1.10`).
 
----
-
 **Exercice 2 :** Analyse temporelle des ventes d'une boutique
 
 Une boutique en ligne souhaite analyser son volume de commandes quotidiennes sur une période de quatre jours au début du mois de novembre 2026. Vous devez manipuler un index temporel et extraire des informations calendaires.
@@ -400,4 +391,4 @@ Une boutique en ligne souhaite analyser son volume de commandes quotidiennes sur
 Créez une `Series` nommée `commandes` contenant les valeurs `[15, 32, 28, 45]` en associant l'index temporel généré à l'étape précédente.
 Utilisez le découpage (*slicing*) temporel par texte pour extraire et afficher uniquement les données allant du **2 novembre 2026 au 3 novembre 2026**.
 En utilisant l'accesseur temporel `.dt` sur l'index de votre série d'origine, extrayez et affichez le nom complet des jours de la semaine correspondants (`day_name()`).
----
+
