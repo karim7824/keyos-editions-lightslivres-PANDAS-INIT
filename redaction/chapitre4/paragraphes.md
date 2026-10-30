@@ -163,16 +163,11 @@ df = pd.DataFrame({
 }, index=['Élève_A', 'Élève_B', 'Élève_C'])
 
 # Afficher les deux axes du DataFrame
+# df.axes[0] correspond à l'axe vertical (les lignes).
+# df.axes[1] correspond à l'axe horizontal (les colonnes).
 print(df.axes)
 
-```
-
-df.axes[0] correspond à l'axe vertical (les lignes).
-df.axes[1] correspond à l'axe horizontal (les colonnes).
-
-```python
-[Index(['Élève_A', 'Élève_B', 'Élève_C'], dtype='object'), 
- Index(['Maths', 'Physique'], dtype='object')]
+[Index(['Élève_A', 'Élève_B', 'Élève_C'], dtype='object'), Index(['Maths', 'Physique'], dtype='object')]
 
 ```
 
@@ -192,9 +187,9 @@ Calculer la moyenne par ligne (`axis=1`). Si l'on souhaite calculer la moyenne g
 ```python
 print(df.mean(axis=1))
 # Résultat :
-# 0    11.0
-# 1    14.5
-# 2    18.0
+# Élève_A    11.0
+# Élève_B    14.5
+# Élève_C    18.0
 # dtype: float64
 
 ```
