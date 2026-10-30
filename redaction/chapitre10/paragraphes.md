@@ -71,9 +71,7 @@ print(ca_par_categorie)
 
 * **Ce qui se passe :** Pandas isole les lignes par `Categorie` ('Accessoire' d'un côté, 'Audio' de l'autre), additionne les valeurs de la colonne `Total` pour chaque groupe, et renvoie une Série indexée par les catégories.
 
----
-
-Appliquer plusieurs fonctions d'agrégation (`.agg()`). Tout comme nous l'avons vu pour l'ensemble du DataFrame, `.agg()` s'associe parfaitement à `groupby` pour croiser plusieurs indicateurs par groupe :
+Appliquer plusieurs fonctions d'agrégation (`.agg()`). `.agg()` s'associe parfaitement à `groupby` pour croiser plusieurs indicateurs par groupe :
 
 ```python
 # Appliquer des fonctions différentes selon les colonnes pour chaque catégorie
@@ -88,8 +86,6 @@ print(synthese_categorie)
 ```
 
 * **Ce qui se passe :** Pandas génère un tableau croisé dynamique à colonnes multiples (MultiIndex) permettant d'auditer finement chaque rayon.
-
----
 
 L'agrégation nommée pour des rapports propres. Pour éviter d'obtenir des noms de colonnes complexes ou imbriqués lors d'agrégations multiples, la syntaxe moderne de **l'agrégation nommée** permet de renommer directement les colonnes à la volée :
 
@@ -142,7 +138,6 @@ print(synthese)
 
 Contrairement aux méthodes directes comme `df['Prix_HT'].mean()` qui s'exécutent colonne par colonne séparément, `.agg()` centralise la logique de calcul et permet d'obtenir une **matrice de synthèse multi-métriques** en une seule ligne de code propre et lisible.
 
----
 ## `.agg` vs `.groupby`
 
 C'est la syntaxe standard en analyse de données pour obtenir des rapports structurés et multi-indicateurs par catégorie :
