@@ -9,15 +9,13 @@ Dans ce chapitre :
 * Exemple de synthèse
 * Exercices de fin de chapitre
 
----  
+
 ## Travailler sur les colonnes : sélection, calcul et nettoyage
 
 Manipuler les colonnes est l'une des tâches les plus fréquentes en science des données. Cela permet d'enrichir un jeu de données avec de nouvelles variables, de nettoyer les structures en éliminant le superflu ou de clarifier les étiquettes.
 
 Grâce à la **vectorisation** de Pandas
 , ces opérations s'exécutent de manière extrêmement rapide sur de grands volumes de données, évitant ainsi l'utilisation de boucles `for` lentes et inefficaces.
-
----
 
 ### Ajout d'une colonne calculée (vectorisation)
 
@@ -98,15 +96,12 @@ df_ordonne = df[['Produit', 'Quantite', 'Prix_HT', 'Prix_TTC', 'Total']]
 print(df_ordonne.head())
 
 ```
----
 
 ## Travailler sur les lignes : filtrage, ajout et suppression
 
 La manipulation des lignes permet de sélectionner, d'ajouter ou de supprimer des enregistrements spécifiques au sein d'un `DataFrame`.
 
 Le filtrage repose généralement sur des **conditions booléennes** (ou masques booléen) : Pandas évalue chaque ligne selon un critère pour ne conserver que celles qui remplissent la condition (`True`). Cette approche évite également les boucles itératives inefficaces grâce à la vectorisation.
-
----
 
 ### Filtrage simple avec une condition booléenne
 
@@ -162,7 +157,6 @@ df_nettoye = df.drop(index=[0, 3])
 print(df_nettoye)
 
 ```
----
 
 ## Travailler sur les labels et index
 
@@ -174,7 +168,6 @@ Manipuler les étiquettes et l'index permet d'organiser vos données selon un **
 * **Recherche et accès sémantique** ultra-rapides et précis.
 * **Flexibilité** pour restructurer la table à la volée.
 
----
 
 ### Définir une colonne existante comme index (`set_index`)
 
@@ -228,7 +221,6 @@ employe_specifique = df_indexe.loc['EMP02']
 print(employe_specifique)
 
 ```
----
 
 ## Extraction de données : `.loc` vs `.iloc`
 
@@ -305,8 +297,6 @@ print("Villes des étudiants avec un score > 80 :\n", villes_bons_scores)
 
 ```
 
----
-
 ## Exemple de synthèse
 
 Gestion et analyse d'un catalogue de produits. Ce script de synthèse met en œuvre un flux complet de manipulation de données avec Pandas, combinant toutes les techniques vues précédemment.
@@ -364,10 +354,8 @@ print("\nPremier produit (position 0) :\n", premier_produit[['Nom', 'Prix_TTC']]
 * **Sémantique** : Utilisez `.set_index()` pour remplacer les numéros de lignes par des identifiants métiers significatifs.
 * **Requêtes** : Utilisez `.loc` lorsque vous connaissez les étiquettes et `.iloc` lorsque vous travaillez sur des positions numériques.
 
---- 
-
 ## Exercices de fin de chapitre
 
-**Exercice 1** Importez un petit fichier CSV de votre choix et affichez les noms des colonnes à l'aide de l'attribut approprié.
+**Exercice 1 :** Importez un petit fichier CSV de votre choix et affichez les noms des colonnes à l'aide de l'attribut approprié.
 
-**Exercice 2** Créez un DataFrame à partir d'un dictionnaire, puis utilisez `.iloc` pour extraire uniquement la première colonne de toutes les lignes.
+**Exercice 2 :** Créez un DataFrame à partir d'un dictionnaire, puis utilisez `.iloc` pour extraire uniquement la première colonne de toutes les lignes.
