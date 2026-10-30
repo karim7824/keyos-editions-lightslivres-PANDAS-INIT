@@ -375,7 +375,7 @@ df.info(memory_usage='deep')
 print(df.describe(include='all'))
 
 # Aperçu des 5 premières lignes
-print(dfc.head())
+print(df.head())
 
 ```
 
