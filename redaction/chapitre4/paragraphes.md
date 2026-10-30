@@ -214,7 +214,7 @@ print(matrice_brute)
 print(type(matrice_brute))  # Affiche : <class 'numpy.ndarray'>
 
 ```
----
+
 ## Gestion des données invalides (`NaN`)
 
 Les valeurs manquantes, représentées par `NaN` (Not a Number), sont fréquentes dans les jeux de données réels. Pandas propose des méthodes robustes pour identifier, supprimer ou remplacer ces valeurs afin d'éviter des erreurs lors de vos calculs.
@@ -415,7 +415,6 @@ import pandas as pd
 # df_Q1 = pd.read_excel('entreprise.xlsx', sheet_name='2026_Q1', skiprows=2, usecols="A:D")
 
 ```
----
 ## Exemple de synthèse
 
 ```python
