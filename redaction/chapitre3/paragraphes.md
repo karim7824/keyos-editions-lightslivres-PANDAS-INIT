@@ -116,6 +116,7 @@ print(stock_global)
 # dtype: float64
 
 ```
+
 ## Extraction et recherche de données
 
 L'une des grandes forces de Pandas réside dans la flexibilité de ses mécanismes d'extraction. Selon que vous souhaitez interroger vos données par leur **position numérique** (du premier au dernier élément) ou par leur **sémantique (leurs étiquettes)**, Pandas propose des outils dédiés et sécurisés : `.iloc`, `.loc`, ainsi que le découpage (`slicing`) classique.
