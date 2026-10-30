@@ -363,7 +363,6 @@ Points clés à retenir :
 * **La vectorisation** permet d'appliquer instantanément des calculs mathématiques globaux sans utiliser de boucles `for`.
 * **Le filtrage booléen** isole en une seule ligne les données répondant à un critère métier précis.
 
-```
 ## Exercices de fin de chapitre
 
 **Exercice 1 :** Gestion d'un catalogue de prix et conversion de types
