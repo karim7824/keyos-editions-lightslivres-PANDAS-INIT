@@ -12,8 +12,6 @@ Dans ce chapitre :
 * Exemple de synthèse
 * Exercices de fin de chapitre
 
----
-
 ## Architecture de Matplotlib : `Figure` et `Axes`
 
 Pour construire un graphique avec Matplotlib, il faut comprendre sa hiérarchie visuelle, reposant sur deux objets fondamentaux :
@@ -57,8 +55,6 @@ plt.show()
 
 ```
 
----
-
 ## Tracer un graphique simple : `plt.plot()`
 
 La fonction **`plt.plot()`** est la fonction universelle de Matplotlib pour tracer des graphiques linéaires ou des nuages de points reliés par des lignes. Elle accepte en arguments des listes ou des tableaux NumPy pour les coordonnées $X$ et $Y$.
@@ -94,8 +90,6 @@ plt.plot(x, y, color='forestgreen', linestyle='--', linewidth=2, marker='o', mar
 plt.show()
 
 ```
-
----
 
 ## Titres, étiquettes, légendes et styles
 
@@ -145,8 +139,6 @@ plt.ylabel("Valeur")
 plt.show()
 
 ```
-
----
 
 ## Plusieurs graphiques dans une figure : `plt.subplots()`
 
@@ -203,8 +195,6 @@ plt.show()
 
 ```
 
----
-
 ## Enregistrer une figure
 
 Une fois le graphique mis en forme, il est souvent nécessaire de l'exporter sous forme de fichier image (PNG, JPG) ou de format vectoriel haute qualité (PDF, SVG) pour l'insérer dans un rapport ou un e-book. On utilise pour cela la méthode **`plt.savefig()`**.
@@ -244,8 +234,6 @@ plt.close()
 
 ```
 
----
-
 ## Exemple de synthèse
 
 Ce script complet rassemble l'ensemble des notions de Pyplot abordées dans ce chapitre : création d'une figure structurée, génération d'une grille multi-axes (`plt.subplots`), personnalisation des styles, ajout de légendes et exportation finale sur disque.
@@ -284,8 +272,6 @@ plt.savefig("tableau_de_bord_marketing.png", dpi=300, bbox_inches='tight')
 plt.show()
 
 ```
-
----
 
 ## Exercices de fin de chapitre
 
