@@ -1,6 +1,6 @@
 # Chapitre 15 : Visualisation de données avec Pandas (`df.plot()`)
 
-L'analyse de données complexes nécessite souvent de manipuler des dimensions supplémentaires au-delà du simple tableau bidimensionnel. Ce chapitre vous présente les Panel Data et l'utilisation des MultiIndex pour structurer vos informations de manière hiérarchique et précise.
+Ce chapitre vous guide à travers les techniques de visualisation de données en Python, combinant la simplicité d'utilisation de la méthode df.plot() de Pandas avec la puissance graphique de Matplotlib et de Seaborn.
 
 Dans ce chapitre :
 
@@ -296,7 +296,7 @@ import seaborn as sns
 # Application d'un thème Seaborn moderne pour les graphiques statistiques
 sns.set_theme(style="whitegrid")
 
-# 1. Préparation d'un DataFrame de synthèse (ventes e-commerce)
+# Préparation d'un DataFrame de synthèse (ventes e-commerce)
 np.random.seed(42)
 dates = pd.date_range(start='2026-10-01', periods=30, freq='D')
 df_synthese = pd.DataFrame({
@@ -312,7 +312,7 @@ df_synthese['CA_Journalier'] = df_synthese['Panier_Moyen'] * df_synthese['Volume
 print("--- 1. Aperçu des données de synthèse ---")
 print(df_synthese.head())
 
-# 2. Utilisation de Pandas (df.plot) pour un aperçu rapide du CA journalier
+# Utilisation de Pandas (df.plot) pour un aperçu rapide du CA journalier
 plt.figure(figsize=(10, 4))
 df_synthese.set_index('Date')['CA_Journalier'].plot(
     kind='line', 
@@ -324,7 +324,7 @@ df_synthese.set_index('Date')['CA_Journalier'].plot(
 plt.ylabel("Euros (€)")
 plt.show()
 
-# 3. Utilisation de Matplotlib (plt.subplots) pour une figure multi-axes avancée
+# Utilisation de Matplotlib (plt.subplots) pour une figure multi-axes avancée
 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4))
 
 # Graphique 1 : Nuage de points (Prix vs Volume)
@@ -342,7 +342,7 @@ ax2.set_ylabel("Fréquence")
 plt.tight_layout()
 plt.show()
 
-# 4. Utilisation de Seaborn (sns) pour analyser la répartition par canal de vente
+# Utilisation de Seaborn (sns) pour analyser la répartition par canal de vente
 plt.figure(figsize=(8, 4))
 sns.boxplot(
     data=df_synthese, 
@@ -358,7 +358,44 @@ plt.show()
 ```
 ## Exercices de fin de chapitre
 
-**Exercice 1 :** Créez un DataFrame avec un `MultiIndex` comportant deux niveaux : "Ville" et "Mois", et remplissez-le avec des données de température fictives.
+**Exercice 1 :** Création d'un graphique linéaire multi-courbes et habillage personnalisé
 
-**Exercice 2 :** Utilisez `.loc` pour extraire toutes les données relatives à une seule ville de votre DataFrame hiérarchisé.
+Vous suivez l'évolution mensuelle des ventes de deux produits phares d'une entreprise au cours du premier semestre 2026. Vous devez représenter ces tendances sur un même graphique en veillant à soigner l'habillage visuel.
+
+À l'aide de Pandas, créez un `DataFrame` nommé `df_suivi` contenant les données suivantes, avec les mois comme index :
+* **`Mois`** : `['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin']`
+* **`Produit_A`** : `[1200, 1350, 1500, 1420, 1600, 1750]`
+* **`Produit_B`** : `[900, 1100, 1050, 1300, 1450, 1600]`
+Définissez la colonne `'Mois'` comme index du DataFrame.
+Utilisez la méthode `.plot()` pour tracer ces deux séries sous forme de graphique linéaire (`kind='line'`).
+Personnalisez le graphique en ajoutant :
+* Une dimension physique de `(8, 4)` via `figsize`.
+* Un titre explicite (ex: *"Comparatif des ventes - 1er semestre 2026"*).
+* Des libellés clairs sur les axes (`xlabel` et `ylabel`).
+* Une grille en pointillés (`plt.grid()`).
+
+
+---
+
+**Exercice 2 :** Génération d'une grille de graphiques multi-subplots
+
+La direction souhaite analyser simultanément plusieurs indicateurs de performance d'un site web (visites, conversions et taux de rebond) sur une semaine. Plutôt que de multiplier les figures séparées, vous devez concevoir un tableau de bord condensé.
+
+Créez un `DataFrame` nommé `df_dashboard` à l'aide de la structure suivante :
+```python
+import pandas as pd
+
+df_dashboard = pd.DataFrame({
+    'Date': pd.date_range(start='2026-10-01', periods=5, freq='D'),
+    'Visiteurs': [1200, 1450, 1300, 1600, 1850],
+    'Conversions': [45, 60, 52, 70, 85],
+    'Taux_Rebond': [0.45, 0.42, 0.48, 0.39, 0.35]
+}).set_index('Date')
+
+```
+
+Utilisez la méthode `.plot()` en combinant les arguments **`subplots=True`** et **`layout=(2, 2)`** pour répartir les métriques dans une grille de sous-graphiques.
+Ajustez les dimensions globales à `(10, 6)`, activez le partage de l'axe horizontal (`share=True`), et ajoutez des marqueurs sur les points (`marker='o'`).
+Ajoutez un titre global à la figure (`plt.suptitle(...)`) et utilisez `plt.tight_layout()` pour éviter tout chevauchement avant d'afficher le résultat.
+
 
