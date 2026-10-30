@@ -322,7 +322,6 @@ print(statuts_bool)
 # dtype: bool
 
 ```
----
 ## Exemple de synthèse
 
 ```python
