@@ -14,8 +14,6 @@ Dans ce chapitre :
 * Exemple de synthèse
 * Exercices de fin de chapitre
 
----
-
 ## Présentation du jeu de données et des questions métier
 
 Pour mener une analyse pertinente, il est indispensable de définir clairement le contexte et les objectifs avant d'écrire la moindre ligne de code.
@@ -54,8 +52,6 @@ df_brut.info(memory_usage='deep')
 
 ```
 
----
-
 ## Nettoyage et préparation
 
 Les données brutes comportent souvent des imperfections : espaces superflus dans les noms de pays, valeurs manquantes ou types de données mal interprétés. Nous allons nettoyer ce jeu de données.
@@ -82,8 +78,6 @@ print("--- Données après nettoyage ---")
 print(df_propre.head())
 
 ```
-
----
 
 ## Agrégations et croisements
 
@@ -115,8 +109,6 @@ print(tableau_medailles.head(5))
 
 ```
 
----
-
 ## Visualisation et restitution des résultats
 
 Pour valoriser les résultats auprès des équipes métiers, nous traduisons ce tableau de synthèse en un graphique visuel clair et soigné à l'aide de l'écosystème Matplotlib/Pandas.
@@ -147,7 +139,6 @@ plt.show()
 
 ```
 
----
 
 ## Exemple de synthèse 
 
@@ -184,8 +175,6 @@ def executer_etude_cas(chemin_fichier):
 * **Méthodologie rigoureuse** : Toujours suivre les étapes séquentielles (Inspection $\rightarrow$ Nettoyage $\rightarrow$ Transformation $\rightarrow$ Restitution).
 * **Sécurité des types** : L'utilisation de `.astype('category')` et du typage date sécurise les calculs futurs et allège l'empreinte mémoire.
 * **Clarté de la restitution** : Un graphique propre doté d'un habillage explicite (titres, axes, légende) transforme des chiffres bruts en un outil d'aide à la décision percutant.
-
----
 
 ## Exercices de fin de chapitre
 
