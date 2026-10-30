@@ -55,7 +55,6 @@ df_multi_tri = df.sort_values(
 print(df_multi_tri)
 
 ```
----
 ## Itération sur les lignes et modification
 
 Bien que l'itération manuelle soit moins performante que les méthodes vectorisées, elle permet de modifier des lignes complexes individuellement. On utilise généralement `iterrows()` pour parcourir les lignes une par une.
@@ -247,8 +246,6 @@ print(f"Produit le plus performant (en CA) : {produit_phare}")
 
 * **`.agg()`** permet d'appliquer des fonctions statistiques différentes par colonne en une seule passe (par exemple, calculer la moyenne et les extrêmes sur les prix, mais la somme sur les quantités et les totaux).
 * **`idxmax()`** permet de récupérer l'index de la ligne ayant la valeur maximale dans une colonne donnée, ce qui est idéal pour identifier dynamiquement le meilleur produit sans avoir à trier tout le DataFrame.
-
----
 
 ## Exercices de fin de chapitre
 
