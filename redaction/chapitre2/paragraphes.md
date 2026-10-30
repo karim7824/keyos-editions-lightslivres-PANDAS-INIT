@@ -363,13 +363,13 @@ print(jours_succes)
 # Inspection globale : Résumé statistique de la semaine
 print("\n--- 5. Résumé statistique global du CA ---")
 print(chiffre_affaires.describe())
-```[cite: 1]
+```
 
 Points clés à retenir :
-* **L'indexation sémantique et temporelle** permet de manipuler les données par date de manière intuitive[cite: 1].
-* **L'alignement automatique et `.reindex()`** évitent les erreurs lors de la manipulation de séries asymétriques ou incomplètes[cite: 1].
-* **La vectorisation** permet d'appliquer instantanément des calculs mathématiques globaux sans utiliser de boucles `for`[cite: 1].
-* **Le filtrage booléen** isole en une seule ligne les données répondant à un critère métier précis[cite: 1].
+* **L'indexation sémantique et temporelle** permet de manipuler les données par date de manière intuitive.
+* **L'alignement automatique et `.reindex()`** évitent les erreurs lors de la manipulation de séries asymétriques ou incomplètes.
+* **La vectorisation** permet d'appliquer instantanément des calculs mathématiques globaux sans utiliser de boucles `for`.
+* **Le filtrage booléen** isole en une seule ligne les données répondant à un critère métier précis.
 
 ```
 ## Exercices de fin de chapitre
