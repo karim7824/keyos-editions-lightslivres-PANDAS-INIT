@@ -1,6 +1,6 @@
-# Chapitre 1 : Rappel NumPy 
+# Chapitre 1 : Rappel NumPy
 
-Avant d'explorer la puissance des structures de Pandas (`Series` et `DataFrame`), il est indispensable de maîtriser **NumPy** (*Numerical Python*). Pandas n'est pas une bibliothèque indépendante : elle est entièrement construite sur le moteur mathématique de NumPy. Comprendre comment NumPy stocke, manipule et calcule les données en mémoire, c'est comprendre ce qui se passe "sous le capot" de Pandas.
+Avant d'explorer la puissance des structures de Pandas (`Series` et `DataFrame`), il est indispensable de maîtriser **NumPy**. Pandas n'est pas une bibliothèque indépendante : elle est entièrement construite sur le moteur mathématique de NumPy. Comprendre comment NumPy stocke, manipule et calcule les données en mémoire, c'est comprendre ce qui se passe "sous le capot" de Pandas.
 
 Dans ce chapitre :
 
@@ -12,8 +12,6 @@ Dans ce chapitre :
 * Valeurs manquantes : `np.nan` et ses pièges
 * Exemple de synthèse
 * Exercices de fin de chapitre
-
----
 
 ## Pourquoi NumPy pour comprendre Pandas ?
 
@@ -134,8 +132,7 @@ tarifs = np.array([
 # Un vecteur de frais de port fixes par produit (3 valeurs)
 frais_port = np.array([5, 10, 15])
 
-# Grâce au broadcasting, NumPy "étire" automatiquement le vecteur pour l'additionner ligne par ligne
-# Attention : les dimensions doivent être compatibles
+# Grâce au broadcasting, NumPy "étire" automatiquement le vecteur pour l'additionner ligne par ligne, les dimensions doivent être compatibles
 tarifs_avec_port = tarifs + frais_port[:, np.newaxis] 
 print("Tarifs avec frais de port :\n", tarifs_avec_port)
 
