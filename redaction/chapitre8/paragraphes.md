@@ -15,8 +15,6 @@ Dans ce chapitre :
 * Exemple de synthèse :
 * Exercices de fin de chapitre
 
----
-
 ## Détecter les données invalides (`NaN`, `isna()`, `notna()`)
 
 Avant de corriger des anomalies, il faut savoir les localiser. Dans Pandas, les valeurs manquantes ou non définies sont représentées par l'indicateur universel **`NaN`** (Not a Number).
@@ -62,8 +60,6 @@ anomalies_par_colonne = df_catalogue.isna().sum()
 print("Nombre de valeurs manquantes par colonne :\n", anomalies_par_colonne)
 
 ```
-
----
 
 ## Traiter les valeurs manquantes : `fillna()`, `dropna()`, `interpolate()`
 
@@ -112,8 +108,6 @@ print(temperatures_propres)
 
 ```
 
----
-
 ## Détecter et supprimer les doublons : `duplicated()`, `drop_duplicates()`
 
 Les doublons faussent les analyses statistiques et les agrégations. Pandas permet de les identifier facilement et de les éliminer.
@@ -152,8 +146,6 @@ df_clients_uniques = df_clients.drop_duplicates(subset=['ID_Client'])
 print("\nAprès nettoyage basé sur l'ID_Client :\n", df_clients_uniques)
 
 ```
-
----
 
 ## Repérer les valeurs aberrantes (Outliers)
 
@@ -194,8 +186,6 @@ salaires_filtres = salaires[(salaires >= seuil_bas) & (salaires <= seuil_haut)]
 print("Salaires nettoyés des valeurs extrêmes :\n", salaires_filtres)
 
 ```
-
----
 
 ## Nettoyer les chaînes de caractères avec l'accesseur `.str`
 
@@ -239,8 +229,6 @@ print(df_factures)
 print("Type de la nouvelle colonne :", df_factures['Montant_Numerique'].dtype)
 
 ```
-
----
 
 ## Le type `category` : gain de mémoire et de performance
 
@@ -292,8 +280,6 @@ print("\n--- Empreinte mémoire optimisée (category) ---")
 df_grand.info(memory_usage='deep')
 
 ```
-
----
 
 ## Exemple de synthèse :
 
