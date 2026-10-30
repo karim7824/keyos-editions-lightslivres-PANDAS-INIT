@@ -223,7 +223,7 @@ print(df_catalogue)
 # A. Format CSV (Idéal pour la bureautique et Excel en France)
 # -> index=False évite d'exporter la colonne d'index technique (0, 1, 2)
 # -> sep=';' et utf-8-sig garantissent un affichage parfait sous Excel
-df_catalogue.to_csv('catalogue.csv', index=False, sep=;', encoding='utf-8-sig')
+df_catalogue.to_csv('catalogue.csv', index=False, sep=';', encoding='utf-8-sig')
 
 # B. Format JSON (Idéal pour le Web, les API et NoSQL)
 # -> orient='records' structure chaque ligne comme un objet indépendant
