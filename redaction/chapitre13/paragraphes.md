@@ -12,8 +12,6 @@ Dans ce chapitre :
 * Exemple de synthèse : Analyse multidimensionnelle e-commerce
 * Exercices de fin de chapitre
 
----
-
 ## Introduction aux Panel Data
 
 Les **Panel Data** (ou données de panel) combinent des données longitudinales (temporelles) et transversales (cross-sectional). Elles permettent de suivre plusieurs entités (par exemple, des magasins, des pays ou des produits) sur plusieurs périodes de temps (jours, mois, années).
@@ -68,8 +66,6 @@ print(df_panel_long)
 
 ```
 
----
-
 ## Utilisation du `MultiIndex`
 
 Le **`MultiIndex`** (ou index hiérarchique) permet d'associer plusieurs index à une même ligne ou à une même colonne. Il transforme un DataFrame bidimensionnel classique en une structure capable de représenter 3 dimensions ou plus.
@@ -115,8 +111,6 @@ df_meteo = pd.DataFrame({
 print(df_meteo)
 
 ```
-
----
 
 ## Sélection et tri sur un `MultiIndex`
 
@@ -170,8 +164,6 @@ print(df_trie)
 
 ```
 
----
-
 ## Tableaux croisés : `pivot()`, `pivot_table()` et `crosstab()`
 
 Pour réorganiser des tableaux de données plates en matrices de synthèse croisées, Pandas propose trois fonctions majeures adaptées à des cas d'usage précis.
@@ -216,8 +208,6 @@ matrice_frequence = pd.crosstab(df_commandes['Canal'], df_commandes['Type_Client
 print(matrice_frequence)
 
 ```
-
----
 
 ## Remodeler les données : `stack()`, `unstack()` et `melt()`
 
@@ -270,8 +260,6 @@ df_fondu = df_trimestres.melt(
 print(df_fondu)
 
 ```
-
----
 
 ## Exemple de synthèse : Analyse multidimensionnelle e-commerce
 
