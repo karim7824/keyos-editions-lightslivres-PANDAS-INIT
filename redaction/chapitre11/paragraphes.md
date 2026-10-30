@@ -10,8 +10,6 @@ Dans ce chapitre :
 * Exemple de synthèse
 * Exercices de fin de chapitre
 
----
-
 ## Concaténation de structures
 
 La fonction `concat` permet d'assembler des DataFrames ou des Séries les uns aux autres, soit verticalement (en ajoutant des lignes), soit horizontalement (en ajoutant des colonnes). C'est l'outil idéal pour regrouper des jeux de données de structure identique.
@@ -20,8 +18,6 @@ Le principe de base de `pd.concat()`. Contrairement aux jointures complexes (`pd
 
 * **`axis=0`** (Vertical) : On ajoute des **lignes** (les DataFrames ont les mêmes colonnes mais des périodes ou des sources différentes).
 * **`axis=1`** (Horizontal) : On ajoute des **colonnes** (les DataFrames partagent le même index mais apportent des informations différentes).
-
----
 
 ### Concaténation verticale (`axis=0`) : Empiler des lignes
 
@@ -60,8 +56,6 @@ print(catalogue_propre)
 
 ```
 
----
-
 ### Concaténation horizontale (`axis=1`) : Juxtaposer des colonnes
 
 Plus rare, cette opération permet d'associer deux tableaux qui partagent exactement le même index (par exemple, un tableau de prix d'un côté et un tableau de stocks de l'autre).
@@ -85,14 +79,8 @@ print(df_complet)
 
 ```
 
----
-
 * **`pd.concat([df1, df2], axis=0)`** $\rightarrow$ **Vertical (V)** : On empile les lignes. Idéal pour concaténer des fichiers mensuels ou des historiques. Pense à `ignore_index=True` pour nettoyer l'index.
 * **`pd.concat([df1, df2], axis=1)`** $\rightarrow$ **Horizontal (H)** : On met les tableaux côte à côte en se basant sur l'index commun.
-
-
-
----
 
 ## `pd.merge()` : Le couteau suisse des jointures (Basé sur des colonnes ou des clés)
 
@@ -144,8 +132,6 @@ print(df_gauche)
 
 ```
 
----
-
 ## La méthode `.join()` : Le spécialiste des index
 
 Alors que `pd.merge()` cherche des colonnes, la méthode `.join()` est conçue pour fusionner des DataFrames **directement via leurs index**. C'est une écriture plus courte et élégante lorsque les données sont déjà indexées par la même clé (par exemple, un identifiant client ou une date).
@@ -170,19 +156,14 @@ print(df_catalogue_complet)
 
 ```
 
----
-
 ## Exemple de synthèse
 
-### Le Scénario Global : La Cuisine des Données
-
-Imaginons que tu gères les données d'une boutique informatique. Tes sources sont éparpillées :
+Imaginons que tu gères les données d'une boutique informatique. Tes sources sont éparpillées 
 
 Les ventes de janvier et de février proviennent de fichiers distincts $\rightarrow$ **On les empile (`concat`).**
 Le catalogue des produits doit être enrichi avec les coordonnées des fournisseurs via une référence commune $\rightarrow$ **On les croise (`merge`).**
 Les tableaux de prix et de stocks partagent exactement la même référence produit en index $\rightarrow$ **On les fusionne (`join`).**
 
----
 
 ### `pd.concat()` : Empiler les historiques (Vertical)
 
@@ -210,8 +191,6 @@ print(historique_ventes)
 
 ```
 
----
-
 ### `pd.merge()` : Relier des tables par colonnes (Relationnel)
 
 * **Objectif :** Croiser des informations hétérogènes grâce à une **clé commune** (ex: ID Produit ou Code Fournisseur).
@@ -237,8 +216,6 @@ print(bilan_fournisseurs)
 
 ```
 
----
-
 ### `.join()` : Fusionner des tables indexées
 
 * **Objectif :** Assembler rapidement deux tables qui partagent **exactement le même index** (sans avoir à spécifier de colonnes de jointure).
@@ -260,8 +237,6 @@ print("\n--- JOIN (Fusion par index) ---")
 print(catalogue_complet)
 
 ```
-
----
 
 ### Bilan synthétique pour le manuel
 
