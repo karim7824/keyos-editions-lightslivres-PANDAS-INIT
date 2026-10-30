@@ -9,8 +9,6 @@ Dans ce chapitre :
 * Exemple de synthèse
 * Exercices de fin de chapitre
 
----
-
 ## Opérations arithmétiques et alignement automatique
 
 Contrairement aux tableaux NumPy ou aux listes Python classiques qui s'appuient uniquement sur la position des éléments, Pandas effectue toutes ses opérations arithmétiques **en s'appuyant sur les index (les étiquettes)**.
@@ -26,8 +24,6 @@ Cette fonctionnalité majeure, appelée **alignement automatique**, garantit que
 | **Multiplication** | `*` | `.mul()` | Multiplie les éléments correspondants |
 | **Division** | `/` | `.div()` | Divise les éléments correspondants |
 | **Puissance** | `**` | `.pow()` | Élève à la puissance |
-
----
 
 ### Opération avec un scalaire (Broadcasting)
 
@@ -120,8 +116,6 @@ print(stock_global)
 # dtype: float64
 
 ```
----
-
 ## Extraction et recherche de données
 
 L'une des grandes forces de Pandas réside dans la flexibilité de ses mécanismes d'extraction. Selon que vous souhaitez interroger vos données par leur **position numérique** (du premier au dernier élément) ou par leur **sémantique (leurs étiquettes)**, Pandas propose des outils dédiés et sécurisés : `.iloc`, `.loc`, ainsi que le découpage (`slicing`) classique.
@@ -223,8 +217,6 @@ print(villes_peuplees)
 # dtype: float64
 
 ```
---- 
-
 ## Travailler avec les index d'une `Series`
 
 L'index d'une `Series` ne se contente pas d'étiqueter les données : c'est un véritable outil de pilotage. Il est possible de le modifier, de le renommer partiellement, de réindexer la série ou d'extraire des sous-ensembles ciblés pour adapter la structure de vos données en cours d'analyse.
@@ -296,7 +288,6 @@ print(subset)
 # dtype: int64
 
 ```
----
 
 ## Transformation des valeurs d'une `Series`
 
@@ -385,8 +376,6 @@ print(saisons)
 
 ```
 
---- 
-
 ## Exemple de synthèse 
 
 Pour illustrer la puissance combinée des fonctionnalités de base des `Series`, imaginons le suivi du chiffre d'affaires journalier d'un site e-commerce sur une semaine. Ce script complet montre comment structurer, nettoyer, transformer et analyser ces données de bout en bout :
@@ -436,8 +425,6 @@ print(chiffre_affaires.describe())
 * **L'alignement automatique et `.reindex()**` évitent les erreurs lors de la manipulation de séries asymétriques ou incomplètes.
 * **La vectorisation** permet d'appliquer instantanément des calculs mathématiques globaux sans utiliser de boucles `for`.
 * **Le filtrage booléen** isole en une seule ligne les données répondant à un critère métier précis.
-
---- 
 
 ## Exercices de fin de chapitre
 
